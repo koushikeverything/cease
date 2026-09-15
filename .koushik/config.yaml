@@ -1,0 +1,21 @@
+# koushik project configuration — never store secrets here
+# Created by /koushik:setup on 2026-09-15
+
+# Agent-native level (see koushik references/lifecycle.md):
+#   1 = files/tests/git · 2 = + browser, local logs, PRs · 3 = + read-only prod logs · 4 = + tickets/deploy
+agent_native_level: 2
+agent_native_evidence:
+  - "git available (repo initialized 2026-09-15)"
+  - "node 25.8.0, pnpm present"
+  - "gh 2.87.3 authenticated — PR workflow available"
+  - "in-app browser available — test-drive of web surfaces possible"
+  - "vercel CLI present but not linked to a deployment target (no eve link) — deploy not yet unlocked"
+  - "no production logs/monitoring access detected"
+
+# Every's compound-engineering plugin interop (optional either way)
+ce_interop: optional   # not detected — koushik runs standalone
+
+# docs_root: docs   # default; uncomment and change only if artifacts are relocated
+
+tracker: docs/tracker.html
+tracker_url: https://claude.ai/artifact/JQbWsbHHjUEAYr2HqUvRus

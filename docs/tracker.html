@@ -1,0 +1,293 @@
+<title>CEASE Tracker</title>
+<style>
+  :root {
+    --ground: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface-2: #EFECE4;
+    --ink: #211F1A;
+    --muted: #6F6A5F;
+    --line: #DDD8CC;
+    --accent: #8A2A1E;
+    --accent-soft: #F3E4E1;
+    --done: #2E6B4F;
+    --done-soft: #E3EEE8;
+    --wait: #8A6D1F;
+    --wait-soft: #F4ECD6;
+    color-scheme: light dark;
+  }
+  :root:not([data-theme="light"]) { }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #171613;
+      --surface: #201F1B;
+      --surface-2: #2A2823;
+      --ink: #ECE9E1;
+      --muted: #A39D8F;
+      --line: #3A372F;
+      --accent: #D4604F;
+      --accent-soft: #3A2622;
+      --done: #6FBF97;
+      --done-soft: #22332B;
+      --wait: #D9B558;
+      --wait-soft: #35301F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #171613;
+    --surface: #201F1B;
+    --surface-2: #2A2823;
+    --ink: #ECE9E1;
+    --muted: #A39D8F;
+    --line: #3A372F;
+    --accent: #D4604F;
+    --accent-soft: #3A2622;
+    --done: #6FBF97;
+    --done-soft: #22332B;
+    --wait: #D9B558;
+    --wait-soft: #35301F;
+  }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding-block: 0 64px;
+    padding-inline: 20px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
+
+  header { padding-block: 44px 28px; border-bottom: 3px solid var(--ink); }
+  .brand {
+    font-size: 40px; font-weight: 800; letter-spacing: 0.14em;
+    line-height: 1.1; text-wrap: balance;
+  }
+  .brand .stop { color: var(--accent); }
+  .promise { margin-top: 10px; max-width: 60ch; color: var(--muted); }
+  .statusline { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 18px; }
+  .status-word {
+    background: var(--ink); color: var(--ground);
+    padding: 4px 14px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; font-size: 13px;
+  }
+  .progress { color: var(--muted); font-size: 14px; }
+
+  h2 {
+    font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin: 44px 0 16px; font-weight: 700;
+  }
+  h2 .n { color: var(--accent); margin-right: 8px; }
+
+  /* Stage rail */
+  .phase-label {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin: 18px 0 6px 44px; font-weight: 700;
+  }
+  .rail { list-style: none; margin: 0; padding: 0; }
+  .stage {
+    display: grid; grid-template-columns: 32px 1fr; gap: 12px;
+    position: relative; padding-block: 5px;
+  }
+  .stage::before {
+    content: ""; position: absolute; left: 15px; top: 0; bottom: 0;
+    width: 2px; background: var(--line);
+  }
+  .node {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; position: relative; z-index: 1;
+    background: var(--surface); border: 2px solid var(--line); color: var(--muted);
+  }
+  .stage.current .node { background: var(--accent); border-color: var(--accent); color: #FFF; }
+  .stage.done .node { background: var(--done); border-color: var(--done); color: #FFF; }
+  .stage-body { padding-top: 4px; }
+  .stage-name { font-weight: 600; }
+  .stage.current .stage-name { color: var(--accent); }
+  .stage-note { font-size: 14px; color: var(--muted); max-width: 62ch; }
+  .now-tag {
+    display: inline-block; background: var(--accent-soft); color: var(--accent);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 3px; margin-left: 8px; vertical-align: 2px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 18px 20px; margin-bottom: 14px;
+  }
+  .card.decision { border-left: 4px solid var(--wait); }
+  .card.built { border-left: 4px solid var(--done); }
+  .card h3 { margin: 0 0 6px; font-size: 17px; }
+  .card p { margin: 8px 0; }
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 6px 14px; font-size: 14px; margin-top: 12px; }
+  .kv dt { color: var(--muted); font-weight: 600; }
+  .kv dd { margin: 0; }
+  @media (max-width: 560px) { .kv { grid-template-columns: 1fr; gap: 2px; } .kv dt { margin-top: 8px; } }
+  .type-chip {
+    display: inline-block; font-size: 12px; font-weight: 700;
+    background: var(--surface-2); padding: 2px 10px; border-radius: 3px; margin-left: 8px;
+  }
+  details.tech { margin-top: 10px; font-size: 14px; }
+  details.tech summary { cursor: pointer; color: var(--muted); }
+  details.tech code { background: var(--surface-2); padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+  .empty {
+    border: 1px dashed var(--line); padding: 18px 20px; color: var(--muted);
+    background: transparent; font-size: 15px;
+  }
+
+  /* Next */
+  .next {
+    background: var(--ink); color: var(--ground); padding: 22px 24px;
+  }
+  .next h3 { margin: 0 0 8px; font-size: 18px; }
+  .next .cmd {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--accent); color: #FFF; padding: 3px 10px; border-radius: 3px;
+    font-size: 15px; white-space: nowrap;
+  }
+  .next p { margin: 10px 0 0; opacity: 0.85; font-size: 15px; }
+  .next ol { margin: 10px 0 0; padding-left: 20px; opacity: 0.85; font-size: 15px; }
+
+  /* Command guide */
+  details.guide { border: 1px solid var(--line); background: var(--surface); }
+  details.guide > summary {
+    cursor: pointer; padding: 14px 20px; font-weight: 600; list-style: none;
+  }
+  details.guide > summary::before { content: "▸ "; color: var(--accent); }
+  details.guide[open] > summary::before { content: "▾ "; }
+  .guide-inner { padding: 0 20px 18px; }
+  .guide-group { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin: 16px 0 6px; }
+  .guide-row { display: grid; grid-template-columns: 190px 1fr; gap: 12px; padding: 5px 0; font-size: 14px; border-top: 1px solid var(--line); }
+  .guide-row.hot { background: var(--accent-soft); margin-inline: -8px; padding-inline: 8px; }
+  .guide-row code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  .guide-row span { color: var(--muted); }
+  @media (max-width: 560px) { .guide-row { grid-template-columns: 1fr; gap: 2px; } }
+
+  footer {
+    margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--muted);
+  }
+  footer a { color: var(--muted); }
+  a { color: var(--accent); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">CEASE<span class="stop">.</span></div>
+    <p class="promise">Brand protection that starts inside your own stack — finding counterfeit evidence in your support inbox, payments, and ad accounts, then tracing it to the source and shutting it down. <em>(Promise drafted from the project spec; the strategy stage will make it official.)</em></p>
+    <div class="statusline">
+      <span class="status-word">Planning</span>
+      <span class="progress">Stage 1 of 15 · workshop is set up · about 4 planning stages, then the build loop, stand between here and a usable product</span>
+    </div>
+  </header>
+
+  <h2><span class="n">01</span>Where the project is</h2>
+  <ul class="rail">
+    <li class="phase-label">Defining</li>
+    <li class="stage current">
+      <div class="node mono">1</div>
+      <div class="stage-body">
+        <div class="stage-name">Idea<span class="now-tag">Now</span></div>
+        <div class="stage-note">A detailed spec for CEASE exists (inside-out brand protection for e-commerce brands). The workspace was just prepared. Next: turn the idea into an official strategy with <code>/koushik:strategy</code>.</div>
+      </div>
+    </li>
+    <li class="stage"><div class="node mono">2</div><div class="stage-body"><div class="stage-name">Strategy</div><div class="stage-note">Who it's for, the promise, hard boundaries, how success is measured.</div></div></li>
+    <li class="stage"><div class="node mono">3</div><div class="stage-body"><div class="stage-name">Requirements</div><div class="stage-note">Exact user journeys, behaviors, and what's deliberately excluded.</div></div></li>
+    <li class="stage"><div class="node mono">4</div><div class="stage-body"><div class="stage-name">Architecture</div><div class="stage-note">How the agent will be built: capabilities, safety boundaries, memory.</div></div></li>
+    <li class="stage"><div class="node mono">5</div><div class="stage-body"><div class="stage-name">Plan</div><div class="stage-note">The build broken into ordered, testable units of work.</div></div></li>
+    <li class="phase-label">Building</li>
+    <li class="stage"><div class="node mono">6</div><div class="stage-body"><div class="stage-name">Build</div><div class="stage-note">Code, agent instructions, and tests written unit by unit.</div></div></li>
+    <li class="stage"><div class="node mono">7</div><div class="stage-body"><div class="stage-name">Simplify</div><div class="stage-note">Remove accidental complexity before anything is judged.</div></div></li>
+    <li class="phase-label">Checking</li>
+    <li class="stage"><div class="node mono">8</div><div class="stage-body"><div class="stage-name">Review</div><div class="stage-note">Specialist reviewers check correctness, safety, and reliability.</div></div></li>
+    <li class="stage"><div class="node mono">9</div><div class="stage-body"><div class="stage-name">Evals</div><div class="stage-note">Automated behavioral tests must pass before anything ships.</div></div></li>
+    <li class="stage"><div class="node mono">10</div><div class="stage-body"><div class="stage-name">Test drive</div><div class="stage-note">The product is used end-to-end, the way a real customer would.</div></div></li>
+    <li class="phase-label">Shipping</li>
+    <li class="stage"><div class="node mono">11</div><div class="stage-body"><div class="stage-name">Ready to merge</div><div class="stage-note">A reviewed package of changes, waiting for your approval.</div></div></li>
+    <li class="stage"><div class="node mono">12</div><div class="stage-body"><div class="stage-name">Merged</div><div class="stage-note">You accept the changes — always your call, never automatic.</div></div></li>
+    <li class="stage"><div class="node mono">13</div><div class="stage-body"><div class="stage-name">Deployed</div><div class="stage-note">Live in production, with a rollback path.</div></div></li>
+    <li class="phase-label">Running live</li>
+    <li class="stage"><div class="node mono">14</div><div class="stage-body"><div class="stage-name">Observed</div><div class="stage-note">Real usage measured against the strategy's definition of success.</div></div></li>
+    <li class="stage"><div class="node mono">15</div><div class="stage-body"><div class="stage-name">Compounded</div><div class="stage-note">Lessons preserved so the next round of work starts smarter.</div></div></li>
+  </ul>
+
+  <h2><span class="n">02</span>Waiting on you</h2>
+  <p style="margin-top:-6px; color:var(--muted); font-size:15px;">Nothing blocks progress right now. One optional choice is open:</p>
+  <div class="card decision">
+    <h3>Create an online home for the code (GitHub)?</h3>
+    <dl class="kv">
+      <dt>What it means</dt><dd>Publish this project to a GitHub repository — an online backup where change proposals can later be reviewed and approved.</dd>
+      <dt>Why now</dt><dd>Setup offers it once; it is never created without your say-so. The code currently lives only on this computer.</dd>
+      <dt>Impact</dt><dd>No cost. Protects against data loss and unlocks the "ready to merge" stage later. Skipping it changes nothing until then.</dd>
+      <dt>Recommendation</dt><dd>Yes, when convenient — it can be private. Not needed before the strategy stage, so it doesn't hold anything up.</dd>
+      <dt>Reversibility</dt><dd>Fully reversible — the repository can be made private or deleted at any time.</dd>
+      <dt>What happens next</dt><dd>Say "create the GitHub repo" in chat and it is connected in under a minute.</dd>
+    </dl>
+  </div>
+
+  <h2><span class="n">03</span>What's been built</h2>
+  <div class="card built">
+    <h3>Workshop prepared <span class="type-chip">✅ checking · 🗂 planning</span></h3>
+    <p><strong>What happened:</strong> the computer was checked for everything needed to build safely (all present), a version history was started for the project (so every change is recorded and undoable), the standard filing system for plans, reviews, and reports was created, and this tracker page went live.</p>
+    <p><strong>Why:</strong> every later stage writes its results into this structure, so decisions and evidence survive beyond any one conversation.</p>
+    <p><strong>Serves:</strong> the foundation for the whole CEASE product — nothing user-visible yet.</p>
+    <p style="color:var(--muted); font-size:14px;">Done by <code>/koushik:setup</code> · 2026-09-15</p>
+    <details class="tech">
+      <summary>Technical detail</summary>
+      <p><code>git init -b main</code> · created <code>docs/</code> artifact tree, <code>CONCEPTS.md</code>, <code>AGENTS.md</code>, <code>.koushik/config.yaml</code> (agent-native level 2: files, git, browser, authenticated GitHub CLI; no deploy target linked yet). Eve is not installed yet — the build stage scaffolds it when the plan calls for it.</p>
+    </details>
+  </div>
+
+  <h2><span class="n">04</span>🧠 What the system learned</h2>
+  <div class="empty">Nothing yet. As CEASE gets built, every solved problem is turned into a permanent guard — a test, a rule, or a checklist — and each one will be listed here. That's how each round of work makes the next one easier.</div>
+
+  <h2><span class="n">05</span>Next</h2>
+  <div class="next">
+    <h3>Run <span class="cmd">/koushik:strategy</span> — needs you</h3>
+    <p>It turns the CEASE spec into an official strategy: who exactly it serves, the promise it makes, what it must never do, and how success is measured. It will ask you a small number of consequential questions — expect 10–20 minutes of your input.</p>
+    <ol>
+      <li>Strategy → requirements → architecture → plan <em>(mostly your decisions)</em></li>
+      <li>Build → simplify → review → evals → test drive <em>(mostly automated)</em></li>
+      <li>You approve the result, it goes live, and real usage gets measured</li>
+    </ol>
+  </div>
+
+  <h2><span class="n">06</span>Which command when?</h2>
+  <details class="guide">
+    <summary>The full command guide</summary>
+    <div class="guide-inner">
+      <div class="guide-group">Getting started</div>
+      <div class="guide-row"><code>/koushik:setup</code><span>Prepare (or repair) the project workspace. Safe to re-run.</span></div>
+      <div class="guide-row"><code>/koushik:tracker</code><span>Refresh this page / ask "where are we?"</span></div>
+      <div class="guide-group">Defining</div>
+      <div class="guide-row hot"><code>/koushik:strategy</code><span>Define who it's for, the promise, and the boundaries. ← recommended now</span></div>
+      <div class="guide-row"><code>/koushik:brainstorm</code><span>Turn the strategy into explicit requirements.</span></div>
+      <div class="guide-row"><code>/koushik:architect</code><span>Design how the agent will actually be built.</span></div>
+      <div class="guide-row"><code>/koushik:plan</code><span>Break the build into ordered, testable units.</span></div>
+      <div class="guide-group">Building</div>
+      <div class="guide-row"><code>/koushik:work</code><span>Implement the plan, one validated unit at a time.</span></div>
+      <div class="guide-row"><code>/koushik:simplify</code><span>Strip accidental complexity before review.</span></div>
+      <div class="guide-group">Checking</div>
+      <div class="guide-row"><code>/koushik:review</code><span>Specialist review of the changes, by risk.</span></div>
+      <div class="guide-row"><code>/koushik:eval</code><span>Run the automated behavioral test suite.</span></div>
+      <div class="guide-row"><code>/koushik:test-drive</code><span>Use the product end-to-end like a real customer.</span></div>
+      <div class="guide-group">Shipping</div>
+      <div class="guide-row"><code>/koushik:ship</code><span>Package everything into a change proposal, ready for your approval.</span></div>
+      <div class="guide-row"><code>/koushik:deploy</code><span>Put it live in production (only ever run by you).</span></div>
+      <div class="guide-group">Running live</div>
+      <div class="guide-row"><code>/koushik:pulse</code><span>Read how it's really performing in production.</span></div>
+      <div class="guide-row"><code>/koushik:debug</code><span>Root-cause something that's broken.</span></div>
+      <div class="guide-row"><code>/koushik:maintain</code><span>Handle upgrades, drift, and routine hygiene.</span></div>
+      <div class="guide-row"><code>/koushik:scale</code><span>Plan deliberate growth when demand rises.</span></div>
+      <div class="guide-group">Anytime</div>
+      <div class="guide-row"><code>/koushik:compound</code><span>Preserve a lesson so it's never re-learned.</span></div>
+      <div class="guide-row"><code>/koushik:lifecycle</code><span>Run the whole loop autonomously, stopping at your approval.</span></div>
+    </div>
+  </details>
+
+  <footer>
+    Last updated <span class="mono">2026-09-15 17:55</span> by /koushik:setup · Deep artifacts for technical readers:
+    <a href="../CEASE-plugin-spec.md">product spec</a> ·
+    <a href="../CONCEPTS.md">CONCEPTS.md</a> ·
+    <a href="../.koushik/config.yaml">.koushik/config.yaml</a> — strategy, plans, and reports will appear in <code>docs/</code> as stages complete.
+  </footer>
+</div>

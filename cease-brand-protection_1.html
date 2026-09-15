@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cease Brand Protection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+  :root {
+    --paper:   #E9E7EA;
+    --card:    #F7F6F8;
+    --sunk:    #DFDCE3;
+    --ink:     #16131A;
+    --muted:   #665F70;
+    --hair:    #C9C4D0;
+    --accent:  #6E2431;
+    --accent-soft: #F0E2E4;
+    --crit:    #A83A2B;
+    --watch:   #8E6614;
+    --ok:      #2A644D;
+    --shadow:  0 1px 2px rgba(22,19,26,.07), 0 8px 24px -16px rgba(22,19,26,.35);
+
+    --display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+    --body:    "Public Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:  #121016;
+      --card:   #1B1822;
+      --sunk:   #0C0A10;
+      --ink:    #E4E0EA;
+      --muted:  #9A93A6;
+      --hair:   #322D3D;
+      --accent: #D2909B;
+      --accent-soft: #2A1E24;
+      --crit:   #E08573;
+      --watch:  #D8AC55;
+      --ok:     #6FB598;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:  #121016;
+    --card:   #1B1822;
+    --sunk:   #0C0A10;
+    --ink:    #E4E0EA;
+    --muted:  #9A93A6;
+    --hair:   #322D3D;
+    --accent: #D2909B;
+    --accent-soft: #2A1E24;
+    --crit:   #E08573;
+    --watch:  #D8AC55;
+    --ok:     #6FB598;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.9);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 20px 96px;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .col  { max-width: 660px; }
+
+  /* ---------- masthead ---------- */
+
+  .file-tab {
+    max-width: 1080px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 22px;
+    padding: 14px 0 13px;
+    border-bottom: 1px solid var(--hair);
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+  }
+  .file-tab strong { color: var(--accent); font-weight: 700; }
+  .file-tab .spacer { flex: 1 1 auto; }
+
+  header.mast { padding: 54px 0 40px; }
+
+  .wordmark {
+    font-family: var(--display); font-size: clamp(52px, 12vw, 104px);
+    line-height: .86; letter-spacing: -.022em; margin: 0;
+  }
+  .wordmark em { font-style: italic; color: var(--accent); }
+
+  .kicker {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 18px;
+  }
+
+  .lede {
+    font-size: clamp(19px, 2.4vw, 23px); line-height: 1.5;
+    margin: 26px 0 0; max-width: 30em; text-wrap: pretty;
+  }
+  .lede b { font-weight: 600; box-shadow: inset 0 -.42em 0 var(--accent-soft); }
+
+  /* ---------- rhythm ---------- */
+
+  section { padding: 46px 0; border-top: 1px solid var(--hair); }
+
+  .sec-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+  }
+
+  h2 {
+    font-family: var(--display); font-weight: 400;
+    font-size: clamp(30px, 4.6vw, 44px); line-height: 1.05;
+    letter-spacing: -.015em; margin: 0 0 16px; text-wrap: balance;
+  }
+  h3 {
+    font-size: 17px; font-weight: 700; letter-spacing: -.005em;
+    margin: 0 0 6px;
+  }
+  p { margin: 0 0 16px; text-wrap: pretty; }
+  p:last-child { margin-bottom: 0; }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  strong { font-weight: 600; }
+
+  .note {
+    font-size: 14px; color: var(--muted); line-height: 1.55;
+  }
+
+  /* ---------- signals table ---------- */
+
+  .scroller { overflow-x: auto; margin-top: 26px; }
+
+  table.signals {
+    width: 100%; min-width: 620px; border-collapse: collapse;
+    font-size: 15px;
+  }
+  table.signals th {
+    text-align: left; font-family: var(--mono); font-weight: 500;
+    font-size: 10.5px; letter-spacing: .13em; text-transform: uppercase;
+    color: var(--muted); padding: 0 18px 9px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  table.signals td {
+    padding: 15px 18px 15px 0; vertical-align: top;
+    border-bottom: 1px solid var(--hair); line-height: 1.45;
+  }
+  table.signals tr:last-child td { border-bottom: 0; }
+  table.signals td.src {
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+    white-space: nowrap;
+  }
+  table.signals td.quote { font-style: italic; }
+  table.signals td.means { color: var(--ink); }
+
+  /* ---------- pipeline ---------- */
+
+  .stages { display: grid; gap: 0; margin-top: 30px; }
+
+  .stage {
+    display: grid; grid-template-columns: 58px 1fr; gap: 0 22px;
+    padding: 24px 0; border-top: 1px dashed var(--hair);
+  }
+  .stage:first-child { border-top: 0; padding-top: 6px; }
+
+  .stage-n {
+    font-family: var(--display); font-size: 40px; line-height: 1;
+    color: var(--accent); font-style: italic;
+  }
+  .stage-body p { font-size: 15.5px; margin-bottom: 12px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em;
+    padding: 3px 8px; border: 1px solid var(--hair); border-radius: 2px;
+    color: var(--muted); background: var(--card); white-space: nowrap;
+  }
+
+  /* ---------- transcript ---------- */
+
+  .week { display: grid; gap: 20px; margin-top: 30px; }
+
+  .entry {
+    background: var(--card); border: 1px solid var(--hair);
+    border-left: 3px solid var(--accent);
+    border-radius: 2px; box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .entry-head {
+    display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline;
+    padding: 11px 18px; border-bottom: 1px solid var(--hair);
+    font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  .entry-head .when { color: var(--ink); font-weight: 500; }
+  .entry-body { padding: 18px; display: grid; gap: 14px; }
+
+  .turn { display: grid; gap: 5px; }
+  .who {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .said { font-size: 15.5px; line-height: 1.5; }
+  .turn.you .said {
+    font-weight: 500;
+    border-left: 2px solid var(--hair); padding-left: 12px;
+  }
+  .turn.claude .said { color: var(--ink); }
+  .said ul { margin: 8px 0 0; padding-left: 18px; }
+  .said li { margin-bottom: 5px; }
+
+  .mono-block {
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.65;
+    background: var(--sunk); border: 1px solid var(--hair);
+    border-radius: 2px; padding: 12px 14px;
+    overflow-x: auto; white-space: pre;
+  }
+
+  .sev {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 2px; vertical-align: 2px;
+  }
+  .sev.crit  { color: var(--crit);  border: 1px solid var(--crit); }
+  .sev.watch { color: var(--watch); border: 1px solid var(--watch); }
+  .sev.ok    { color: var(--ok);    border: 1px solid var(--ok); }
+
+  /* ---------- deliverables ---------- */
+
+  .deliv { display: grid; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr)); gap: 1px; margin-top: 28px; background: var(--hair); border: 1px solid var(--hair); }
+  .deliv > div { background: var(--paper); padding: 20px 18px; }
+  .deliv h3 { margin-bottom: 5px; }
+  .deliv p { font-size: 14.5px; color: var(--muted); line-height: 1.5; }
+
+  /* ---------- calculator ---------- */
+
+  .calc {
+    margin-top: 30px; display: grid; gap: 26px;
+    grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
+    align-items: start;
+  }
+  .panel {
+    background: var(--card); border: 1px solid var(--hair);
+    border-radius: 2px; padding: 22px; box-shadow: var(--shadow);
+  }
+  .panel-title {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--muted);
+    margin: 0 0 18px; padding-bottom: 10px; border-bottom: 1px solid var(--hair);
+  }
+
+  .field { display: grid; gap: 6px; margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    font-size: 13px; font-weight: 600; display: flex;
+    justify-content: space-between; align-items: baseline; gap: 10px;
+  }
+  .field .val {
+    font-family: var(--mono); font-size: 13px; color: var(--accent);
+    font-weight: 500; font-variant-numeric: tabular-nums;
+  }
+  .field .hint { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  .inrow { display: flex; gap: 8px; }
+  select, input[type="number"] {
+    font-family: var(--mono); font-size: 14px;
+    background: var(--paper); color: var(--ink);
+    border: 1px solid var(--hair); border-radius: 2px;
+    padding: 8px 10px; width: 100%;
+  }
+  select { width: auto; flex: 0 0 auto; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); margin: 2px 0; }
+  input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+
+  .result-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 14px; padding: 11px 0; border-bottom: 1px dashed var(--hair);
+  }
+  .result-row:last-of-type { border-bottom: 0; }
+  .result-row .k { font-size: 13.5px; color: var(--muted); }
+  .result-row .v {
+    font-family: var(--mono); font-size: 15px; font-weight: 500;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .headline-num {
+    font-family: var(--display); font-size: clamp(38px, 7vw, 54px);
+    line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums;
+    margin: 4px 0 2px;
+  }
+  .headline-cap {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 18px;
+  }
+
+  /* ---------- signature gate ---------- */
+
+  .gate {
+    margin-top: 28px; border: 1px solid var(--accent);
+    border-radius: 2px; background: var(--accent-soft);
+    padding: 24px; max-width: 660px;
+  }
+  .gate .stamp {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); font-weight: 700;
+    margin: 0 0 10px;
+  }
+  .gate p { font-size: 15.5px; }
+  .gate p:last-child { margin-bottom: 0; }
+  cite {
+    font-family: var(--mono); font-style: normal; font-size: .92em;
+  }
+
+  /* ---------- two-col lists ---------- */
+
+  .duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-top: 28px; }
+  ul.plain { list-style: none; padding: 0; margin: 0; display: grid; gap: 11px; }
+  ul.plain li {
+    font-size: 14.8px; line-height: 1.5; padding-left: 20px; position: relative;
+  }
+  ul.plain li::before {
+    content: "—"; position: absolute; left: 0; color: var(--accent);
+    font-family: var(--mono); font-size: 12px; top: 1px;
+  }
+  ul.plain li b { font-weight: 600; }
+
+  footer {
+    border-top: 1px solid var(--hair); margin-top: 46px; padding-top: 22px;
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.7;
+    color: var(--muted); letter-spacing: .02em;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 0 16px 72px; }
+    .stage { grid-template-columns: 40px 1fr; gap: 0 14px; }
+    .stage-n { font-size: 30px; }
+    .calc { grid-template-columns: 1fr; }
+    .deliv { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+<style>
+  html { color-scheme: light dark; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+
+<div class="file-tab">
+  <span>Case file <strong>CEASE-001</strong></span>
+  <span>Subject: your brand</span>
+  <span class="spacer"></span>
+  <span>Status: open</span>
+</div>
+
+<div class="wrap">
+
+  <header class="mast">
+    <p class="kicker">Brand protection, run from inside your own stack</p>
+    <h1 class="wordmark">Ce<em>a</em>se</h1>
+    <p class="lede">
+      Counterfeit-monitoring companies crawl four billion pages to <em>guess</em> who is copying you.
+      Cease starts somewhere cheaper and far more certain: <b>your support inbox, your chargebacks,
+      your ad account, your returns shelf</b> — where the proof of a counterfeit operation is already
+      sitting, unread, attached to a customer who already got burned.
+    </p>
+  </header>
+
+  <section>
+    <p class="sec-label">01 · The part nobody looks at</p>
+    <h2>You are already collecting the evidence</h2>
+    <div class="col">
+      <p>
+        A crawler finds a suspicious listing and infers harm. Your own systems record harm and can lead
+        you back to the listing. That is a better starting point, and it is the one no outside vendor
+        can reach — because no brand-protection company is getting API access to your Stripe account
+        and your support mail.
+      </p>
+      <p>
+        Here is what is likely in your tools right now.
+      </p>
+    </div>
+
+    <div class="scroller">
+      <table class="signals">
+        <thead>
+          <tr><th>Where it sits</th><th>What it looks like</th><th>What it actually means</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="src">Support inbox</td>
+            <td class="quote">“I ordered from your website and this is clearly fake.”</td>
+            <td class="means">A copycat storefront is converting your traffic and your customer thinks it was you.</td>
+          </tr>
+          <tr>
+            <td class="src">Stripe / Shopify</td>
+            <td class="quote">Chargeback, “not as described”, order ID you cannot find</td>
+            <td class="means">They never bought from you. Someone took the money using your brand name.</td>
+          </tr>
+          <tr>
+            <td class="src">Returns</td>
+            <td class="quote">A parcel comes back containing an item that is not your SKU</td>
+            <td class="means">A physical counterfeit, in your hands, ready to be photographed as evidence.</td>
+          </tr>
+          <tr>
+            <td class="src">Meta / TikTok ads</td>
+            <td class="quote">One creative’s CPM doubles overnight, CTR halves, nothing changed</td>
+            <td class="means">Someone else is running your creative and bidding against you in the same auction.</td>
+          </tr>
+          <tr>
+            <td class="src">Google Ads</td>
+            <td class="quote">Branded-search CPC jumps, impression share drops</td>
+            <td class="means">A copycat is buying your trademark to intercept people already looking for you.</td>
+          </tr>
+          <tr>
+            <td class="src">Analytics</td>
+            <td class="quote">Referral traffic from a domain you have never heard of</td>
+            <td class="means">A cloned site, or an affiliate running a mirror of your store.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="note" style="margin-top:22px; max-width:640px;">
+      None of that needs a crawler. It needs permission to read tools you already pay for — and it is
+      close to zero false-positive, because every row starts with a real person who lost real money.
+    </p>
+  </section>
+
+  <section>
+    <p class="sec-label">02 · The sequence</p>
+    <h2>Signal to takedown, in five moves</h2>
+    <div class="col">
+      <p>
+        These run in order because each one needs the output of the last. Stage 1 happens once. Stages
+        2 through 5 run on a schedule and whenever you ask.
+      </p>
+    </div>
+
+    <div class="stages">
+      <div class="stage">
+        <div class="stage-n">1</div>
+        <div class="stage-body">
+          <h3>Fingerprint your brand</h3>
+          <p>
+            Pulls your entire catalogue — product photography, descriptions, SKUs, price floors — and
+            turns it into something machine-checkable: a perceptual hash of every image, the distinctive
+            phrases from your copy, your trademark numbers, your owned domains and handles. Critically,
+            it also loads your <strong>authorised reseller list</strong>, so your real distributors never
+            get flagged. That single detail is the most common complaint about automated brand protection,
+            and it is solved by simply knowing who your partners are.
+          </p>
+          <div class="chips">
+            <span class="chip">Shopify</span><span class="chip">Notion</span>
+            <span class="chip">Google Drive</span><span class="chip">pHash</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-n">2</div>
+        <div class="stage-body">
+          <h3>Sweep — inside first, outside second</h3>
+          <p>
+            The distress sweep runs first: support mail, chargeback reason codes, odd returns, ad
+            anomalies. Then five investigators work in parallel on the outside — marketplaces, social
+            handles, lookalike domains, paid search, and ad libraries — using the fingerprint as the
+            search key. Exact-phrase matches on your own product copy are the cheapest detector that
+            exists, because counterfeiters copy and paste.
+          </p>
+          <div class="chips">
+            <span class="chip">Gmail</span><span class="chip">Stripe</span>
+            <span class="chip">Supermetrics</span><span class="chip">TikTok Shop</span>
+            <span class="chip">Browser</span><span class="chip">Web search</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-n">3</div>
+        <div class="stage-body">
+          <h3>Triage into six kinds of problem</h3>
+          <p>
+            A fake product, a grey-market reseller, a stolen photograph, a lookalike domain, a hijacked
+            ad creative and an impersonator account are six different problems with six different
+            remedies. Sorting them is the whole game — send a copyright notice at a pricing dispute and
+            you get nothing. Each case is then ranked by how close it sits to your buying traffic, how
+            much revenue it plausibly moves, whether a real customer was harmed, and whether this
+            offender has done it before.
+          </p>
+          <div class="chips">
+            <span class="chip">Severity model</span><span class="chip">Allowlist check</span>
+            <span class="chip">Case history</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-n">4</div>
+        <div class="stage-body">
+          <h3>Build a case file that survives a challenge</h3>
+          <p>
+            Timestamped full-page screenshots with the URL visible, archived page source, the image
+            comparison with the hash distance stated as a number, WHOIS and hosting records, the
+            seller’s other listings, your proof of ownership, and the support ticket or chargeback that
+            links this listing to a real loss. This is the part that matters when a takedown gets
+            appealed — and the part a dashboard rarely gives you in a form your lawyer can use.
+          </p>
+          <div class="chips">
+            <span class="chip">Browser capture</span><span class="chip">WHOIS</span>
+            <span class="chip">Notion case file</span><span class="chip">Drive archive</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-n">5</div>
+        <div class="stage-body">
+          <h3>Draft the right instrument — then stop</h3>
+          <p>
+            A DMCA notice for stolen content. An Amazon Brand Registry report for a counterfeit listing,
+            which is a different form with different evidence rules. A registrar abuse complaint for a
+            lookalike domain. A payment-processor report, which is often the fastest kill of all: a fake
+            store that cannot take money is finished whether or not the domain survives. Each one arrives
+            pre-filled and ready. Then it waits for your signature.
+          </p>
+          <div class="chips">
+            <span class="chip">DMCA §512(c)</span><span class="chip">Brand Registry</span>
+            <span class="chip">Meta IP</span><span class="chip">TikTok IPP</span>
+            <span class="chip">Registrar abuse</span><span class="chip">Stripe / PayPal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-label">03 · A week with it</p>
+    <h2>What this actually looks like</h2>
+    <div class="col">
+      <p>
+        Four moments from an ordinary week at a skincare brand doing roughly $600k a month. Nothing
+        here needs you to open a dashboard.
+      </p>
+    </div>
+
+    <div class="week">
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="when">Mon 09:00</span><span>Scheduled · posted to Slack</span>
+        </div>
+        <div class="entry-body">
+          <div class="turn claude">
+            <div class="who">Cease</div>
+            <div class="said">
+              Weekly brief. Three things need you, everything else is handled.
+              <div class="mono-block">NEEDS YOUR SIGNATURE   2 enforcement packs
+CLOSED THIS WEEK       7 listings, 1 domain
+STILL OPEN             4  (2 awaiting platform)
+RELAUNCH CAUGHT        1  — see case 0112</div>
+              <ul>
+                <li><span class="sev crit">Critical</span> A storefront at <code>glow-ritual.shop</code> is running your
+                  full product photography and taking payments. Two of your support tickets this month
+                  trace to it. Evidence pack ready.</li>
+                <li><span class="sev watch">Watch</span> Branded-search CPC up 41% week over week with no campaign change
+                  on your side. Likely a competitor bidding your trademark — I am confirming before we act.</li>
+                <li><span class="sev ok">Resolved</span> The four Amazon listings from case 0098 are down. Verified at +72h.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="when">Tue 14:20</span><span>You, in Slack</span>
+        </div>
+        <div class="entry-body">
+          <div class="turn you">
+            <div class="who">You</div>
+            <div class="said">/cease check instagram.com/glowritual.official</div>
+          </div>
+          <div class="turn claude">
+            <div class="who">Cease</div>
+            <div class="said">
+              Impersonator, not a reseller. Handle registered eleven days ago, 4,100 followers, bio copied
+              from yours word for word, link points to <code>glow-ritual.shop</code> — the same storefront
+              from Monday’s brief, so I have merged this into case 0117.
+              <p style="margin:10px 0 0">
+                Nine of their eleven posts use your photography. I have the hash comparison and the
+                screenshots. Two instruments are drafted: an Instagram impersonation report and a copyright
+                report covering the nine images. Want to look at them?
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="when">Tue 14:24</span><span>Enforcement pack · case 0117</span>
+        </div>
+        <div class="entry-body">
+          <div class="turn you">
+            <div class="who">You</div>
+            <div class="said">Yes, show me the copyright one.</div>
+          </div>
+          <div class="turn claude">
+            <div class="who">Cease</div>
+            <div class="said">
+              Drafted with all six elements a valid notice needs under <cite>17 U.S.C. §512(c)(3)(A)</cite>.
+              <div class="mono-block">WORKS         9 photographs, first published on your
+              Shopify store 14 Mar–02 Jul 2026
+LOCATION      9 post URLs, captured 14:19 today
+OWNERSHIP     original files + EXIF, Drive archive
+AUTHORISED    not on your reseller allowlist
+HARM LINKED   tickets #4471, #4488
+SIGNATURE     ▢ awaiting — Priya Nair, Founder</div>
+              <p style="margin:12px 0 0">
+                I cannot send this. The notice includes a statement made under penalty of perjury, so it
+                has to be signed by someone authorised to act for the rights holder. Review it and sign,
+                and it goes out with the evidence attached.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="when">Fri 07:00</span><span>Relaunch watch · automatic</span>
+        </div>
+        <div class="entry-body">
+          <div class="turn claude">
+            <div class="who">Cease</div>
+            <div class="said">
+              <span class="sev crit">Critical</span> They are back. <code>glow-ritual.shop</code> went down
+              Wednesday; <code>glowritual-store.co</code> came up last night — same registrant email, same
+              nameservers, same product photography, same eleven-item catalogue.
+              <p style="margin:10px 0 0">
+                This is now a repeat offender with a documented history, which changes the approach. Rather
+                than another single takedown, I have prepared a registrar complaint citing both domains and
+                a report to their payment processor. Processor reports tend to end this faster than domain
+                whack-a-mole, because the store stops being able to collect money.
+              </p>
+              <p style="margin:10px 0 0">Both are drafted and waiting for you. Deadline on the counter-notice
+                from case 0112 is on your calendar for the 22nd.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-label">04 · What you end up holding</p>
+    <h2>Four things, none of them a dashboard login</h2>
+    <div class="deliv">
+      <div>
+        <h3>A ranked docket</h3>
+        <p>Not four thousand alerts. The handful that move money, in order, with the reason each one
+           ranks where it does.</p>
+      </div>
+      <div>
+        <h3>Case files you own</h3>
+        <p>In your Notion and your Drive, in your account. Exportable, attorney-ready, and yours if you
+           ever stop using this.</p>
+      </div>
+      <div>
+        <h3>Signed, sent, tracked</h3>
+        <p>Every notice with a verification sweep behind it at 24 hours, 72 hours and a week — and an
+           escalation path when it does not come down.</p>
+      </div>
+      <div>
+        <h3>An audit trail</h3>
+        <p>Who approved what, on what evidence, on what date. The record you want if a takedown is ever
+           challenged.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-label">05 · The value, with the assumptions visible</p>
+    <h2>Your numbers, not ours</h2>
+    <div class="col">
+      <p>
+        Every vendor in this category quotes a return multiple without showing the arithmetic. Here is the
+        arithmetic instead. The two assumptions that matter are yours to set, because nobody honestly knows
+        them for your brand on day one — the point of the first month is to replace these guesses with
+        measured figures.
+      </p>
+    </div>
+
+    <div class="calc">
+      <div class="panel">
+        <p class="panel-title">Inputs</p>
+
+        <div class="field">
+          <label for="rev">Monthly revenue</label>
+          <div class="inrow">
+            <select id="cur" aria-label="Currency">
+              <option value="$" selected>$</option>
+              <option value="£">£</option>
+              <option value="€">€</option>
+              <option value="₹">₹</option>
+            </select>
+            <input id="rev" type="number" min="0" step="10000" value="600000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="div">Revenue diverted to copycats <span class="val" id="divv">3.0%</span></label>
+          <input id="div" type="range" min="0.5" max="8" step="0.1" value="3">
+          <span class="hint">Published estimates for consumer brands online run wide. Start conservative;
+            month one replaces this with what your own tickets and chargebacks show.</span>
+        </div>
+
+        <div class="field">
+          <label for="rec">Share you actually win back <span class="val" id="recv">45%</span></label>
+          <input id="rec" type="range" min="10" max="80" step="1" value="45">
+          <span class="hint">Takedowns do not recover everything. Some buyers never return, and some
+            sellers relaunch faster than you can file.</span>
+        </div>
+
+        <div class="field">
+          <label for="hrs">Hours a month your team spends on this</label>
+          <input id="hrs" type="number" min="0" step="1" value="20">
+        </div>
+
+        <div class="field">
+          <label for="rate">Blended hourly cost of those hours</label>
+          <input id="rate" type="number" min="0" step="5" value="45">
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="panel-title">What that works out to</p>
+        <div class="headline-num" id="hero">—</div>
+        <p class="headline-cap">Total annual benefit</p>
+
+        <div class="result-row"><span class="k">Revenue leaking, per month</span><span class="v" id="r1">—</span></div>
+        <div class="result-row"><span class="k">Recovered, per month</span><span class="v" id="r2">—</span></div>
+        <div class="result-row"><span class="k">Team hours returned, per year</span><span class="v" id="r3">—</span></div>
+        <div class="result-row"><span class="k">Value of those hours</span><span class="v" id="r4">—</span></div>
+        <div class="result-row"><span class="k">Recovered revenue, per year</span><span class="v" id="r5">—</span></div>
+
+        <p class="note" style="margin-top:18px; padding-top:14px; border-top:1px solid var(--hair);">
+          The hours line assumes three quarters of your current manual effort goes away — the signature
+          review is what stays. For comparison, a managed brand-protection retainer in this category
+          typically runs in the low thousands per month before any recovery is counted. The arithmetic
+          above is a model, not a forecast: treat it as a way to decide whether this is worth a month of
+          your attention.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="sec-label">06 · Where you stay in the loop</p>
+    <h2>It drafts. You sign. Always.</h2>
+    <div class="col">
+      <p>
+        The rest of this category advertises one-click automated takedowns. That is a worse product than
+        it sounds, and here is why it matters to you specifically.
+      </p>
+    </div>
+
+    <div class="gate">
+      <p class="stamp">Signature gate</p>
+      <p>
+        A copyright takedown notice contains a statement made <strong>under penalty of perjury</strong>.
+        And <cite>17 U.S.C. §512(f)</cite> makes anyone who knowingly misrepresents that something is
+        infringing liable for the other side’s damages, costs and legal fees.
+      </p>
+      <p>
+        So the liability for a wrongly filed notice lands on your brand, not on a vendor’s automation.
+        Cease does the ninety-five percent that is research, evidence, choosing the right form and
+        drafting it. You do the five percent that is the legal attestation — which takes about a minute
+        per case, and produces the audit trail that protects you if a takedown is ever challenged.
+      </p>
+    </div>
+
+    <p class="note" style="margin-top:18px; max-width:660px;">
+      One more piece of the same clock: if an infringer files a counter-notice, the host must put the
+      material back within <strong>10 to 14 business days</strong> unless you have filed a court action.
+      That deadline goes on your calendar automatically, with a decision memo prepared ahead of it — a
+      window brands routinely miss and then wonder why the listing reappeared.
+    </p>
+  </section>
+
+  <section>
+    <p class="sec-label">07 · Before you start</p>
+    <h2>What it needs, and what it will not do</h2>
+
+    <div class="duo">
+      <div>
+        <h3 style="margin-bottom:14px">Connect these</h3>
+        <ul class="plain">
+          <li><b>Shopify</b> — your catalogue is the fingerprint. Required.</li>
+          <li><b>Gmail or your helpdesk</b> — the highest-signal detector you own. Required.</li>
+          <li><b>Notion or Google Drive</b> — where case files live, in your account.</li>
+          <li><b>A browser</b> — evidence capture and platform forms that have no API.</li>
+          <li><b>Stripe</b> — chargeback patterns, and the revenue reconciliation behind every estimate.</li>
+          <li><b>An ads connector</b> — Supermetrics or Windsor for creative theft and trademark bidding.</li>
+          <li><b>Slack and Calendar</b> — briefs, signature requests, statutory deadlines.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-bottom:14px">Where it stops</h3>
+        <ul class="plain">
+          <li><b>It crawls less of the web</b> than a dedicated index. It will miss long-tail listings.
+            It trades that breadth for precision and for proof of damages.</li>
+          <li><b>It is not a law firm.</b> Drafting is not advice. Anything past platform remedies goes
+            to a real attorney, and there is a connector for that handoff.</li>
+          <li><b>Amazon leverage is yours to unlock.</b> Brand Registry, Transparency and Project Zero
+            need your enrolment. Cease can prepare and track the applications, not replace them.</li>
+          <li><b>No customs seizure</b> without a recordal you file yourself.</li>
+          <li><b>Some platforms have no API</b> for IP reports. Those are slower, browser-assisted form
+            walks, and they will occasionally break.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Cease — a product concept for a Claude plugin.<br>
+    Legal mechanics reference 17 U.S.C. §512: notice elements at §512(c)(3)(A), counter-notification at
+    §512(g)(3), misrepresentation liability at §512(f).<br>
+    Figures on this page are illustrative model outputs, not claims. Not legal advice.
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var ids = ["rev", "div", "rec", "hrs", "rate", "cur"];
+  var el = {};
+  ids.forEach(function (i) { el[i] = document.getElementById(i); });
+
+  function money(sym, n) {
+    if (!isFinite(n)) n = 0;
+    var neg = n < 0;
+    n = Math.round(Math.abs(n));
+    var s = String(n);
+    var out = "";
+    while (s.length > 3) { out = "," + s.slice(-3) + out; s = s.slice(0, -3); }
+    return (neg ? "-" : "") + sym + s + out;
+  }
+
+  function num(n) {
+    n = Math.round(n);
+    var s = String(n), out = "";
+    while (s.length > 3) { out = "," + s.slice(-3) + out; s = s.slice(0, -3); }
+    return s + out;
+  }
+
+  function calc() {
+    var sym  = el.cur.value;
+    var rev  = parseFloat(el.rev.value)  || 0;
+    var dvr  = parseFloat(el.div.value)  || 0;
+    var rcv  = parseFloat(el.rec.value)  || 0;
+    var hrs  = parseFloat(el.hrs.value)  || 0;
+    var rate = parseFloat(el.rate.value) || 0;
+
+    document.getElementById("divv").textContent = dvr.toFixed(1) + "%";
+    document.getElementById("recv").textContent = Math.round(rcv) + "%";
+
+    var leakM = rev * (dvr / 100);
+    var recM  = leakM * (rcv / 100);
+    var recY  = recM * 12;
+
+    // Assumption stated on the page: the plugin removes roughly three quarters
+    // of the manual takedown effort; the signature review is what remains.
+    var hoursBackY = hrs * 12 * 0.75;
+    var hoursValY  = hoursBackY * rate;
+
+    document.getElementById("hero").textContent = money(sym, recY + hoursValY);
+    document.getElementById("r1").textContent = money(sym, leakM);
+    document.getElementById("r2").textContent = money(sym, recM);
+    document.getElementById("r3").textContent = num(hoursBackY) + " hrs";
+    document.getElementById("r4").textContent = money(sym, hoursValY);
+    document.getElementById("r5").textContent = money(sym, recY);
+  }
+
+  ids.forEach(function (i) {
+    el[i].addEventListener("input", calc);
+    el[i].addEventListener("change", calc);
+  });
+  calc();
+})();
+</script>
+
+</body>
+</html>
