@@ -1,0 +1,19 @@
+{
+  "description": "CEASE — blocks any outbound legal enforcement instrument that has not been signed by a named human (SPEC R29).",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*__(send_message|reply|forward|slack_send_message)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/signature-gate.mjs"],
+            "timeout": 10,
+            "statusMessage": "Checking enforcement signature"
+          }
+        ]
+      }
+    ]
+  }
+}

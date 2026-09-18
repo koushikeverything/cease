@@ -191,9 +191,19 @@ if (existsSync(hooksPath)) {
             const usesUserConfig = JSON.stringify(hook).includes('${user_config.');
             if (shellForm && usesUserConfig)
               fail(`hooks.json: ${event} uses \${user_config.*} in shell form - this errors at runtime; use exec form or $CLAUDE_PLUGIN_OPTION_<KEY>`);
-            const ref = (hook.command ?? '').replace('${CLAUDE_PLUGIN_ROOT}/', '').replace(/^"|"$/g, '');
-            if (ref && !ref.includes('$') && !existsSync(join(root, ref)) && !existsSync(ref))
-              fail(`hooks.json: ${event} command "${hook.command}" does not resolve to a file`);
+            // In exec form the executable is `command` and the script is in `args`;
+            // only shell form puts a script path in `command`.
+            const candidates = shellForm
+              ? [hook.command]
+              : (hook.args ?? []).filter((a) => typeof a === 'string' && /\.(mjs|js|cjs|sh|ts|py)$/.test(a));
+            for (const c of candidates) {
+              const ref = String(c).replace('${CLAUDE_PLUGIN_ROOT}/', '').replace(/^"|"$/g, '');
+              if (!ref || ref.includes('$')) continue;
+              if (!existsSync(join(root, ref)) && !existsSync(ref))
+                fail(`hooks.json: ${event} hook references "${c}" which does not resolve to a file`);
+            }
+            if (!shellForm && candidates.length === 0)
+              warn(`hooks.json: ${event} exec-form hook has no script path in args to verify`);
           }
         }
       }
