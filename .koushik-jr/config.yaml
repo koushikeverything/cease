@@ -8,5 +8,6 @@ state: built
 artifact_paths:
   root: .
 docs_root: docs
+# check 2026-09-18: BLOCKED — one open P0 + behavioral gate unrun
 tracker:
   path: docs/jr-tracker.html
