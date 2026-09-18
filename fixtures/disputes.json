@@ -1,0 +1,29 @@
+[
+  {
+    "id": "dp_fixture_001",
+    "orderId": "1042",
+    "reasonCode": "product_not_received",
+    "amount": 124.00,
+    "currency": "USD",
+    "createdAt": "2026-09-02T11:10:00Z",
+    "_note": "Ordinary dispute — reconciles to a real order. Should NOT be a counterfeit signal."
+  },
+  {
+    "id": "dp_fixture_002",
+    "orderId": null,
+    "reasonCode": "product_not_as_described",
+    "amount": 78.00,
+    "currency": "USD",
+    "createdAt": "2026-09-05T16:44:00Z",
+    "_note": "A4: no matching order in the order book. Customer bought from an impersonator using the brand name. High severity."
+  },
+  {
+    "id": "dp_fixture_003",
+    "orderId": null,
+    "reasonCode": "product_not_as_described",
+    "amount": 82.50,
+    "currency": "USD",
+    "createdAt": "2026-09-06T08:19:00Z",
+    "_note": "A4: second unmatched dispute, same reason code — a cluster, not a one-off."
+  }
+]
