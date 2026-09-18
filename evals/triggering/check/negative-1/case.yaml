@@ -5,6 +5,11 @@ execution:
   prompt: |
     find everything copying us across every channel
 graders:
+  - name: nothing-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
   - name: check-did-not-fire
     type: llm
     weight: 1

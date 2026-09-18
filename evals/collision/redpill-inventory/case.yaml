@@ -6,6 +6,11 @@ execution:
   prompt: |
     here is my weekly MIS stock file — which stores need stock and what should I transfer?
 graders:
+  - name: nothing-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
   - name: correct-family-owns-it
     type: llm
     weight: 1

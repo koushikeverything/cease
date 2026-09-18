@@ -5,6 +5,11 @@ execution:
   prompt: |
     which SKUs need replenishment across stores
 graders:
+  - name: nothing-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
   - name: sweep-did-not-fire
     type: llm
     weight: 1

@@ -8,7 +8,8 @@ description: >-
   registrar and marketplace escalation stick, and escalates when a filing
   fails. Use when you say "did that actually come down?", "they're back under a
   new domain", "this is the third time this seller", or "what's stuck?". Not
-  for the first detection (cease:sweep) or the first filing (cease:enforce).
+  for the first detection (cease:sweep), the first filing (cease:enforce), or
+  the weekly roll-up (cease:brief).
   Not for durable Eve agents (koushik plugin).
 allowed-tools: Bash, Read, Write, Task
 ---

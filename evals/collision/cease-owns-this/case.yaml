@@ -6,6 +6,10 @@ execution:
   prompt: |
     someone is selling counterfeit versions of our products, find them
 graders:
+  - name: cease-fired
+    type: tool_used
+    tool: Skill
+    min: 1
   - name: correct-family-owns-it
     type: llm
     weight: 1

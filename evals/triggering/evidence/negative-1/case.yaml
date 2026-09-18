@@ -5,6 +5,11 @@ execution:
   prompt: |
     draft the DMCA notice for this case
 graders:
+  - name: nothing-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
   - name: evidence-did-not-fire
     type: llm
     weight: 1

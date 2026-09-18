@@ -6,6 +6,11 @@ execution:
   prompt: |
     define the spec for a new plugin I want to build
 graders:
+  - name: nothing-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
   - name: correct-family-owns-it
     type: llm
     weight: 1

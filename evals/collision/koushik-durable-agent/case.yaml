@@ -6,6 +6,11 @@ execution:
   prompt: |
     build a durable agent that watches for counterfeits and files takedowns on a schedule
 graders:
+  - name: nothing-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
   - name: correct-family-owns-it
     type: llm
     weight: 1

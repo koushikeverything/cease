@@ -7,8 +7,7 @@ description: >-
   photos when it arrives. Prepares the purchase for you to complete yourself —
   never buys anything on your behalf. Use when you say "order one to prove it's
   fake", "do a test buy", or "we need a physical sample for the marketplace
-  appeal". Not for ordinary shopping, reordering stock, or any purchase
-  unrelated to an open case. Not for durable Eve agents (koushik plugin).
+  appeal". Not for ordinary shopping, stock reordering or replenishment (redpill), or any purchase unrelated to an open case. Not for durable Eve agents (koushik plugin).
 allowed-tools: Bash, Read, Write
 ---
 

@@ -18,10 +18,22 @@ instrument for a human to sign.
 
 ## Install
 
-```bash
-/plugin marketplace add <owner>/<repo>
-/plugin install cease@cease-marketplace
-```
+> **Not yet published.** This repository has no remote, so there is no
+> marketplace to add. To try it now, point Claude Code at a local checkout:
+>
+> ```bash
+> claude --plugin-dir /path/to/cease
+> ```
+>
+> Once it is published, installation becomes:
+>
+> ```bash
+> /plugin marketplace add OWNER/REPO
+> /plugin install cease@cease-marketplace
+> ```
+>
+> `OWNER/REPO` is filled in at publish time. If you are reading this with the
+> placeholder still present, the plugin has not shipped.
 
 Then set the brand settings when prompted: brand name, owned domains and
 handles, authorized resellers, authorized signers, and your Notion case

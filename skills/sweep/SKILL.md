@@ -19,7 +19,7 @@ allowed-tools: Bash, Read, Write, Task
 
 # Run a detection sweep
 
-Load `references/triage.md` before classifying anything.
+Load `${CLAUDE_PLUGIN_ROOT}/references/triage.md` before classifying.
 
 Requires a fingerprint. If `fingerprint.json` does not exist, stop and run
 `cease:baseline` first — every detector here is a comparison against it.

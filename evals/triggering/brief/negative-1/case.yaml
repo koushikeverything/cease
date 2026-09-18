@@ -5,6 +5,11 @@ execution:
   prompt: |
     run a full scan now
 graders:
+  - name: nothing-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
   - name: brief-did-not-fire
     type: llm
     weight: 1

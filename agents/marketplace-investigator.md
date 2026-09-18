@@ -6,7 +6,7 @@ description: >-
   brand's floor from sellers absent from its allowlist. Returns raw hits for
   triage; does not classify, score or file anything. Use only from cease:sweep
   or cease:check.
-disallowedTools: Write, Edit, NotebookEdit, Task
+disallowedTools: Write, Edit, NotebookEdit, Task, Bash
 model: sonnet
 effort: medium
 ---

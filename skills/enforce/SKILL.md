@@ -12,7 +12,8 @@ description: >-
   signing first. Use when you say "file a takedown", "draft the DMCA", "report
   this listing", "we got a counter-notice", or "get this off Amazon". Not for
   finding or documenting infringement (cease:sweep, cease:check,
-  cease:evidence). Does not give legal advice. Not for durable Eve agents
+  cease:evidence), and not for verifying or escalating a filing already made
+  (cease:pursue). Does not give legal advice. Not for durable Eve agents
   (koushik plugin).
 allowed-tools: Bash, Read, Write
 ---
@@ -71,7 +72,7 @@ CEASE-Case: {{case}}
 ## 4. Record the draft, then get the signature
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.mjs draft {{case}} <instrument> draft.txt
+CEASE_DATA_DIR="${CLAUDE_PLUGIN_DATA}" node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.mjs draft {{case}} <instrument> draft.txt
 ```
 
 Now show the person the **complete text**, not a summary. Ask them to confirm
@@ -79,7 +80,7 @@ they have authority to act for the rights holder and that the statements are
 true. Then:
 
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.mjs sign {{case}} "Their Name" draft.txt
+CEASE_DATA_DIR="${CLAUDE_PLUGIN_DATA}" node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.mjs sign {{case}} "Their Name" draft.txt
 ```
 
 Signing refuses if the text changed after drafting — signing must be an act on
@@ -91,7 +92,7 @@ DocuSign, and CEASE does not have it connected.
 
 If they decline or go quiet, the draft stays unsigned **indefinitely**. There
 is no timeout that files on their behalf (F8). Discard it with
-`sign.mjs discard {{case}}` if they say no.
+`CEASE_DATA_DIR="${CLAUDE_PLUGIN_DATA}" node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.mjs discard {{case}}` if they say no.
 
 ## 5. Sending
 

@@ -1,5 +1,4 @@
 {
-  "description": "CEASE — blocks any outbound legal enforcement instrument that has not been signed by a named human (SPEC R29).",
   "hooks": {
     "PreToolUse": [
       {
@@ -8,7 +7,23 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/signature-gate.mjs"],
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/signature-gate.mjs"
+            ],
+            "timeout": 10,
+            "statusMessage": "Checking enforcement signature"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*__(form_input|computer|javascript_tool)|^Bash$|^WebFetch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/signature-gate.mjs"
+            ],
             "timeout": 10,
             "statusMessage": "Checking enforcement signature"
           }

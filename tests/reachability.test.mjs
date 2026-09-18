@@ -17,6 +17,8 @@ import { join } from 'node:path';
 
 const SECURITY_TABLE = [
   { symbol: 'decide',            file: 'hooks/signature-gate.mjs', rid: 'R29', claim: 'no instrument leaves without a signature' },
+  { symbol: 'safeDecide',        file: 'hooks/signature-gate.mjs', rid: 'R29', claim: 'an internal error denies rather than escapes' },
+  { symbol: 'verifyChain',       file: 'scripts/audit-append.mjs', rid: 'R30', claim: 'the audit chain is actually checked' },
   { symbol: 'verifyBodyHash',    file: 'hooks/signature-gate.mjs', rid: 'R29', claim: 'the thing sent is the thing that was signed' },
   { symbol: 'filterAllowlisted', file: 'scripts/suppress.mjs',     rid: 'R12', claim: 'authorized resellers never reach the docket' },
   { symbol: 'appendEntry',       file: 'scripts/audit-append.mjs', rid: 'R30', claim: 'the audit log cannot be rewritten' },
@@ -62,7 +64,7 @@ describe('every security-table symbol actually runs', () => {
     assert.ok(scriptArg.includes('signature-gate.mjs'),
       'the hook must point at the signature gate, or R29 is enforced by nothing');
     const src = readFileSync('hooks/signature-gate.mjs', 'utf8');
-    assert.match(src, /render\(decide\(/, 'the gate entrypoint must call decide()');
+    assert.match(src, /render\(safeDecide\(/, 'the gate entrypoint must call the fail-closed wrapper');
   });
 
   test('the matcher covers send-shaped tools across ANY connector id [R29]', () => {
@@ -83,4 +85,28 @@ describe('every security-table symbol actually runs', () => {
       assert.ok(!re.test(tool), `matcher over-matches ${tool}`);
     }
   });
+});
+
+
+describe('verification commands run on an operational path [security.md rule 2]', () => {
+  // A tamper detector that exists, is tested, and is never invoked is the named
+  // worst case: a green suite buys confidence in a check nobody runs.
+  const skillBodies = readdirSync('skills')
+    .map((n) => join('skills', n, 'SKILL.md'))
+    .filter((p) => { try { return statSync(p).isFile(); } catch { return false; } })
+    .map((p) => readFileSync(p, 'utf8'))
+    .join('\n');
+
+  const VERIFIERS = [
+    { cmd: 'audit-append.mjs verify', claim: 'the audit chain is checked weekly (R30)' },
+    { cmd: 'case.mjs verify', claim: 'evidence custody is re-verified (R21)' },
+    { cmd: 'case.mjs readiness', claim: 'DMCA readiness is gated (F7)' },
+  ];
+
+  for (const { cmd, claim } of VERIFIERS) {
+    test(`\`${cmd}\` is invoked from a skill — ${claim}`, () => {
+      assert.ok(skillBodies.includes(cmd),
+        `${cmd} is never run by any skill, so the property it checks is unverified in practice`);
+    });
+  }
 });

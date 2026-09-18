@@ -6,7 +6,7 @@ description: >-
   brand's ad-account metrics and makes no claims about CPM, click-through rate,
   branded cost-per-click or impression share. Returns raw hits for triage; does
   not classify or file anything. Use only from cease:sweep or cease:check.
-disallowedTools: Write, Edit, NotebookEdit, Task
+disallowedTools: Write, Edit, NotebookEdit, Task, Bash
 model: sonnet
 effort: low
 ---

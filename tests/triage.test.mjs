@@ -123,3 +123,34 @@ describe('A6 — the docket reduces what reaches a human', () => {
     assert.ok(fake.linkedHarm.length > 0);
   });
 });
+
+
+describe('A2 at the docket level, not just the helper [regression]', () => {
+  // The helper was tested directly and passed, while buildDocket passed
+  // `sellers: []` and put authorized resellers on the docket anyway — the
+  // trust-destroying failure R12 exists to prevent, invisible to a helper test.
+  const hits = [
+    { id: 'distributor', sku: 'LG-DESK-04', price: 60, seller: 'Northwind Retail', domain: 'marketplace.example' },
+    { id: 'counterfeit', sku: 'LG-PEND-01', price: 78, seller: 'Outlet Store', domain: 'lumengoods-outlet.example' },
+  ];
+
+  test('an allowlisted seller below floor is ABSENT from the docket [A2]', () => {
+    const r = buildDocket(hits, { fingerprint: FP, allow: ALLOW });
+    assert.ok(!r.docket.some((h) => h.id === 'distributor'),
+      'an authorized reseller reached the enforcement docket');
+    assert.ok(r.suppressed.some((h) => h.id === 'distributor'));
+  });
+
+  test('the counterfeit still reaches the docket [A2 must not over-suppress]', () => {
+    const r = buildDocket(hits, { fingerprint: FP, allow: ALLOW });
+    assert.ok(r.docket.some((h) => h.id === 'counterfeit'));
+  });
+
+  test('the MAP breach is reported separately as a contract matter [R14]', () => {
+    const r = buildDocket(hits, { fingerprint: FP, allow: ALLOW });
+    assert.equal(r.mapBreaches.length, 1);
+    assert.equal(r.mapBreaches[0].id, 'distributor');
+    assert.match(r.mapBreaches[0].matter, /contract/);
+    assert.match(r.reduction.explanation, /below your price floor/);
+  });
+});

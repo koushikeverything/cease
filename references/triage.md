@@ -3,7 +3,8 @@
 Loaded by `cease:sweep` and `cease:check`. Triage exists to **reduce** what
 reaches the user (R16). A run that hands over every hit has failed.
 
-Run it: `node ${CLAUDE_PLUGIN_ROOT}/scripts/triage.mjs <hits.json> <fingerprint.json>`
+The skill that loaded this file runs the triage script; the exact command is in
+that skill body. This file is the rubric, not the invocation.
 
 ## The six types — the type selects the instrument
 

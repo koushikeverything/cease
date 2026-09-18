@@ -130,10 +130,15 @@ export function score(hit, ctx = {}) {
  * but retained, so the reduction is explainable rather than invisible.
  */
 export function buildDocket(hits, { fingerprint = {}, allow = {}, priorCases = {} } = {}) {
+  // A2 is literal: "a hit whose seller is on the allowlist is ABSENT from the
+  // docket". An earlier version passed `sellers: []` here and classified them as
+  // unauthorized-reseller instead, which put real distributors in front of the
+  // founder — the exact trust-destroying failure R12 exists to prevent.
+  // The MAP signal is not lost: it is reported separately, as a contract matter.
   const { kept, suppressed } = filterAllowlisted(hits, {
     owned_domains: allow.owned_domains ?? [],
     owned_handles: allow.owned_handles ?? [],
-    sellers: [],   // reseller status is a CLASSIFICATION here, not a suppression
+    sellers: allow.authorized_resellers ?? allow.sellers ?? [],
   });
 
   const triaged = kept.map((hit) => {
@@ -151,17 +156,27 @@ export function buildDocket(hits, { fingerprint = {}, allow = {}, priorCases = {
     .sort((a, b) => b.severity - a.severity);
   const held = triaged.filter((t) => t.classification.needsHuman);
 
+  // An authorized reseller priced below the floor is a CONTRACT breach, not an
+  // IP one. Surfaced on its own, never on the enforcement docket.
+  const mapBreaches = suppressed.filter((h) => {
+    if (h.suppressionReason !== 'authorized reseller') return false;
+    const product = (fingerprint.products ?? []).find((p) => p.sku === h.sku);
+    return product?.priceFloor != null && h.price != null && h.price < product.priceFloor;
+  }).map((h) => ({ ...h, matter: 'contract / MAP breach — not an IP remedy' }));
+
   return {
     docket,
     held,
     suppressed,
+    mapBreaches,
     reduction: {
       raw: hits.length,
       docket: docket.length,
       suppressedCount: suppressed.length,
       heldCount: held.length,
       explanation: `${hits.length} raw hits -> ${docket.length} on the docket: ` +
-        `${suppressed.length} suppressed as yours or authorized, ${held.length} held for you to classify.`,
+        `${suppressed.length} suppressed as yours or authorized, ${held.length} held for you to classify.` +
+        (mapBreaches.length ? ` Separately, ${mapBreaches.length} authorized reseller(s) are below your price floor — a contract matter, not an IP one.` : ''),
     },
   };
 }

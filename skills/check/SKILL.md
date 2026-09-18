@@ -10,7 +10,8 @@ description: >-
   someone forwards you something and you ask "is this a real store or a
   knockoff?", "someone sent me this link", "is this listing ours?", or "are our
   photos on this page?". Not for sweeping all channels (cease:sweep), not for
-  filing anything (cease:enforce). Not for durable Eve agents (koushik plugin).
+  building the chain-of-custody case file (cease:evidence), not for filing
+  anything (cease:enforce). Not for durable Eve agents (koushik plugin).
 allowed-tools: Bash, Read, Write, Task
 ---
 
@@ -19,7 +20,7 @@ allowed-tools: Bash, Read, Write, Task
 The most-used entry point in practice: someone forwards a link and wants an
 answer. It must work **cold** — no prior sweep, no open case.
 
-Load `../sweep/references/triage.md` before classifying.
+Load `${CLAUDE_PLUGIN_ROOT}/references/triage.md` before classifying.
 
 ## 1. Work out what you were given
 

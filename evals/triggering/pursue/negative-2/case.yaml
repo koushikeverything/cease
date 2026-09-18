@@ -5,6 +5,11 @@ execution:
   prompt: |
     draft the registrar abuse report
 graders:
+  - name: nothing-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
   - name: pursue-did-not-fire
     type: llm
     weight: 1

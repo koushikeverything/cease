@@ -6,7 +6,7 @@ description: >-
   and looks for the brand's product photography reposted by accounts it does
   not own. Returns raw hits for triage; does not classify or file anything. Use
   only from cease:sweep or cease:check.
-disallowedTools: Write, Edit, NotebookEdit, Task
+disallowedTools: Write, Edit, NotebookEdit, Task, Bash
 model: sonnet
 effort: medium
 ---

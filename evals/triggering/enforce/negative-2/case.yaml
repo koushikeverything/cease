@@ -5,6 +5,11 @@ execution:
   prompt: |
     who's copying our products?
 graders:
+  - name: nothing-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
   - name: enforce-did-not-fire
     type: llm
     weight: 1

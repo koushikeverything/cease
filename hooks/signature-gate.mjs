@@ -33,23 +33,31 @@ import { createHash } from 'node:crypto';
 export const SENTINEL = /CEASE-Case:\s*([A-Za-z0-9][A-Za-z0-9._-]{0,63})/;
 
 /** Two or more of these in one message means it reads as a legal instrument. */
+/**
+ * OPERATIVE phrases only — language that appears in the instrument itself, not
+ * language used when TALKING ABOUT one. "dmca" and "cease and desist" were here
+ * and are deliberately gone: this user emails their attorney about DMCA notices
+ * constantly, and blocking that is a worse failure than the one it prevents.
+ */
 export const INSTRUMENT_PHRASES = [
   'under penalty of perjury',
-  'good faith belief',
-  '17 u.s.c',
-  '512(c)',
-  '512(g)',
-  'dmca',
-  'cease and desist',
-  'vero',
-  'infringing material',
-  'notice of infringement',
-  'trademark infringement',
-  'intellectual property complaint',
+  'good faith belief that use of the material',
+  'good faith belief that the use',
+  'i am the copyright owner, or am authorized',
+  'authorized to act on behalf of the owner',
+  'is not authorized by the copyright owner',
+  'statement under penalty of perjury',
+  'i swear, under penalty of perjury',
 ];
 
 /** Fields a send-shaped tool might carry the message text in. */
-const TEXT_FIELDS = ['body', 'text', 'message', 'html', 'content', 'subject', 'markdown'];
+// `subject` is deliberately absent: a reply on a thread titled "DMCA notice"
+// is ordinary correspondence, not an instrument.
+// Covers every submit surface the matcher reaches: connector sends (body/text),
+// browser form fills (value/input), and shell posts (command). Most of the
+// instruments CEASE drafts are WEB FORMS — Amazon, Meta, TikTok, Cloudflare —
+// so gating only connector email left the majority path unguarded.
+const TEXT_FIELDS = ['body', 'text', 'message', 'html', 'content', 'markdown', 'value', 'input', 'command', 'data'];
 
 export function dataDir() {
   return process.env.CEASE_DATA_DIR || process.env.CLAUDE_PLUGIN_DATA || null;
@@ -85,8 +93,21 @@ export function extractBody(toolInput) {
   return parts.join('\n');
 }
 
+/**
+ * Quoted history is not what THIS message says. A forward or reply that quotes a
+ * signed instrument must not be read as sending one.
+ */
+export function stripQuoted(body) {
+  return String(body)
+    .split(/\r?\n/)
+    .filter((l) => !/^\s*>/.test(l))
+    .join('\n')
+    .split(/^-+\s*(Original Message|Forwarded message)\s*-+$/im)[0]
+    .split(/^On .{0,120}\bwrote:\s*$/im)[0];
+}
+
 export function countInstrumentPhrases(body) {
-  const lower = body.toLowerCase();
+  const lower = stripQuoted(body).toLowerCase();
   return INSTRUMENT_PHRASES.filter((p) => lower.includes(p)).length;
 }
 
@@ -174,6 +195,24 @@ export function decide(payload, opts = {}) {
   return allow();
 }
 
+/**
+ * decide(), but an unexpected throw becomes a DENY rather than an escape.
+ *
+ * A PreToolUse hook that exits non-zero is NON-BLOCKING: the tool call
+ * proceeds. So an uncaught error anywhere in decide() would silently convert
+ * this gate into a no-op — precisely when something is already wrong. This is
+ * the wrapper main() uses, so the fail-closed promise is on the real path.
+ */
+export function safeDecide(payload) {
+  try {
+    return decide(payload);
+  } catch (e) {
+    return { decision: 'deny', reason:
+      `CEASE blocked this: the signature gate could not complete its check (${e.message}). ` +
+      `Refusing to send rather than assuming it is safe. Re-run /cease:enforce, or report this.` };
+  }
+}
+
 export function render(result, eventName = 'PreToolUse') {
   if (!result.decision) return null;
   return JSON.stringify({
@@ -200,7 +239,7 @@ export async function main() {
     // Unparseable input must not silently permit a send.
     payload = {};
   }
-  const out = render(decide(payload), payload.hook_event_name ?? 'PreToolUse');
+  const out = render(safeDecide(payload), payload.hook_event_name ?? 'PreToolUse');
   if (out) process.stdout.write(out);
   process.exit(0);
 }

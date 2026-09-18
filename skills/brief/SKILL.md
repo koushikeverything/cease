@@ -5,7 +5,8 @@ description: >-
   needs your signature this week, what is stuck and why, and the running
   recovery estimate with its assumptions shown. Use when you say "weekly
   update", "where are we on takedowns", "brand protection summary", or when a
-  Monday schedule fires. Not for running detection (cease:sweep). Not for
+  Monday schedule fires. Not for running detection (cease:sweep), and not for verifying or escalating
+  an individual filing (cease:pursue). Not for
   durable Eve agents (koushik plugin).
 allowed-tools: Bash, Read, Write
 ---
@@ -14,7 +15,7 @@ allowed-tools: Bash, Read, Write
 
 Deliberately short. A founder reads this in under a minute or does not read it.
 
-## Five sections, in this order
+## Six sections, in this order
 
 ### 1. New this period
 Cases opened, worst first. One line each: what it is, where, severity, and
@@ -26,18 +27,28 @@ lever worked — over time this is how the brand learns where to start.
 
 ### 3. Needs your signature
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.mjs status
+CEASE_DATA_DIR="${CLAUDE_PLUGIN_DATA}" node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.mjs status
 ```
 Every drafted-but-unsigned instrument, with how long it has been waiting.
 **Put this section first when anything has waited more than a week** — an
 instrument nobody signs is the most common way enforcement quietly stops.
 
-### 4. Stuck, and why
+### 4. Audit trail integrity
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/audit-append.mjs verify "${CLAUDE_PLUGIN_DATA}/audit.jsonl"
+```
+
+Report the result every week, including when it is fine. A tamper-evident log
+nobody ever checks is not tamper-evident — it is just a log. If it reports a
+break, say so at the very top of the brief, not here.
+
+### 5. Stuck, and why
 Filings past their expected response window, failed takedowns awaiting
 escalation, cases held for classification. Each with the reason and the next
 action. Never a bare count.
 
-### 5. Recovery estimate — with its assumptions visible
+### 6. Recovery estimate — with its assumptions visible
 
 Never state a number alone. Always:
 

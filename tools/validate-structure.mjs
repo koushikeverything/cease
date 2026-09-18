@@ -179,11 +179,25 @@ if (existsSync(hooksPath)) {
   if (h) {
     if (!h.hooks || typeof h.hooks !== 'object')
       fail('hooks/hooks.json: top level must be an object with a "hooks" key (verified live 2026-09-17)');
+    // `claude plugin validate --strict` does NOT parse hooks.json at all
+    // (probe-verified 2026-09-18: bogus keys pass), so unknown keys are caught
+    // here or nowhere. An unregistered hook means R29 is enforced by nothing.
+    for (const k of Object.keys(h)) {
+      if (!['hooks', 'disableAllHooks'].includes(k))
+        fail(`hooks/hooks.json: unknown top-level key "${k}" - documented keys are "hooks" and "disableAllHooks"`);
+    }
+    const HOOK_FIELDS = ['type', 'command', 'args', 'async', 'asyncRewake', 'shell', 'if', 'timeout',
+                         'statusMessage', 'once', 'url', 'headers', 'allowedEnvVars', 'server', 'tool',
+                         'input', 'prompt', 'model'];
     for (const [event, entries] of Object.entries(h.hooks ?? {})) {
       if (!Array.isArray(entries)) { fail(`hooks.json: ${event} must be an array`); continue; }
       for (const entry of entries) {
         for (const hook of entry.hooks ?? []) {
           if (!hook.type) fail(`hooks.json: ${event} hook is missing "type"`);
+          for (const k of Object.keys(hook)) {
+            if (!HOOK_FIELDS.includes(k))
+              fail(`hooks.json: ${event} hook has unknown field "${k}" - documented fields are ${HOOK_FIELDS.join(', ')}`);
+          }
           if (hook.type === 'command') {
             if (!hook.command) fail(`hooks.json: ${event} command hook is missing "command"`);
             // ${user_config.*} only expands in exec form (args present) - live docs 2026-09-17
@@ -207,6 +221,92 @@ if (existsSync(hooksPath)) {
           }
         }
       }
+    }
+  }
+}
+
+// ---------- plugin env vars are absent from Bash-tool commands ----------
+// Verified live 2026-09-18 (plugins-reference) and stated in the pack:
+// CLAUDE_PLUGIN_ROOT/DATA are exported to hook, MCP and LSP subprocesses but
+// NOT into commands Claude runs through the Bash tool. A script invoked from a
+// SKILL.md that reads one from process.env therefore gets nothing.
+// Caught once as a P1: the whole signing flow threw on a real install while
+// the hook (which DOES get the var) failed closed — a permanent deadlock.
+{
+  const scriptsReadingEnv = new Map();
+  const sdir = join(root, 'scripts');
+  if (existsSync(sdir)) {
+    for (const f of readdirSync(sdir)) {
+      if (!f.endsWith('.mjs')) continue;
+      const src = readFileSync(join(sdir, f), 'utf8');
+      const vars = ['CLAUDE_PLUGIN_DATA', 'CLAUDE_PLUGIN_ROOT'].filter((v) => src.includes(`process.env.${v}`));
+      if (vars.length) scriptsReadingEnv.set(f, vars);
+    }
+  }
+  const skillsRoot = join(root, 'skills');
+  if (existsSync(skillsRoot)) {
+    for (const name of readdirSync(skillsRoot)) {
+      const sk = join(skillsRoot, name, 'SKILL.md');
+      if (!existsSync(sk)) continue;
+      const body = readFileSync(sk, 'utf8');
+      for (const line of body.split(/\r?\n/)) {
+        const m = line.match(/node\s+\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/([A-Za-z0-9_.-]+\.mjs)/);
+        if (!m) continue;
+        const needs = scriptsReadingEnv.get(m[1]);
+        if (!needs) continue;
+        for (const v of needs) {
+          const alias = v === 'CLAUDE_PLUGIN_DATA' ? 'CEASE_DATA_DIR' : null;
+          const passed = line.includes(`${v}=`) || (alias && line.includes(`${alias}=`));
+          if (!passed)
+            fail(`skills/${name}/SKILL.md: invokes ${m[1]}, which reads process.env.${v}, without passing it — plugin env vars are NOT present in Bash-tool commands. Prefix the command, e.g. ${alias ?? v}="\${${v}}" node ...`);
+        }
+      }
+    }
+  }
+}
+
+// ---------- reference paths stay inside their own skill ----------
+// Pack (agent-skill.md): file references relative, one level deep. A `../`
+// escapes the skill dir and may not resolve at all.
+{
+  const skillsRoot = join(root, 'skills');
+  if (existsSync(skillsRoot)) {
+    for (const name of readdirSync(skillsRoot)) {
+      const sk = join(skillsRoot, name, 'SKILL.md');
+      if (!existsSync(sk)) continue;
+      const body = readFileSync(sk, 'utf8');
+      const bad = body.match(/`[^`]*\.\.\/[^`]*`/);
+      if (bad) fail(`skills/${name}/SKILL.md: reference ${bad[0]} escapes the skill directory - put shared references at the plugin root and address them with \${CLAUDE_PLUGIN_ROOT}`);
+    }
+  }
+}
+
+// ---------- ${CLAUDE_PLUGIN_*} only where substitution is documented ----------
+// Documented for skill and agent CONTENT. A references/ or templates/ file is
+// read with the Read tool; substitution there is unverified, so a literal
+// "${CLAUDE_PLUGIN_ROOT}" would reach the model and the command would fail.
+for (const d of ['references', 'templates']) {
+  const dir = join(root, d);
+  if (!existsSync(dir)) continue;
+  const walkRefs = (x) => {
+    for (const e of readdirSync(x)) {
+      const p2 = join(x, e);
+      if (statSync(p2).isDirectory()) { walkRefs(p2); continue; }
+      if (!e.endsWith('.md')) continue;
+      if (readFileSync(p2, 'utf8').includes('${CLAUDE_PLUGIN_'))
+        fail(`${p2}: uses \${CLAUDE_PLUGIN_*}, but substitution is only documented for skill and agent content - this file is read verbatim`);
+    }
+  };
+  walkRefs(dir);
+}
+for (const sd of (existsSync(join(root, 'skills')) ? readdirSync(join(root, 'skills')) : [])) {
+  for (const sub of ['templates', 'references']) {
+    const dir = join(root, 'skills', sd, sub);
+    if (!existsSync(dir)) continue;
+    for (const e of readdirSync(dir)) {
+      if (!e.endsWith('.md')) continue;
+      if (readFileSync(join(dir, e), 'utf8').includes('${CLAUDE_PLUGIN_'))
+        fail(`skills/${sd}/${sub}/${e}: uses \${CLAUDE_PLUGIN_*} in a file read verbatim - move the command into SKILL.md`);
     }
   }
 }
