@@ -12,7 +12,7 @@
  * (security.md rule 11).
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
-import { dirname, join, basename } from 'node:path';
+import { dirname, join, basename, isAbsolute } from 'node:path';
 import { createHash } from 'node:crypto';
 
 export const EVIDENCE_KINDS = ['screenshot', 'page-source', 'whois', 'image', 'ownership-proof', 'first-party-harm', 'note'];
@@ -68,7 +68,10 @@ export function verifyCustody(kase, { baseDir = '.' } = {}) {
   const problems = [];
   for (const e of kase.evidence) {
     if (!e.path) continue;
-    const p = join(baseDir, e.path);
+    // e.path may be absolute (a skill passing a real capture path) or relative
+    // to the case file. Joining baseDir onto an absolute path silently produced
+    // a non-existent path and reported every artifact as missing.
+    const p = isAbsolute(e.path) ? e.path : join(baseDir, e.path);
     if (!existsSync(p)) { problems.push({ file: e.file, problem: 'missing since capture' }); continue; }
     if (e.sha256 && sha256File(p) !== e.sha256) problems.push({ file: e.file, problem: 'altered since capture' });
   }

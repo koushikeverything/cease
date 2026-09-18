@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { createCase, addEvidence, verifyCustody, readinessForDmca, EVIDENCE_KINDS } from '../scripts/case.mjs';
 
 const workspace = () => mkdtempSync(join(tmpdir(), 'cease-case-'));
@@ -96,6 +97,31 @@ describe('F7 — an incomplete case cannot become a DMCA notice', () => {
     addEvidence(k, { kind: 'page-source', path: artifact(dir, 'p.html', 'y'), method: 'browser' });
     k.ownershipProof.push({ kind: 'trademark', number: '5,123,456', class: 11 });
     assert.equal(readinessForDmca(k).ready, true);
+    rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe('custody verification handles both path shapes [R21 regression]', () => {
+  test('an absolute evidence path verifies without a baseDir', () => {
+    // Regression: verifyCustody joined baseDir onto already-absolute paths,
+    // producing a path that never exists and reporting EVERY artifact as
+    // missing — chain of custody broken for every real case.
+    const dir = workspace();
+    const k = createCase('c-0001');
+    addEvidence(k, { kind: 'screenshot', path: artifact(dir, 'abs.png', 'DATA'), method: 'browser' });
+    assert.equal(verifyCustody(k).ok, true, 'absolute paths must verify');
+    assert.equal(verifyCustody(k, { baseDir: '/somewhere/else' }).ok, true, 'baseDir must not corrupt an absolute path');
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test('a relative evidence path still verifies against its baseDir', () => {
+    const dir = workspace();
+    const k = createCase('c-0001');
+    artifact(dir, 'rel.png', 'DATA');
+    addEvidence(k, { kind: 'screenshot', path: join(dir, 'rel.png'), method: 'browser' });
+    k.evidence[0].path = 'rel.png';                       // as stored relative to the case file
+    k.evidence[0].sha256 = createHash('sha256').update('DATA').digest('hex');
+    assert.equal(verifyCustody(k, { baseDir: dir }).ok, true);
     rmSync(dir, { recursive: true, force: true });
   });
 });
