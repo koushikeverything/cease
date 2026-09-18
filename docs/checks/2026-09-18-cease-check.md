@@ -1,8 +1,8 @@
 # Check report — CEASE plugin
 
 **Date:** 2026-09-18 · **Branch:** `build/cease-plugin` · **Target:** claude-plugin
-**Verdict: BLOCKED — does not reach `checked`.** One P0 is open and awaiting an
-explicit human decision; the behavioral gate has never executed.
+**Verdict: BLOCKED — does not reach `checked`.** The P0 is now FIXED (see F-0);
+the behavioral gate has still never executed, which is what holds this open.
 
 ---
 
@@ -119,10 +119,26 @@ precise 17 U.S.C. §512(f) exposure the product exists to avoid.
 *Aggravating:* `plugin.json` advertises `authorized_signers` as *"Display and
 validation only"*, and **no code reads it** — a control whose description promises a
 validation layer that does not exist.
-*Disposition:* **NOT fixed. Escalated to the user.** Lowering a security finding's
-severity is a human gate (lifecycle.md), so it is not mine to accept. Options are in
-the close report. The honest framing: the gate makes auto-filing *visible, logged and
-deliberate*; it cannot make it *impossible* while the drafting agent holds a shell.
+*Disposition:* **FIXED 2026-09-18**, on the user's explicit instruction after the
+options were put to them (a human gate — accepting a security finding is not mine to
+do). Chosen option: bind approval to a genuine user turn.
+
+`hooks/signature-gate.mjs:findUserApproval` now reads the session transcript the hook
+is handed and requires a message **typed by the user** naming the case and the first 8
+characters of the document hash. A matching signature is necessary but no longer
+sufficient. Transcript shape verified against real sessions before relying on it:
+`type: "user"` + `userType: "external"`, excluding `tool_result` blocks and `isMeta`.
+
+Why this closes it: the agent can write any file and run any command, but it cannot
+author a user turn. The forgery cases are tested directly — an assistant turn saying
+the words, a tool result containing them, a meta turn, an approval for a different
+case, an approval for a different document, and vague assent ("yes", "go ahead",
+"approve it") are each asserted to FAIL.
+
+Residual, stated honestly: approval is a typed phrase, not a cryptographic signature,
+and a user who types it without reading is still unprotected. It converts a silent
+automatic act into a deliberate one that cannot happen without them. F-17 (audit log
+truncation) shares the old root cause and is reduced but not eliminated.
 
 ### P1 — fixed this stage
 
@@ -149,7 +165,7 @@ deliberate*; it cannot make it *impossible* while the drafting agent holds a she
 | F-14 | **11 of 16 positive eval prompts quote the descriptions' own words.** They discriminate against the ablation arm but prove nothing about reaching a user who does not echo the description — which is the whole ambient contract. | **Defer to the first real eval run.** Rewriting them is pointless until the suite can execute; do it with the auth fix. High priority once unblocked. |
 | F-15 | `evidence-clerk` scoped by denylist, so it inherits every connector including Gmail send; an injected page could reach an exfiltration path the gate does not cover (no instrument phrases). | **Defer with note.** A `tools:` allowlist cannot name connectors portably (per-user ids) — the same constraint that produced the earlier UUID bug. Needs a design decision, not a patch. |
 | F-16 | `fingerprint.mjs:hashImage` fetches data-derived URLs with no scheme allowlist, host restriction or size cap (SSRF / memory DoS). | **Defer.** Only reachable with `--hash-images` against a live catalog; unreachable in fixture mode. Fix before first real-brand run. |
-| F-17 | Audit log is tamper-**evident**, not append-only: unkeyed hash means anything with `Write` can truncate and re-chain a clean history. | **Accept with documentation.** Same root cause as F-0; resolving F-0 resolves this. |
+| F-17 | Audit log is tamper-**evident**, not append-only: unkeyed hash means anything with `Write` can truncate and re-chain a clean history. | **Reduced, not eliminated.** F-0's fix means a forged log can no longer authorise a send, so the log's integrity is no longer load-bearing for R29. Truncation is still possible and still undetectable. Fix properly with a keyed HMAC or an out-of-process append target. |
 | F-18 | Branch B of the gate (text not visible) may be dead code in the real runtime. | **Defer to the smoke run.** Needs a live PreToolUse payload to settle. |
 | F-19 | Skills do not pre-approve the connector tools they instruct → first-run permission-prompt storm. | **Defer to ship.** DX, not correctness. |
 | F-20 | `baseline` re-asks four fields `userConfig` already collected. | **Defer to ship.** |
@@ -163,7 +179,7 @@ deliberate*; it cannot make it *impossible* while the drafting agent holds a she
 
 ## 5. Unresolved risk
 
-1. **F-0 is open** and needs a human decision before ship.
+1. ~~F-0 is open~~ **FIXED** — approval is now bound to a genuine user turn.
 2. **Triggering is unmeasured.** 36 cases exist and load; none has run.
 3. **Runtime smoke never ran** — the plugin has never been loaded by Claude Code.
 4. **Precision remains unmeasured** (A20), unchanged from build.

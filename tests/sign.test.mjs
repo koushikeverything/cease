@@ -8,6 +8,15 @@ import { draft, sign, discard, status, sentinelFor, INSTRUMENTS } from '../scrip
 import { decide } from '../hooks/signature-gate.mjs';
 import { verifyChain } from '../scripts/audit-append.mjs';
 
+/** R29's anchor: a signature alone no longer sends without a human turn. */
+function approvalTranscript(caseId, sha256) {
+  const d = mkdtempSync(join(tmpdir(), 'cease-tr-'));
+  const p = join(d, 'transcript.jsonl');
+  writeFileSync(p, JSON.stringify({ type: 'user', userType: 'external', uuid: 'u1',
+    message: { role: 'user', content: `approve ${caseId} ${String(sha256).slice(0, 8)}` } }) + '\n');
+  return p;
+}
+
 const dir = () => mkdtempSync(join(tmpdir(), 'cease-sign-'));
 const TEXT = (id) => [sentinelFor(id), 'I have a good faith belief that the use is not authorized.',
                       'I swear, under penalty of perjury, that this notification is accurate.'].join('\n');
@@ -58,8 +67,12 @@ describe('the ledger drives the gate — end to end [A11]', () => {
     draft('c-1', 'dmca-512c', text, d);
     assert.equal(decide(send, { dir: d }).decision, 'deny', 'an unsigned instrument must not send');
 
-    sign('c-1', 'Dana Okafor', text, { dir: d });
-    assert.equal(decide(send, { dir: d }).decision, null, 'a signed instrument must send');
+    const rec = sign('c-1', 'Dana Okafor', text, { dir: d });
+    assert.equal(decide(send, { dir: d }).decision, 'deny',
+      'a signature without a human approval must NOT send — the agent can write that file');
+    const approved = { ...send, transcript_path: approvalTranscript('c-1', rec.sha256) };
+    assert.equal(decide(approved, { dir: d }).decision, null,
+      'signature plus a typed human approval must send');
 
     // ...and the signature does not travel to a different instrument.
     const other = { tool_name: 'mcp__x__send_message', tool_input: { body: text.replace('c-1', 'c-2') } };

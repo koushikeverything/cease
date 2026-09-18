@@ -136,6 +136,64 @@ export function verifyBodyHash(body, signature) {
   return hashBody(body) === signature.sha256;
 }
 
+
+/**
+ * Did a REAL PERSON approve this exact document?
+ *
+ * This is the anchor of R29, and it exists because everything else in this file
+ * can be produced by the agent. The signature ledger is a file on disk, and the
+ * skill that drafts an instrument can write files and run shell commands — so
+ * an agent under "just file it" pressure could approve its own perjury
+ * declaration. A hash does not fix that; it only proves the document is
+ * unchanged, not that anyone read it.
+ *
+ * The transcript can. Claude Code records genuine human turns as
+ * `type: "user"`, `userType: "external"`, with no tool_result block and no
+ * isMeta flag (format verified 2026-09-18 against real session transcripts).
+ * The agent can write any file it likes; it cannot write a turn from the user.
+ *
+ * The approval must name the case AND carry the first 8 characters of the
+ * document's hash, so approving draft A cannot authorise draft B.
+ */
+export function findUserApproval(transcriptPath, caseId, sha256) {
+  if (!transcriptPath || !existsSync(transcriptPath))
+    return { approved: false, reason: 'no session transcript available to confirm a human approved this' };
+
+  const token = String(sha256 ?? '').slice(0, 8).toLowerCase();
+  if (token.length < 8) return { approved: false, reason: 'no document hash to bind the approval to' };
+
+  let lines;
+  try { lines = readFileSync(transcriptPath, 'utf8').split('\n'); }
+  catch (e) { return { approved: false, reason: `session transcript unreadable (${e.message})` }; }
+
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const raw = lines[i];
+    if (!raw.trim()) continue;
+    let d;
+    try { d = JSON.parse(raw); } catch { continue; }
+    if (d.type !== 'user' || d.userType !== 'external' || d.isMeta) continue;
+
+    const content = d.message?.content;
+    // A tool result is delivered as a user turn. It is not a person speaking.
+    if (Array.isArray(content) && content.some((b) => b && typeof b === 'object' && b.type === 'tool_result')) continue;
+
+    const text = typeof content === 'string'
+      ? content
+      : Array.isArray(content) ? content.filter((b) => b && b.type === 'text').map((b) => b.text).join(' ') : '';
+    if (!text) continue;
+
+    const lower = text.toLowerCase();
+    if (!/\bapprove(d|s)?\b/.test(lower)) continue;
+    if (!lower.includes(String(caseId).toLowerCase())) continue;
+    if (!lower.includes(token)) continue;
+    return { approved: true, turn: d.uuid ?? null, at: d.timestamp ?? null };
+  }
+  return {
+    approved: false,
+    reason: `no message from you approving case ${caseId} with its document code ${token}`,
+  };
+}
+
 const deny = (reason) => ({ decision: 'deny', reason });
 const allow = () => ({ decision: null, reason: null });
 
@@ -164,6 +222,20 @@ export function decide(payload, opts = {}) {
         return deny(
           `CEASE blocked this: the text being sent does not match what ${sig.approver ?? 'the approver'} signed for case ${caseId}. ` +
           `Re-open it with /cease:enforce ${caseId} and sign the current draft.`
+        );
+      }
+
+      // A matching signature is necessary but NOT sufficient: the ledger is a
+      // file this agent can write. Only a human turn in the transcript proves a
+      // person actually approved, and only the agent cannot forge that.
+      const approval = opts.approval !== undefined
+        ? opts.approval
+        : findUserApproval(payload?.transcript_path, caseId, sig.sha256);
+      if (!approval.approved) {
+        return deny(
+          `CEASE blocked this: ${approval.reason}. ` +
+          `A signature record exists, but CEASE can write that file itself — so it is not proof a person read this. ` +
+          `Type your approval in chat, exactly: approve ${caseId} ${String(sig.sha256).slice(0, 8)}`
         );
       }
       return allow();

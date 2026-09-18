@@ -36,12 +36,29 @@ function ledger({ signed = null, pending = [] } = {}) {
   return dir;
 }
 
-const send = (body) => ({ tool_name: 'mcp__abc__send_message', tool_input: { body } });
+
+/**
+ * A signature alone no longer sends: R29's anchor is a genuine human turn in
+ * the transcript, because the ledger is a file the agent can write. These tests
+ * therefore supply an approval transcript wherever they expect a send to
+ * succeed. tests/human-approval.test.mjs covers the forgery cases directly.
+ */
+function approvalTranscript(caseId, sha256) {
+  const dir = mkdtempSync(join(tmpdir(), 'cease-tr-'));
+  const p = join(dir, 'transcript.jsonl');
+  writeFileSync(p, JSON.stringify({
+    type: 'user', userType: 'external', uuid: 'u1',
+    message: { role: 'user', content: `approve ${caseId} ${String(sha256).slice(0, 8)}` },
+  }) + '\n');
+  return p;
+}
+
+const send = (body, transcript_path) => ({ tool_name: 'mcp__abc__send_message', tool_input: { body }, transcript_path });
 
 describe('branch A — message text visible', () => {
   test('signed case whose hash matches is allowed [R29]', () => {
     const dir = ledger({ signed: { caseId: 'c-0042', approver: 'Dana', sha256: hashBody(DMCA) } });
-    assert.equal(decide(send(DMCA), { dir }).decision, null);
+    assert.equal(decide(send(DMCA, approvalTranscript('c-0042', hashBody(DMCA))), { dir }).decision, null);
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -66,7 +83,7 @@ describe('branch A — message text visible', () => {
   test('whitespace reformatting does NOT break a valid signature [R29]', () => {
     const dir = ledger({ signed: { caseId: 'c-0042', approver: 'Dana', sha256: hashBody(DMCA) } });
     const reflowed = DMCA.replace(/\n/g, '\n\n  ');
-    assert.equal(decide(send(reflowed), { dir }).decision, null);
+    assert.equal(decide(send(reflowed, approvalTranscript('c-0042', hashBody(DMCA))), { dir }).decision, null);
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -199,9 +216,10 @@ describe('fail-closed behaviour [F8]', () => {
 
   test('there is no expiry or timeout that converts absence of a signature into permission [F8]', () => {
     const dir = ledger({ signed: { caseId: 'c-0042', approver: 'Dana', sha256: hashBody(DMCA), signedAt: '1999-01-01T00:00:00Z' } });
-    // An ancient signature that still matches the text is honoured; nothing in the
-    // gate grants permission because time passed with no signature.
-    assert.equal(decide(send(DMCA), { dir }).decision, null);
+    // An ancient signature that still matches the text AND carries a human
+    // approval is honoured; nothing in the gate grants permission because time
+    // passed with no signature.
+    assert.equal(decide(send(DMCA, approvalTranscript('c-0042', hashBody(DMCA))), { dir }).decision, null);
     assert.equal(decide(send(DMCA), { dir: ledger() }).decision, 'deny');
     rmSync(dir, { recursive: true, force: true });
   });
@@ -240,11 +258,21 @@ describe('ENTRYPOINT — the hook as the runtime actually invokes it [A11]', () 
     rmSync(dir, { recursive: true, force: true });
   });
 
-  test('signed instrument passes end to end with no decision emitted', () => {
+  test('signed instrument WITHOUT a human approval is blocked end to end [R29]', () => {
     const dir = ledger({ signed: { caseId: 'c-0042', approver: 'Dana', sha256: hashBody(DMCA) } });
     const res = run({ hook_event_name: 'PreToolUse', tool_name: 'mcp__abc__send_message', tool_input: { body: DMCA } },
                     { CEASE_DATA_DIR: dir });
-    assert.equal(res, null, 'hook emitted a decision for a correctly signed instrument');
+    assert.equal(res?.hookSpecificOutput?.permissionDecision, 'deny',
+      'a signature the agent could have written must not be enough to send');
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test('signed instrument WITH a typed human approval passes end to end [R29]', () => {
+    const dir = ledger({ signed: { caseId: 'c-0042', approver: 'Dana', sha256: hashBody(DMCA) } });
+    const res = run({ hook_event_name: 'PreToolUse', tool_name: 'mcp__abc__send_message', tool_input: { body: DMCA },
+                      transcript_path: approvalTranscript('c-0042', hashBody(DMCA)) },
+                    { CEASE_DATA_DIR: dir });
+    assert.equal(res, null, 'hook emitted a decision for a signed AND approved instrument');
     rmSync(dir, { recursive: true, force: true });
   });
 

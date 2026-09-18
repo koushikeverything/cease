@@ -77,7 +77,7 @@ CEASE_DATA_DIR="${CLAUDE_PLUGIN_DATA}" node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.m
 
 Now show the person the **complete text**, not a summary. Ask them to confirm
 they have authority to act for the rights holder and that the statements are
-true. Then:
+true. Then record it:
 
 ```bash
 CEASE_DATA_DIR="${CLAUDE_PLUGIN_DATA}" node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.mjs sign {{case}} "Their Name" draft.txt
@@ -85,6 +85,28 @@ CEASE_DATA_DIR="${CLAUDE_PLUGIN_DATA}" node ${CLAUDE_PLUGIN_ROOT}/scripts/sign.m
 
 Signing refuses if the text changed after drafting — signing must be an act on
 something the person actually read.
+
+### Then ask them to approve it in their own words
+
+**The signature record alone will not send anything.** CEASE can write that
+file itself, so it is not proof a person read the document. The gate requires a
+message *typed by the user*, which CEASE cannot fabricate.
+
+Show them the document code — the first 8 characters of the hash `sign.mjs`
+printed — and ask them to type, exactly:
+
+```
+approve <case-id> <document-code>
+```
+
+Do not offer this as a button or a menu choice: only a typed message counts.
+Do not type it for them, do not suggest they let you paste it, and never put
+those words in your own output as though they had said them. If they will not
+type it, the instrument does not go out — that is the control working.
+
+If the document changes afterwards, the code changes, and the old approval
+stops being valid. That is deliberate: approving draft A must never send
+draft B.
 
 **Be honest about what this signature is:** an in-session confirmation with an
 audit trail. It is not a cryptographic signature. If they need one, that is
@@ -96,8 +118,9 @@ is no timeout that files on their behalf (F8). Discard it with
 
 ## 5. Sending
 
-Only after signing. The signature gate blocks unsigned sends automatically — if
-you see it block something, that is the control working, not a bug to route
+Only after the person has both signed and typed their approval. The gate blocks
+everything else automatically — across email, browser forms and the shell — and
+if you see it block something, that is the control working, not a bug to route
 around. Never disable it, and never move an instrument to a different channel to
 avoid it.
 

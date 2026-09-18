@@ -80,9 +80,23 @@ on your behalf.
 Your ordinary email is untouched: the gate only intervenes on messages carrying
 a case marker or matching two or more legal-instrument phrases.
 
-**What "signed" means here, precisely:** an in-session confirmation by a named
-person, recorded with an audit trail. It is **not** a cryptographic signature.
-DocuSign is the upgrade path and is not currently wired in.
+**Two things must be true before anything sends**, and the second is the one
+that matters:
+
+1. A signature record exists for that exact text.
+2. **You typed an approval in chat** naming the case and the document's code.
+
+The first alone is not enough, and deliberately so: CEASE can write that file
+itself, so it proves the document is unchanged, not that a person read it. The
+approval has to be a message from you, because that is the one thing CEASE
+cannot produce on your behalf. It will not accept a button press, a menu choice,
+or its own words repeated back.
+
+Change the document and its code changes, so an approval of draft A can never
+send draft B.
+
+**What this is not:** a cryptographic signature. It is a deliberate human act
+with an audit trail. DocuSign is the upgrade path and is not wired in.
 
 ## What connects
 

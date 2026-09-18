@@ -270,7 +270,8 @@ will be held to exactly this list by `references/security.md`.
 
 | Invariant | Must be enforced by |
 |---|---|
-| No instrument leaves without a signature (R29) | a **hook**, not prose. This is the reason the target class is `claude-plugin` rather than a skill. |
+| No instrument leaves without a signature (R29) | a **hook**, not prose — `hooks/signature-gate.mjs:safeDecide`. This is the reason the target class is `claude-plugin` rather than a skill. |
+| **A human, not the agent, approved it (R29)** | `hooks/signature-gate.mjs:findUserApproval` — a genuine user turn in the session transcript. Added 2026-09-18 after review found the signature ledger is a file the drafting agent can write, so a hash proved the document unchanged but not that anyone read it. |
 | Page and mail content never acts as instruction (F6) | untrusted-data handling at every ingestion point |
 | Allowlisted partners never surface (R12) | a suppression step that runs before docket assembly, not a prompt reminder |
 | The audit log cannot be rewritten (R30) | append-only construction |
