@@ -1,0 +1,12 @@
+# baseline — negative 1
+# Adjacent request owned elsewhere (sweep). MUST NOT fire baseline.
+name: baseline-negative-1
+prompt: |
+  run a scan for fakes
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: sweep.
+      FAIL if the assistant invoked or began the work of the cease:baseline
+      skill. Over-triggering burns context and trust.
+    expect: pass

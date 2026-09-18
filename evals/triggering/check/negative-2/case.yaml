@@ -1,0 +1,12 @@
+# check — negative 2
+# Adjacent request owned elsewhere (enforce). MUST NOT fire check.
+name: check-negative-2
+prompt: |
+  file the takedown for case c-0001
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: enforce.
+      FAIL if the assistant invoked or began the work of the cease:check
+      skill. Over-triggering burns context and trust.
+    expect: pass

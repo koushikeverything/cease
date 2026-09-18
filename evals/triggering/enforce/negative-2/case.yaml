@@ -1,0 +1,12 @@
+# enforce — negative 2
+# Adjacent request owned elsewhere (sweep). MUST NOT fire enforce.
+name: enforce-negative-2
+prompt: |
+  who's copying our products?
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: sweep.
+      FAIL if the assistant invoked or began the work of the cease:enforce
+      skill. Over-triggering burns context and trust.
+    expect: pass

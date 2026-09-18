@@ -1,0 +1,12 @@
+# brief — negative 1
+# Adjacent request owned elsewhere (sweep). MUST NOT fire brief.
+name: brief-negative-1
+prompt: |
+  run a full scan now
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: sweep.
+      FAIL if the assistant invoked or began the work of the cease:brief
+      skill. Over-triggering burns context and trust.
+    expect: pass

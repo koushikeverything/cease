@@ -1,0 +1,12 @@
+# sweep — negative 1
+# Adjacent request owned elsewhere (check). MUST NOT fire sweep.
+name: sweep-negative-1
+prompt: |
+  a customer sent me this link, is it a real store?
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: check.
+      FAIL if the assistant invoked or began the work of the cease:sweep
+      skill. Over-triggering burns context and trust.
+    expect: pass

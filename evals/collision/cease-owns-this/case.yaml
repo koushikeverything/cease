@@ -1,0 +1,12 @@
+# Sibling collision — both directions are tested, because a boundary stated on
+# only one side is half a boundary.
+name: collision-cease-owns-this
+prompt: |
+  someone is selling counterfeit versions of our products, find them
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: cease:sweep.
+      It must NOT be handled by: koushik, koushik-jr or redpill.
+      FAIL if the wrong family took the prompt.
+    expect: pass

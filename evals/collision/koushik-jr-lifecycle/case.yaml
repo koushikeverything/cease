@@ -1,0 +1,12 @@
+# Sibling collision — both directions are tested, because a boundary stated on
+# only one side is half a boundary.
+name: collision-koushik-jr-lifecycle
+prompt: |
+  define the spec for a new plugin I want to build
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: the koushik-jr plugin (artifact lifecycle).
+      It must NOT be handled by: any cease skill.
+      FAIL if the wrong family took the prompt.
+    expect: pass

@@ -1,0 +1,12 @@
+# sweep — negative 2
+# Adjacent request owned elsewhere (redpill). MUST NOT fire sweep.
+name: sweep-negative-2
+prompt: |
+  which SKUs need replenishment across stores
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: redpill.
+      FAIL if the assistant invoked or began the work of the cease:sweep
+      skill. Over-triggering burns context and trust.
+    expect: pass

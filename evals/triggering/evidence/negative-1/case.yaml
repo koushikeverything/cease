@@ -1,0 +1,12 @@
+# evidence — negative 1
+# Adjacent request owned elsewhere (enforce). MUST NOT fire evidence.
+name: evidence-negative-1
+prompt: |
+  draft the DMCA notice for this case
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: enforce.
+      FAIL if the assistant invoked or began the work of the cease:evidence
+      skill. Over-triggering burns context and trust.
+    expect: pass

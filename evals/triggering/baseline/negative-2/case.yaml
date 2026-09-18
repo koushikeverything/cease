@@ -1,0 +1,12 @@
+# baseline — negative 2
+# Adjacent request owned elsewhere (redpill). MUST NOT fire baseline.
+name: baseline-negative-2
+prompt: |
+  analyse this stock file and tell me which stores need replenishment
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: redpill.
+      FAIL if the assistant invoked or began the work of the cease:baseline
+      skill. Over-triggering burns context and trust.
+    expect: pass

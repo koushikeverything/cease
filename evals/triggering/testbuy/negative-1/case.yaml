@@ -1,0 +1,12 @@
+# testbuy — negative 1
+# Adjacent request owned elsewhere (nothing — ordinary procurement). MUST NOT fire testbuy.
+name: testbuy-negative-1
+prompt: |
+  reorder our bestselling lamp from our supplier
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: nothing — ordinary procurement.
+      FAIL if the assistant invoked or began the work of the cease:testbuy
+      skill. Over-triggering burns context and trust.
+    expect: pass

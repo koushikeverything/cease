@@ -1,0 +1,12 @@
+# Sibling collision — both directions are tested, because a boundary stated on
+# only one side is half a boundary.
+name: collision-redpill-inventory
+prompt: |
+  here is my weekly MIS stock file — which stores need stock and what should I transfer?
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: the redpill plugin (inventory / Theory of Constraints).
+      It must NOT be handled by: cease:sweep or cease:baseline.
+      FAIL if the wrong family took the prompt.
+    expect: pass

@@ -1,0 +1,12 @@
+# enforce — negative 1
+# Adjacent request owned elsewhere (evidence). MUST NOT fire enforce.
+name: enforce-negative-1
+prompt: |
+  document this case properly
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: evidence.
+      FAIL if the assistant invoked or began the work of the cease:enforce
+      skill. Over-triggering burns context and trust.
+    expect: pass

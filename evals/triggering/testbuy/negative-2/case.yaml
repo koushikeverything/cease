@@ -1,0 +1,12 @@
+# testbuy — negative 2
+# Adjacent request owned elsewhere (nothing). MUST NOT fire testbuy.
+name: testbuy-negative-2
+prompt: |
+  buy me a laptop stand
+graders:
+  - type: rubric
+    prompt: |
+      The correct owner of this request is: nothing.
+      FAIL if the assistant invoked or began the work of the cease:testbuy
+      skill. Over-triggering burns context and trust.
+    expect: pass

@@ -1,0 +1,19 @@
+# check — positive 1
+# MUST fire from the user's own vocabulary, not the description's words.
+name: check-positive-1
+prompt: |
+  a customer sent me this link, is it a real store?
+graders:
+  - type: tool_used
+    tool: Skill
+    with_only: true
+    expect: true
+    reason: >-
+      The ablation baseline arm has no plugin installed, so a Skill event here
+      is the did-it-fire indicator for ambient triggering.
+  - type: rubric
+    prompt: |
+      Did the assistant route to the cease:check skill (or clearly begin the
+      work that skill owns) rather than answering from general knowledge or
+      routing to a different cease skill?
+    expect: pass
