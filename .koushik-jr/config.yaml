@@ -1,0 +1,12 @@
+# koushik-jr project configuration — never store secrets here
+# Created by /koushik-jr:define on 2026-09-16
+# `state` is written at stage Close, not on entry.
+
+target: claude-plugin
+ecosystem: claude
+state: designed
+artifact_paths:
+  root: .
+docs_root: docs
+tracker:
+  path: docs/jr-tracker.html

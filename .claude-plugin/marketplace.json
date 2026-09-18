@@ -1,0 +1,15 @@
+{
+  "name": "cease-marketplace",
+  "description": "Brand protection tooling for DTC and e-commerce brands.",
+  "owner": {
+    "name": "Koushik"
+  },
+  "plugins": [
+    {
+      "name": "cease",
+      "source": "./",
+      "category": "security",
+      "tags": ["brand-protection", "counterfeit", "dmca", "ecommerce"]
+    }
+  ]
+}
