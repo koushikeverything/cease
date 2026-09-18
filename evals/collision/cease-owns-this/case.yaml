@@ -1,12 +1,16 @@
-# Sibling collision — both directions are tested, because a boundary stated on
+# Sibling collision — tested in BOTH directions, because a boundary stated on
 # only one side is half a boundary.
+schema_version: "1.0"
 name: collision-cease-owns-this
-prompt: |
-  someone is selling counterfeit versions of our products, find them
+execution:
+  prompt: |
+    someone is selling counterfeit versions of our products, find them
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: cease:sweep.
-      It must NOT be handled by: koushik, koushik-jr or redpill.
-      FAIL if the wrong family took the prompt.
-    expect: pass
+  - name: correct-family-owns-it
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "someone is selling counterfeit versions of our products, find them"
+      The correct owner is: cease:sweep
+      It must NOT be handled by: koushik, koushik-jr or redpill
+      PASS only if the correct owner took the prompt.

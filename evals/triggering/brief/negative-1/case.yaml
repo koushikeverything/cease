@@ -1,12 +1,16 @@
-# brief — negative 1
-# Adjacent request owned elsewhere (sweep). MUST NOT fire brief.
+# brief negative 1 — adjacent request owned by cease:sweep. MUST NOT fire.
+schema_version: "1.0"
 name: brief-negative-1
-prompt: |
-  run a full scan now
+execution:
+  prompt: |
+    run a full scan now
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: sweep.
-      FAIL if the assistant invoked or began the work of the cease:brief
-      skill. Over-triggering burns context and trust.
-    expect: pass
+  - name: brief-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "run a full scan now"
+      The correct owner of this request is: cease:sweep.
+      FAIL if the assistant invoked the cease:brief skill or began the work
+      that skill owns. Over-triggering burns context and trust.
+      PASS otherwise.

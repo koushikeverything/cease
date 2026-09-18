@@ -1,12 +1,16 @@
-# pursue — negative 2
-# Adjacent request owned elsewhere (enforce). MUST NOT fire pursue.
+# pursue negative 2 — adjacent request owned by cease:enforce. MUST NOT fire.
+schema_version: "1.0"
 name: pursue-negative-2
-prompt: |
-  draft the registrar abuse report
+execution:
+  prompt: |
+    draft the registrar abuse report
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: enforce.
-      FAIL if the assistant invoked or began the work of the cease:pursue
-      skill. Over-triggering burns context and trust.
-    expect: pass
+  - name: pursue-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "draft the registrar abuse report"
+      The correct owner of this request is: cease:enforce.
+      FAIL if the assistant invoked the cease:pursue skill or began the work
+      that skill owns. Over-triggering burns context and trust.
+      PASS otherwise.

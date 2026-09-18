@@ -1,12 +1,16 @@
-# evidence — negative 1
-# Adjacent request owned elsewhere (enforce). MUST NOT fire evidence.
+# evidence negative 1 — adjacent request owned by cease:enforce. MUST NOT fire.
+schema_version: "1.0"
 name: evidence-negative-1
-prompt: |
-  draft the DMCA notice for this case
+execution:
+  prompt: |
+    draft the DMCA notice for this case
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: enforce.
-      FAIL if the assistant invoked or began the work of the cease:evidence
-      skill. Over-triggering burns context and trust.
-    expect: pass
+  - name: evidence-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "draft the DMCA notice for this case"
+      The correct owner of this request is: cease:enforce.
+      FAIL if the assistant invoked the cease:evidence skill or began the work
+      that skill owns. Over-triggering burns context and trust.
+      PASS otherwise.

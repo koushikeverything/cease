@@ -1,12 +1,16 @@
-# Sibling collision — both directions are tested, because a boundary stated on
+# Sibling collision — tested in BOTH directions, because a boundary stated on
 # only one side is half a boundary.
+schema_version: "1.0"
 name: collision-koushik-durable-agent
-prompt: |
-  build a durable agent that watches for counterfeits and files takedowns on a schedule
+execution:
+  prompt: |
+    build a durable agent that watches for counterfeits and files takedowns on a schedule
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: the koushik plugin (durable Eve agents).
-      It must NOT be handled by: any cease skill.
-      FAIL if the wrong family took the prompt.
-    expect: pass
+  - name: correct-family-owns-it
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "build a durable agent that watches for counterfeits and files takedowns on a schedule"
+      The correct owner is: the koushik plugin (durable Eve agents)
+      It must NOT be handled by: any cease skill
+      PASS only if the correct owner took the prompt.

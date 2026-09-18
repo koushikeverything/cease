@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.276",
+  "startedAt": "2026-09-18T09:31:33.602Z",
+  "durationSeconds": 1,
+  "costUsd": 0,
+  "partial": true,
+  "partialReason": "auth_failed",
+  "suite": {
+    "root": "/Users/momentum91/Documents/Cease",
+    "ablation": "with-without",
+    "caseFilter": "check-positive-1",
+    "threshold": 1,
+    "concurrency": 1,
+    "plugins": [
+      {
+        "name": "cease",
+        "version": "0.1.0",
+        "path": "/Users/momentum91/Documents/Cease"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "check-positive-1",
+      "dir": "evals/triggering/check/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "a customer sent me this link, is it a real store?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill"
+          }
+        },
+        {
+          "name": "routed",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "Did the assistant route to the cease:check skill?\n",
+          "config": {
+            "criteria": "Did the assistant route to the cease:check skill?\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0,
+            "judgeCostUsd": 0,
+            "durationSeconds": 1,
+            "startedAt": "2026-09-18T09:31:33.632Z",
+            "error": "exit 1: Not logged in · Please run /login",
+            "tracePath": "/private/tmp/e-7zJ1O4/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "fired",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": true,
+                "scored": false
+              },
+              {
+                "name": "routed",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: judge call failed: Failed to authenticate: OAuth session expired and could not be refreshed",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0,
+        "passRate": 0
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 0,
+    "overallScore": 0,
+    "overallPassRate": 0
+  }
+}

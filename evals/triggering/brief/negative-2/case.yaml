@@ -1,12 +1,16 @@
-# brief — negative 2
-# Adjacent request owned elsewhere (evidence). MUST NOT fire brief.
+# brief negative 2 — adjacent request owned by cease:evidence. MUST NOT fire.
+schema_version: "1.0"
 name: brief-negative-2
-prompt: |
-  open the case file for c-0001
+execution:
+  prompt: |
+    open the case file for c-0001
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: evidence.
-      FAIL if the assistant invoked or began the work of the cease:brief
-      skill. Over-triggering burns context and trust.
-    expect: pass
+  - name: brief-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "open the case file for c-0001"
+      The correct owner of this request is: cease:evidence.
+      FAIL if the assistant invoked the cease:brief skill or began the work
+      that skill owns. Over-triggering burns context and trust.
+      PASS otherwise.

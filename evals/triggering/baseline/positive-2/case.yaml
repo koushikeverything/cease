@@ -1,19 +1,21 @@
-# baseline — positive 2
-# MUST fire from the user's own vocabulary, not the description's words.
+# baseline positive 2 — MUST fire, from the user's own vocabulary.
+# Under --ablation with-without the tool_used grader is the did-it-fire signal.
+schema_version: "1.0"
 name: baseline-positive-2
-prompt: |
-  we just added a new distributor, update the safe list
+execution:
+  prompt: |
+    we just added a new distributor, update the safe list
 graders:
-  - type: tool_used
+  - name: skill-fired
+    type: tool_used
     tool: Skill
-    with_only: true
-    expect: true
-    reason: >-
-      The ablation baseline arm has no plugin installed, so a Skill event here
-      is the did-it-fire indicator for ambient triggering.
-  - type: rubric
-    prompt: |
-      Did the assistant route to the cease:baseline skill (or clearly begin the
-      work that skill owns) rather than answering from general knowledge or
-      routing to a different cease skill?
-    expect: pass
+    min: 1
+  - name: routed-to-baseline
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "we just added a new distributor, update the safe list"
+      PASS if the assistant invoked the cease:baseline skill, or clearly began
+      the work that skill owns.
+      FAIL if it answered from general knowledge, or routed to a different
+      cease skill.

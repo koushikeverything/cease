@@ -1,12 +1,16 @@
-# sweep — negative 1
-# Adjacent request owned elsewhere (check). MUST NOT fire sweep.
+# sweep negative 1 — adjacent request owned by cease:check. MUST NOT fire.
+schema_version: "1.0"
 name: sweep-negative-1
-prompt: |
-  a customer sent me this link, is it a real store?
+execution:
+  prompt: |
+    a customer sent me this link, is it a real store?
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: check.
-      FAIL if the assistant invoked or began the work of the cease:sweep
-      skill. Over-triggering burns context and trust.
-    expect: pass
+  - name: sweep-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "a customer sent me this link, is it a real store?"
+      The correct owner of this request is: cease:check.
+      FAIL if the assistant invoked the cease:sweep skill or began the work
+      that skill owns. Over-triggering burns context and trust.
+      PASS otherwise.

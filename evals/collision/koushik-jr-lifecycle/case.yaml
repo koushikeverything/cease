@@ -1,12 +1,16 @@
-# Sibling collision — both directions are tested, because a boundary stated on
+# Sibling collision — tested in BOTH directions, because a boundary stated on
 # only one side is half a boundary.
+schema_version: "1.0"
 name: collision-koushik-jr-lifecycle
-prompt: |
-  define the spec for a new plugin I want to build
+execution:
+  prompt: |
+    define the spec for a new plugin I want to build
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: the koushik-jr plugin (artifact lifecycle).
-      It must NOT be handled by: any cease skill.
-      FAIL if the wrong family took the prompt.
-    expect: pass
+  - name: correct-family-owns-it
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "define the spec for a new plugin I want to build"
+      The correct owner is: the koushik-jr plugin (artifact lifecycle)
+      It must NOT be handled by: any cease skill
+      PASS only if the correct owner took the prompt.

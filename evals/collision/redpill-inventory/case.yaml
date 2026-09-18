@@ -1,12 +1,16 @@
-# Sibling collision — both directions are tested, because a boundary stated on
+# Sibling collision — tested in BOTH directions, because a boundary stated on
 # only one side is half a boundary.
+schema_version: "1.0"
 name: collision-redpill-inventory
-prompt: |
-  here is my weekly MIS stock file — which stores need stock and what should I transfer?
+execution:
+  prompt: |
+    here is my weekly MIS stock file — which stores need stock and what should I transfer?
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: the redpill plugin (inventory / Theory of Constraints).
-      It must NOT be handled by: cease:sweep or cease:baseline.
-      FAIL if the wrong family took the prompt.
-    expect: pass
+  - name: correct-family-owns-it
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "here is my weekly MIS stock file — which stores need stock and what should I transfer?"
+      The correct owner is: the redpill plugin (inventory / Theory of Constraints)
+      It must NOT be handled by: cease:sweep or cease:baseline
+      PASS only if the correct owner took the prompt.

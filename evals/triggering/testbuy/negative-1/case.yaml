@@ -1,12 +1,16 @@
-# testbuy — negative 1
-# Adjacent request owned elsewhere (nothing — ordinary procurement). MUST NOT fire testbuy.
+# testbuy negative 1 — adjacent request owned by nothing in cease — ordinary procurement. MUST NOT fire.
+schema_version: "1.0"
 name: testbuy-negative-1
-prompt: |
-  reorder our bestselling lamp from our supplier
+execution:
+  prompt: |
+    reorder our bestselling lamp from our supplier
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: nothing — ordinary procurement.
-      FAIL if the assistant invoked or began the work of the cease:testbuy
-      skill. Over-triggering burns context and trust.
-    expect: pass
+  - name: testbuy-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "reorder our bestselling lamp from our supplier"
+      The correct owner of this request is: nothing in cease — ordinary procurement.
+      FAIL if the assistant invoked the cease:testbuy skill or began the work
+      that skill owns. Over-triggering burns context and trust.
+      PASS otherwise.

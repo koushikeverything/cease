@@ -1,12 +1,16 @@
-# baseline — negative 2
-# Adjacent request owned elsewhere (redpill). MUST NOT fire baseline.
+# baseline negative 2 — adjacent request owned by the redpill plugin. MUST NOT fire.
+schema_version: "1.0"
 name: baseline-negative-2
-prompt: |
-  analyse this stock file and tell me which stores need replenishment
+execution:
+  prompt: |
+    analyse this stock file and tell me which stores need replenishment
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: redpill.
-      FAIL if the assistant invoked or began the work of the cease:baseline
-      skill. Over-triggering burns context and trust.
-    expect: pass
+  - name: baseline-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "analyse this stock file and tell me which stores need replenishment"
+      The correct owner of this request is: the redpill plugin.
+      FAIL if the assistant invoked the cease:baseline skill or began the work
+      that skill owns. Over-triggering burns context and trust.
+      PASS otherwise.

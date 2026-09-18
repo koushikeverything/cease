@@ -1,12 +1,16 @@
-# pursue — negative 1
-# Adjacent request owned elsewhere (sweep). MUST NOT fire pursue.
+# pursue negative 1 — adjacent request owned by cease:sweep. MUST NOT fire.
+schema_version: "1.0"
 name: pursue-negative-1
-prompt: |
-  find new infringements across marketplaces
+execution:
+  prompt: |
+    find new infringements across marketplaces
 graders:
-  - type: rubric
-    prompt: |
-      The correct owner of this request is: sweep.
-      FAIL if the assistant invoked or began the work of the cease:pursue
-      skill. Over-triggering burns context and trust.
-    expect: pass
+  - name: pursue-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "find new infringements across marketplaces"
+      The correct owner of this request is: cease:sweep.
+      FAIL if the assistant invoked the cease:pursue skill or began the work
+      that skill owns. Over-triggering burns context and trust.
+      PASS otherwise.
