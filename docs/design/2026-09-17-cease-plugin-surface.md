@@ -427,3 +427,47 @@ unconnected, `fixtures/disputes.json` defines the shape R6 expects — and that
 fixture is a *guess* at Stripe's schema, labelled as one. Whenever the connector
 is enabled it must be probed against that shape before R6 is trusted.
 Third: the in-session confirmation ceiling on what "signature" can mean here.
+
+---
+
+## 8. Build progress — closed 2026-09-18
+
+All 19 units built, validated and committed on branch `build/cease-plugin`
+(15 commits). `npm test` 120 passing; `npm run validate` clean.
+
+| # | Unit | Status | Deviation recorded |
+|---|---|---|---|
+| 1 | Manifest + marketplace | ✅ | Scaffolded by hand — `claude plugin init` unavailable. Added `tools/validate-structure.mjs` (not in plan) because the planned validation command is blocked. `npm test` ships as a glob, not `node --test tests/`, which throws MODULE_NOT_FOUND on Node 25. |
+| 2 | Signature gate | ✅ | **Fallback redesigned.** The plan's "blanket deny when `tool_input` is empty" was incoherent — sentinel and phrase detection both need the body. Replaced with pending-state keying: deny only while an instrument is drafted-and-unsigned. Protective without blocking ordinary mail, and no longer dependent on the unresolved runtime question. |
+| 3 | Audit log | ✅ | — |
+| 4 | Allowlist suppression | ✅ | — |
+| 4b | Source adapters + fixtures | ✅ | Settled that a node script cannot call a Claude connector; live mode returns a `needsConnector` envelope instead of fetching. |
+| 5 | Fingerprint | ✅ | **pHash deferred** (permitted by the plan). Exact-byte image hashing ships; perceptual hashing needs a decoder that may fail to build under `--ignore-scripts`. Declared in the fingerprint, the skill and the README. |
+| 6 | Triage reference | ✅ | Also ships `scripts/triage.mjs` — planned as a reference only. F9 needed a mechanism, and deterministic scoring is testable where per-run model judgement is not. |
+| 7 | Sweep | ✅ | — |
+| 8 | Check | ✅ | — |
+| 9 | Investigators | ✅ | **Portability fix:** `tools:` allowlists named the Firecrawl connector by per-user UUID. Replaced with `disallowedTools`. Now a validator rule. |
+| 10 | Evidence + clerk | ✅ | Bug found and fixed: `verifyCustody` joined `baseDir` onto absolute paths, reporting every artifact as missing — custody broken for every real case. Also: this unit was committed with two red tests, which inverted the unit loop; corrected in the following commit. |
+| 11 | Instruments | ✅ | — |
+| 12 | Counter-notice | ✅ | — |
+| 13 | Testbuy | ✅ | — |
+| 14 | Pursue | ✅ | Ships `scripts/relaunch.mjs` for A14. |
+| 15 | Brief | ✅ | — |
+| 16 | Schedules | ✅ | Enforced by test (`tests/no-scheduler.test.mjs`) rather than intention. |
+| 17 | Evals | ✅ | 36 cases written to the pack's documented shape. **Grader field names unverified** — the CLI could not run them. Check must execute and correct. |
+| 18 | Docs | ✅ | A20 enforced by test; two docs-drift tests pin README ↔ skills. |
+
+### Open risks handed to check
+
+1. **`claude plugin validate --strict`, `claude plugin eval` and a
+   `--plugin-dir` smoke run have never executed.** The CLI is not installed.
+   `tools/validate-structure.mjs` is a stand-in, not a replacement. Install with
+   `npm install -g @anthropic-ai/claude-code` before check.
+2. **Eval case schema unconfirmed** — see unit 17.
+3. **Does `PreToolUse` populate `tool_input` for connector tools?** Still
+   unanswered; the gate now works either way, so it no longer blocks. Worth
+   settling in check with a real `--plugin-dir` run.
+4. **The gate does not cover a shell `curl`** to a platform API. Deliberate
+   scope, documented in the README, offered to check as a known limit.
+5. **Catalog and payment channels have never seen real data.** Precision is
+   unmeasured and A20 forbids claiming otherwise.
