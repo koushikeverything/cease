@@ -74,7 +74,7 @@
 <header>
   <h1>CEASE — build tracker</h1>
   <p class="sub">Inside-out brand protection, built as an installable Claude plugin.<br>
-  Last updated <b>18 Sep 2026</b> · current stage <b>Built</b> (4 of 8) ·
+  Last updated <b>18 Sep 2026</b> · current stage <b>Checked — blocked</b> (4 of 8) ·
   <span class="tag t-acc">verdict: hybrid</span></p>
 </header>
 
@@ -83,8 +83,8 @@
   <div class="step done"><span class="i">1 · done</span><b>Idea</b></div>
   <div class="step done"><span class="i">2 · done</span><b>Defined</b></div>
   <div class="step done"><span class="i">3 · done</span><b>Designed</b></div>
-  <div class="step now"><span class="i">4 · you are here</span><b>Built</b></div>
-  <div class="step"><span class="i">5</span><b>Checked</b></div>
+  <div class="step done"><span class="i">4 · done</span><b>Built</b></div>
+  <div class="step now"><span class="i">5 · in progress</span><b>Checked</b></div>
   <div class="step"><span class="i">6</span><b>Shipped</b></div>
   <div class="step"><span class="i">7</span><b>Published</b></div>
   <div class="step"><span class="i">8</span><b>Compounded</b></div>
@@ -200,6 +200,40 @@ an automatic one. Stage 6 stops at “ready to publish” and hands you the butt
   everything. That turned out to be incoherent — and would have blocked your
   ordinary email. It now keys off whether CEASE itself has an unsigned document
   waiting: if it does, it blocks; if not, your mail goes through untouched.</p>
+</div>
+
+<div class="card">
+  <h3>✅ Checked → three independent reviewers, and the main promise didn’t hold</h3>
+  <p class="lede">Three reviewers examined the plugin separately, none of them told how
+  or why it was built. The official validation tools ran for the first time and
+  <b>passed on all four targets</b>. Then the reviewers found what the tools can’t.</p>
+  <p class="lede"><b>The serious one: CEASE could approve its own legal notices.</b>
+  The promise is that nothing goes out unless a real person approves it. The approval
+  was a file on disk — and the part of CEASE that writes the notice could write that
+  file too. No villain required: you say “just file it”, it takes the shortcut, and a
+  document sworn under penalty of perjury goes out with your name on it, unread.</p>
+  <p class="lede"><b>Now fixed, the way you chose.</b> Before sending, CEASE looks back
+  at the conversation for a message <b>you typed</b> approving that specific document.
+  It can write any file and run any command; it cannot type a message as you. The
+  document also has a short code, so approving one version can’t send a different one.
+  Every way of faking it is tested and fails — including CEASE saying the magic words
+  itself, and vague replies like “yes” or “go ahead”.</p>
+  <p class="lede"><b>Four more real defects, all fixed:</b></p>
+  <ul>
+    <li><b>The plugin would have bricked itself on a real install.</b> A setting the
+    signing step needed isn’t available where that step runs — so nothing could ever be
+    signed, while the guard kept blocking everything. Permanently stuck, and the
+    reference manual said so plainly; the build read it and shipped past it anyway.</li>
+    <li><b>The guard watched the wrong door.</b> Most takedown reports are web forms —
+    Amazon, Meta, TikTok — not emails. Only email was guarded. Now forms and commands
+    are too.</li>
+    <li><b>It would have blocked your own emails to your lawyer.</b> It reacted to words
+    like “DMCA”, which you use constantly. Now it only reacts to the sworn legal
+    language that appears inside an actual notice, and ignores quoted replies.</li>
+    <li><b>Your real distributors would have shown up as suspects.</b> The rule that
+    protects them was tested in isolation, passed, and wasn’t actually applied where it
+    mattered — the single loudest complaint about tools like this.</li>
+  </ul>
 </div>
 
 <h2><span class="n">3</span>The leverage picture</h2>
@@ -380,12 +414,27 @@ that.” Here, a lot of it came back that way.</p>
   saved by not building it.</p>
 </div>
 
+<div class="card">
+  <h3>🧠 The same mistake, three times — now a standing rule</h3>
+  <p class="lede">Three separate defects shared one shape: <b>a rule was tested on its
+  own, passed, and wasn’t actually connected where it counted.</b> The evidence check,
+  the distributor protection, and the tamper alarm all looked fine in testing while
+  doing nothing in practice. A passing test on disconnected code is worse than no test,
+  because it buys confidence.</p>
+  <p class="lede">There is now an automatic check that every safety rule is genuinely
+  reachable from the place it’s meant to protect, and that every verification command is
+  actually run by something. That one is worth carrying to every future project.</p>
+</div>
+
 <h2><span class="n">6</span>Recommended next action</h2>
 <div class="card">
-  <h3>→ <code>/koushik-jr:check</code></h3>
-  <p class="lede">Independent review — three separate reviewers looking for spec
-  mistakes, triggering problems and security holes — plus the official validation
-  tools.</p>
+  <h3>→ log in, then finish the review</h3>
+  <p class="lede"><b>One thing is waiting on you.</b> The Claude command-line tool is
+  installed now — but it isn’t logged in, and its login has expired. That blocks the
+  last part of the review: the 36 tests that check whether CEASE responds to the right
+  requests and stays quiet for the wrong ones. Those have <b>never run</b>.</p>
+  <p class="lede">In a terminal, run <code>claude</code> and then <code>/login</code>.
+  Then say the word and I’ll finish the review.</p>
   <p class="lede"><b>This one does need something from you first.</b> Claude's
   command-line tool still isn't installed, and check is where it actually bites:
   without it, the official validator, the triggering tests and the
@@ -399,11 +448,11 @@ that.” Here, a lot of it came back that way.</p>
   <h3>What check still has to prove</h3>
   <p class="lede">Honest about what "built and tested" does and doesn't mean here:</p>
   <ul>
-    <li><b>The official tools have never run.</b> 120 tests pass against a checker
-    written for this project. The real validator and the real triggering-test
-    runner are still untried.</li>
-    <li><b>The 36 triggering tests have never executed</b> — they're written to the
-    documented format, but that format couldn't be confirmed without the CLI.</li>
+    <li><b>The official validator has now run and passed</b> on all four targets.
+    160 automated tests pass.</li>
+    <li><b>The 36 triggering tests still have never executed</b> — blocked on the
+    expired login. Their format was wrong, which the review caught and fixed: as
+    written at build time, not one of them could even load.</li>
     <li><b>Catalog and payment detection have never seen real data.</b> Accuracy is
     unmeasured, and nothing in the plugin is permitted to claim otherwise.</li>
     <li><b>The gate doesn't cover every possible route out.</b> It covers the
@@ -414,7 +463,7 @@ that.” Here, a lot of it came back that way.</p>
 
 <h2><span class="n">7</span>Distance to a published plugin</h2>
 <div class="card">
-  <p class="lede"><b>4 of 8 stages complete.</b> The build is done. Roughly <b>1–2 decisions</b> from you, and <b>3 stages</b> — the full specification is a large
+  <p class="lede"><b>4 of 8 stages complete</b>, the fifth blocked on one login. Roughly <b>1 decision</b> from you, and <b>3 stages</b> — the full specification is a large
   surface: 7 skills, 5 investigator agents, 6 commands, 1 hook, 9 legal templates.</p>
   <p class="lede">Realistically: check is one sitting once the command-line tool is installed, and ship is one more. Then the publish button is yours.</p>
   <p class="lede muted">If that feels long — the smaller first slice is still available
@@ -431,7 +480,7 @@ that.” Here, a lot of it came back that way.</p>
     <tr><td><code>/koushik-jr:define</code></td><td>Requirements + “does this need building at all?”</td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:design</code></td><td>Decides the plugin’s shape, names, descriptions and triggering</td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:build</code></td><td>Writes it, one validated piece at a time</td><td><span class="tag t-ok">done</span></td></tr>
-    <tr><td><code>/koushik-jr:check</code></td><td>Independent review — spec, triggering, security — plus the validation suite</td><td><b>next</b></td></tr>
+    <tr><td><code>/koushik-jr:check</code></td><td>Independent review — spec, triggering, security — plus the validation suite</td><td><span class="tag t-warn">blocked</span></td></tr>
     <tr><td><code>/koushik-jr:ship</code></td><td>Docs, versions, commits, PR — stops at ready-to-publish</td><td>after check</td></tr>
     <tr><td><code>/koushik-jr:publish</code></td><td>The publish act — <b>only ever run by you</b></td><td>your call</td></tr>
     <tr><td><code>/koushik-jr:evolve</code></td><td>When something published misbehaves or the ecosystem shifts</td><td>after publishing</td></tr>
