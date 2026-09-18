@@ -211,6 +211,25 @@ if (existsSync(hooksPath)) {
   }
 }
 
+// ---------- portability: no per-user connector ids ----------
+// Connector MCP server ids are per-USER UUIDs (mcp__<uuid>__<tool>). Anything
+// naming one works on the author's machine and silently fails on every other
+// install - the agent simply has no such tool, or the hook matcher never fires.
+// Caught once in agent frontmatter and once in a hook matcher during build.
+const UUID_TOOL = /mcp__[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}__/;
+const scanForUuids = (dir) => {
+  if (!existsSync(dir)) return;
+  for (const e of readdirSync(dir)) {
+    const p = join(dir, e);
+    if (statSync(p).isDirectory()) { scanForUuids(p); continue; }
+    if (!/\.(md|json|mjs|js)$/.test(e)) continue;
+    const text = readFileSync(p, 'utf8');
+    const m = text.match(UUID_TOOL);
+    if (m) fail(`${p}: hardcoded connector id "${m[0]}" - this is per-user and breaks on every other install; use a wildcard matcher or disallowedTools instead`);
+  }
+};
+for (const d of ['agents', 'skills', 'hooks', 'scripts', '.claude-plugin']) scanForUuids(join(root, d));
+
 // ---------- report ----------
 const label = `${skillCount} skill(s), ${agentCount} agent(s)`;
 for (const w of warnings) console.log(`warn  ${w}`);
