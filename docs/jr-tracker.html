@@ -74,7 +74,7 @@
 <header>
   <h1>CEASE — build tracker</h1>
   <p class="sub">Inside-out brand protection, built as an installable Claude plugin.<br>
-  Last updated <b>18 Sep 2026</b> · current stage <b>Checked — blocked</b> (4 of 8) ·
+  Last updated <b>18 Sep 2026</b> · current stage <b>Checked</b> (5 of 8) ·
   <span class="tag t-acc">verdict: hybrid</span></p>
 </header>
 
@@ -84,8 +84,8 @@
   <div class="step done"><span class="i">2 · done</span><b>Defined</b></div>
   <div class="step done"><span class="i">3 · done</span><b>Designed</b></div>
   <div class="step done"><span class="i">4 · done</span><b>Built</b></div>
-  <div class="step now"><span class="i">5 · in progress</span><b>Checked</b></div>
-  <div class="step"><span class="i">6</span><b>Shipped</b></div>
+  <div class="step done"><span class="i">5 · done</span><b>Checked</b></div>
+  <div class="step now"><span class="i">6 · you are here</span><b>Shipped</b></div>
   <div class="step"><span class="i">7</span><b>Published</b></div>
   <div class="step"><span class="i">8</span><b>Compounded</b></div>
 </div>
@@ -236,7 +236,32 @@ an automatic one. Stage 6 stops at “ready to publish” and hands you the butt
   </ul>
 </div>
 
-<h2><span class="n">3</span>The leverage picture</h2>
+<div class="card">
+  <h3>✅ Review complete → it reaches for the right tool</h3>
+  <p class="lede">With the login working, the 36 triggering tests finally ran. The
+  result that matters:</p>
+  <ul>
+    <li><b>Asked for the right thing, it picks the right tool: 14 out of 16.</b> And
+    <b>zero</b> cases where it picked the <i>wrong</i> one — the risk we were most
+    worried about, eight similar skills confusing each other, simply didn’t happen.</li>
+    <li><b>Asked for something else, it stays out of the way: 16 out of 16.</b> No
+    barging into work it doesn’t own.</li>
+    <li>Two cases where it answered correctly without formally invoking the skill.
+    At one run each that’s noise, not a fault.</li>
+  </ul>
+  <p class="lede"><b>The scoreboard said 27/36 and the scoreboard was wrong.</b> The
+  test environment has no file access, so skills that routed perfectly then couldn’t
+  do their work — and the automatic grader marked that as failure. One example, scored
+  zero: <i>“I can’t produce this week’s scorecard — the underlying data is unreachable,
+  and I won’t fill it in with plausible-looking numbers.”</i> That is exactly the
+  behaviour we built. So a proper measuring tool was written that checks which skill was
+  actually reached for, rather than judging the output.</p>
+  <p class="lede muted">An earlier run scoring 23/36 was thrown away entirely — that one
+  measured a sandbox that had blocked skills from running at all. Both runs are saved so
+  the claim can be checked rather than taken on trust.</p>
+</div>
+
+<h2><span class="n">3</span>The leverage picture</h2>',
 <p class="lede">The most valuable answer this stage can give is “you don’t need to build
 that.” Here, a lot of it came back that way.</p>
 
@@ -426,15 +451,24 @@ that.” Here, a lot of it came back that way.</p>
   actually run by something. That one is worth carrying to every future project.</p>
 </div>
 
+<div class="card">
+  <h3>🧠 Twice now, the score measured the test rig instead of the product</h3>
+  <p class="lede">Two full test runs produced numbers that said nothing about CEASE —
+  once because the environment blocked skills outright, once because it graded a correct
+  decision as a failure. Both looked like real results. The lesson worth keeping:
+  <b>before believing any score, check whether the environment could have produced a
+  pass at all.</b></p>
+</div>
+
 <h2><span class="n">6</span>Recommended next action</h2>
 <div class="card">
-  <h3>→ log in, then finish the review</h3>
-  <p class="lede"><b>One thing is waiting on you.</b> The Claude command-line tool is
-  installed now — but it isn’t logged in, and its login has expired. That blocks the
-  last part of the review: the 36 tests that check whether CEASE responds to the right
-  requests and stays quiet for the wrong ones. Those have <b>never run</b>.</p>
-  <p class="lede">In a terminal, run <code>claude</code> and then <code>/login</code>.
-  Then say the word and I’ll finish the review.</p>
+  <h3>→ <code>/koushik-jr:ship</code></h3>
+  <p class="lede">Packaging: the README and user docs, version numbers, clean commits,
+  and a pull request — stopping at <b>ready to publish</b>. The publish button stays
+  yours.</p>
+  <p class="lede"><b>One thing it needs:</b> this project has no home on GitHub yet, so
+  there’s nowhere to publish to and the install instructions can’t be completed. Ship
+  can create one for you, or you can point it at an existing repo.</p>
   <p class="lede"><b>This one does need something from you first.</b> Claude's
   command-line tool still isn't installed, and check is where it actually bites:
   without it, the official validator, the triggering tests and the
@@ -463,7 +497,7 @@ that.” Here, a lot of it came back that way.</p>
 
 <h2><span class="n">7</span>Distance to a published plugin</h2>
 <div class="card">
-  <p class="lede"><b>4 of 8 stages complete</b>, the fifth blocked on one login. Roughly <b>1 decision</b> from you, and <b>3 stages</b> — the full specification is a large
+  <p class="lede"><b>5 of 8 stages complete.</b> Roughly <b>1 decision</b> from you (where it lives on GitHub), and <b>2 stages</b> — the full specification is a large
   surface: 7 skills, 5 investigator agents, 6 commands, 1 hook, 9 legal templates.</p>
   <p class="lede">Realistically: check is one sitting once the command-line tool is installed, and ship is one more. Then the publish button is yours.</p>
   <p class="lede muted">If that feels long — the smaller first slice is still available
@@ -480,8 +514,8 @@ that.” Here, a lot of it came back that way.</p>
     <tr><td><code>/koushik-jr:define</code></td><td>Requirements + “does this need building at all?”</td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:design</code></td><td>Decides the plugin’s shape, names, descriptions and triggering</td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:build</code></td><td>Writes it, one validated piece at a time</td><td><span class="tag t-ok">done</span></td></tr>
-    <tr><td><code>/koushik-jr:check</code></td><td>Independent review — spec, triggering, security — plus the validation suite</td><td><span class="tag t-warn">blocked</span></td></tr>
-    <tr><td><code>/koushik-jr:ship</code></td><td>Docs, versions, commits, PR — stops at ready-to-publish</td><td>after check</td></tr>
+    <tr><td><code>/koushik-jr:check</code></td><td>Independent review — spec, triggering, security — plus the validation suite</td><td><span class="tag t-ok">done</span></td></tr>
+    <tr><td><code>/koushik-jr:ship</code></td><td>Docs, versions, commits, PR — stops at ready-to-publish</td><td><b>next</b></td></tr>
     <tr><td><code>/koushik-jr:publish</code></td><td>The publish act — <b>only ever run by you</b></td><td>your call</td></tr>
     <tr><td><code>/koushik-jr:evolve</code></td><td>When something published misbehaves or the ecosystem shifts</td><td>after publishing</td></tr>
     <tr><td><code>/koushik-jr:compound</code></td><td>Turns a hard-won lesson into a permanent guard</td><td>after any real problem</td></tr>
