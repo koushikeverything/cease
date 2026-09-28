@@ -1,10 +1,12 @@
-# baseline positive 2 — MUST fire, from the user's own vocabulary.
-# Under --ablation with-without the tool_used grader is the did-it-fire signal.
+# baseline positive 2
+# Phrased in the user's OWN words. It must share no wording with the skill
+# description: a prompt that quotes the description proves only that the router
+# can match itself. tests/eval-prompts.test.mjs enforces this.
 schema_version: "1.0"
 name: baseline-positive-2
 execution:
   prompt: |
-    we just added a new distributor, update the safe list
+    we've taken on three new stockists in Germany, make sure they don't get flagged as fakes
 graders:
   - name: skill-fired
     type: tool_used
@@ -14,7 +16,7 @@ graders:
     type: llm
     weight: 1
     criteria: |
-      The user asked: "we just added a new distributor, update the safe list"
+      The user asked: "we've taken on three new stockists in Germany, make sure they don't get flagged as fakes"
       PASS if the assistant invoked the cease:baseline skill, OR identified
       cease:baseline as the right tool and tried to reach it.
       FAIL if it routed to a DIFFERENT cease skill, or answered from general

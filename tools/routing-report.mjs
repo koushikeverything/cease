@@ -51,6 +51,26 @@ for (const c of data.cases ?? []) {
   rows.push({ name: c.name, kind, expected: expectedFrom(c.name), fired, error: run?.error ?? null });
 }
 
+// Before believing any routing number, confirm the environment could have
+// produced a pass at all. Three separate runs in this project reported clean or
+// low scores that measured the harness, not the plugin: once the Skill tool was
+// denied outright, once an LLM judge failed correctly-routed skills for being
+// unable to run node, and once every run errored with "Not logged in" while
+// this report still printed "ok, no misrouting". A detector that cannot tell
+// "nothing was wrong" from "nothing happened" is not a detector.
+const errored = (data.cases ?? []).filter((c) => c.arms?.with?.[0]?.error);
+if (data.partial || errored.length) {
+  console.error('REFUSING TO REPORT — the run did not complete cleanly, so its routing numbers mean nothing.\n');
+  if (data.partial) console.error(`  partial run: ${(data.cases ?? []).length} case(s) recorded, suite stopped early`);
+  for (const c of errored.slice(0, 5)) console.error(`  ${c.name}: ${c.arms.with[0].error}`);
+  if (errored.length > 5) console.error(`  ...and ${errored.length - 5} more`);
+  const auth = errored.some((c) => /not logged in|authenticate/i.test(String(c.arms.with[0].error)));
+  console.error(auth
+    ? '\nThe credential expired. Run `claude` then `/login`, and re-run the suite.'
+    : '\nFix the run errors above and re-run the suite.');
+  process.exit(2);
+}
+
 const tally = { correct: 0, misrouted: 0, silent: 0, overTriggered: 0, noTrace: 0 };
 const problems = [];
 

@@ -1,10 +1,12 @@
-# pursue positive 1 — MUST fire, from the user's own vocabulary.
-# Under --ablation with-without the tool_used grader is the did-it-fire signal.
+# pursue positive 1
+# Phrased in the user's OWN words. It must share no wording with the skill
+# description: a prompt that quotes the description proves only that the router
+# can match itself. tests/eval-prompts.test.mjs enforces this.
 schema_version: "1.0"
 name: pursue-positive-1
 execution:
   prompt: |
-    they're back under a new domain
+    that shop we killed last month is trading again on a different address
 graders:
   - name: skill-fired
     type: tool_used
@@ -14,7 +16,7 @@ graders:
     type: llm
     weight: 1
     criteria: |
-      The user asked: "they're back under a new domain"
+      The user asked: "that shop we killed last month is trading again on a different address"
       PASS if the assistant invoked the cease:pursue skill, OR identified
       cease:pursue as the right tool and tried to reach it.
       FAIL if it routed to a DIFFERENT cease skill, or answered from general

@@ -1,10 +1,12 @@
-# brief positive 1 — MUST fire, from the user's own vocabulary.
-# Under --ablation with-without the tool_used grader is the did-it-fire signal.
+# brief positive 1
+# Phrased in the user's OWN words. It must share no wording with the skill
+# description: a prompt that quotes the description proves only that the router
+# can match itself. tests/eval-prompts.test.mjs enforces this.
 schema_version: "1.0"
 name: brief-positive-1
 execution:
   prompt: |
-    weekly brand protection update
+    give me the Monday rundown on the counterfeit stuff
 graders:
   - name: skill-fired
     type: tool_used
@@ -14,7 +16,7 @@ graders:
     type: llm
     weight: 1
     criteria: |
-      The user asked: "weekly brand protection update"
+      The user asked: "give me the Monday rundown on the counterfeit stuff"
       PASS if the assistant invoked the cease:brief skill, OR identified
       cease:brief as the right tool and tried to reach it.
       FAIL if it routed to a DIFFERENT cease skill, or answered from general

@@ -1,10 +1,12 @@
-# check positive 1 — MUST fire, from the user's own vocabulary.
-# Under --ablation with-without the tool_used grader is the did-it-fire signal.
+# check positive 1
+# Phrased in the user's OWN words. It must share no wording with the skill
+# description: a prompt that quotes the description proves only that the router
+# can match itself. tests/eval-prompts.test.mjs enforces this.
 schema_version: "1.0"
 name: check-positive-1
 execution:
   prompt: |
-    a customer sent me this link, is it a real store?
+    is https://lumengoods-outlet.example/products/halo-pendant us, or someone pretending to be us?
 graders:
   - name: skill-fired
     type: tool_used
@@ -14,7 +16,7 @@ graders:
     type: llm
     weight: 1
     criteria: |
-      The user asked: "a customer sent me this link, is it a real store?"
+      The user asked: "is https://lumengoods-outlet.example/products/halo-pendant us, or someone pretending to be us?"
       PASS if the assistant invoked the cease:check skill, OR identified
       cease:check as the right tool and tried to reach it.
       FAIL if it routed to a DIFFERENT cease skill, or answered from general
