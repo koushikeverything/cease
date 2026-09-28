@@ -74,7 +74,7 @@
 <header>
   <h1>CEASE — build tracker</h1>
   <p class="sub">Inside-out brand protection, built as an installable Claude plugin.<br>
-  Last updated <b>18 Sep 2026</b> · current stage <b>Checked</b> (5 of 8) ·
+  Last updated <b>28 Sep 2026</b> · current stage <b>Checked</b> (5 of 8) ·
   <span class="tag t-acc">verdict: hybrid</span></p>
 </header>
 
@@ -238,17 +238,26 @@ an automatic one. Stage 6 stops at “ready to publish” and hands you the butt
 
 <div class="card">
   <h3>✅ Review complete → it reaches for the right tool</h3>
-  <p class="lede">With the login working, the 36 triggering tests finally ran. The
-  result that matters:</p>
+  <p class="lede">The first run of the 36 tests had a flaw worth explaining: the test
+  questions were quoting the skills’ own descriptions back at them. Asking <i>“they’re
+  back under a new domain”</i> when the skill description literally contains that
+  sentence proves nothing — it only shows the system can match itself.</p>
+  <p class="lede">So every question was rewritten the way a shop owner would actually
+  say it, and the tests were re-run. <b>The result got better, not worse:</b></p>
   <ul>
-    <li><b>Asked for the right thing, it picks the right tool: 14 out of 16.</b> And
-    <b>zero</b> cases where it picked the <i>wrong</i> one — the risk we were most
-    worried about, eight similar skills confusing each other, simply didn’t happen.</li>
-    <li><b>Asked for something else, it stays out of the way: 16 out of 16.</b> No
-    barging into work it doesn’t own.</li>
-    <li>Two cases where it answered correctly without formally invoking the skill.
-    At one run each that’s noise, not a fault.</li>
+    <li><b>36 out of 36 correct.</b> Zero cases where it reached for the wrong tool.</li>
+    <li><b>Asked for the right thing, it picks the right tool: 16 out of 16.</b>
+    <i>“Should we buy one ourselves so we’ve actually got the thing in hand?”</i> →
+    the test-purchase skill. Nothing in that sentence appears in its description.</li>
+    <li><b>Asked for something else, it hands over correctly: 16 out of 16.</b> And in
+    seven of those it didn’t just stay quiet — the <i>right</i> other skill stepped in.
+    <i>“Did that takedown actually work?”</i> went to the chase-it-up skill, not the
+    documenting one. That’s much stronger evidence than silence.</li>
+    <li><b>The eight skills never confused each other once.</b> That was the single
+    biggest design risk going in.</li>
   </ul>
+  <p class="lede muted">Honest caveat: each question was asked once. A clean sweep at
+  one attempt each is a good sign, not a guarantee of consistency.</p>
   <p class="lede"><b>The scoreboard said 27/36 and the scoreboard was wrong.</b> The
   test environment has no file access, so skills that routed perfectly then couldn’t
   do their work — and the automatic grader marked that as failure. One example, scored
@@ -452,12 +461,15 @@ that.” Here, a lot of it came back that way.</p>
 </div>
 
 <div class="card">
-  <h3>🧠 Twice now, the score measured the test rig instead of the product</h3>
-  <p class="lede">Two full test runs produced numbers that said nothing about CEASE —
-  once because the environment blocked skills outright, once because it graded a correct
-  decision as a failure. Both looked like real results. The lesson worth keeping:
-  <b>before believing any score, check whether the environment could have produced a
-  pass at all.</b></p>
+  <h3>🧠 Three times now, a score measured the test rig instead of the product</h3>
+  <p class="lede">Three separate runs produced numbers that said nothing about CEASE:
+  one where the environment blocked skills from running at all, one where it marked a
+  correct decision as failure, and one where <b>every single test errored on an expired
+  login while the measuring tool still reported “all clear”</b>.</p>
+  <p class="lede">That last one is the dangerous shape — a tool that can’t tell
+  <i>“nothing went wrong”</i> from <i>“nothing happened”</i>. It now refuses to report
+  a result at all when the runs didn’t complete, and says why. The rule is in the tool
+  now rather than in a document nobody rereads.</p>
 </div>
 
 <h2><span class="n">6</span>Recommended next action</h2>
