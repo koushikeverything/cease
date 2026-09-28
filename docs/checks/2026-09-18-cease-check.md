@@ -294,3 +294,41 @@ promotion candidates:
 Also a pack-update candidate: `hooks.json` is **not parsed at all** by
 `claude plugin validate --strict` (probe-verified 2026-09-18) — the pack marks
 the schema UNVERIFIED but does not say the validator gives zero coverage.
+
+
+---
+
+## 7. Ship record — 2026-09-28
+
+State `shipped` — READY TO PUBLISH. Nothing has been published.
+
+- Repository: https://github.com/koushikeverything/cease (**private**)
+- PR: https://github.com/koushikeverything/cease/pull/1 (`build/cease-plugin` → `main`, 29 commits)
+- Release tag: `cease--v0.1.0`, created by `claude plugin tag` (validates manifest/marketplace parity)
+
+Re-verified fresh on the shipped tree: `validate --strict` PASS on all four
+targets · 179 tests · structural validator clean · every file in the design's
+file plan present.
+
+**Fixed at ship:** LICENSE was missing while `plugin.json` claimed MIT; the
+README install command was an unexecutable placeholder; `homepage` and
+`repository` were unset (the spec reviewer's P3).
+
+### Publish-surface decision left to the human
+
+A git-based plugin marketplace ships the **whole repository** — there is no
+`files` allowlist as there would be for npm. Making this public therefore
+publishes:
+
+| Path | What it is |
+|---|---|
+| `docs/checks/` | this security review, including residual weaknesses |
+| `docs/design/`, `docs/leverage/` | design rationale and probe evidence |
+| `CEASE-plugin-spec.md` | internal strategy and competitive positioning |
+| `cease-brand-protection_1.html` | a 37 KB landing page unrelated to the plugin |
+| `.koushik/config.yaml` | dormant config from a different lifecycle, carries a published tracker URL |
+
+None of it is secret and none of it blocks publishing. It is listed because
+"internal process documents have nearly shipped this way" is a named
+publish-surface hazard, and because the choice should be made deliberately
+rather than discovered after the repo is public.
