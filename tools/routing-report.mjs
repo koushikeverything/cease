@@ -102,4 +102,15 @@ if (tally.misrouted || tally.overTriggered) {
   for (const p of problems.filter((x) => /MISROUTED|OVER-TRIGGER/.test(x.verdict))) console.log(`  ${p.name}: ${p.verdict}`);
   process.exit(1);
 }
-console.log('ok    no misrouting and no over-triggering');
+
+// Absence of evidence is not evidence of correctness. Without traces there is
+// nothing to check, and saying "ok" here would be the same failure one level
+// down from the partial-run guard above.
+const judged = tally.correct + tally.misrouted + tally.silent + tally.overTriggered;
+if (judged === 0) {
+  console.log(`\nINCONCLUSIVE — no run had a readable trace (${tally.noTrace} case(s)).`);
+  console.log('Nothing was measured. Re-run with --keep-temp so traces survive.');
+  process.exit(2);
+}
+if (tally.noTrace) console.log(`\nnote: ${tally.noTrace} case(s) had no readable trace and were not judged.`);
+console.log(`ok    no misrouting and no over-triggering (${judged} case(s) judged)`);
