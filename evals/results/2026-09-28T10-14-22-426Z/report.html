@@ -1,0 +1,1611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eval report — cease v0.1.0</title>
+</head>
+<body>
+<style>
+:root{--plane:#f9f9f7;--surface:#fcfcfb;--ink:#0b0b0b;--ink-2:#52514e;--ink-3:#6b6a64;--hairline:rgba(11,11,11,.10);--grid:#e1e0d9;--inset:rgba(11,11,11,.04);--accent:#2a78d6;--base-fill:#6b6a64;--delta-good:#006300;--good:#067d06;--warning:#8a6100;--critical:#d03b3b;
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){:root{--plane:#0d0d0d;--surface:#1a1a19;--ink:#ffffff;--ink-2:#c3c2b7;--ink-3:#898781;--hairline:rgba(255,255,255,.10);--grid:#2c2c2a;--inset:rgba(255,255,255,.05);--accent:#3987e5;--base-fill:#898781;--delta-good:#0ca30c;--good:#0ca30c;--warning:#fab219;--critical:#e06c6c;color-scheme:dark}}
+:root[data-theme="dark"]{--plane:#0d0d0d;--surface:#1a1a19;--ink:#ffffff;--ink-2:#c3c2b7;--ink-3:#898781;--hairline:rgba(255,255,255,.10);--grid:#2c2c2a;--inset:rgba(255,255,255,.05);--accent:#3987e5;--base-fill:#898781;--delta-good:#0ca30c;--good:#0ca30c;--warning:#fab219;--critical:#e06c6c;color-scheme:dark}
+:root[data-theme="light"]{--plane:#f9f9f7;--surface:#fcfcfb;--ink:#0b0b0b;--ink-2:#52514e;--ink-3:#6b6a64;--hairline:rgba(11,11,11,.10);--grid:#e1e0d9;--inset:rgba(11,11,11,.04);--accent:#2a78d6;--base-fill:#6b6a64;--delta-good:#006300;--good:#067d06;--warning:#8a6100;--critical:#d03b3b;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+  font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-text-size-adjust:100%}
+.wrap{max-width:880px;margin:0 auto;padding:40px 24px 64px;display:flex;flex-direction:column;gap:20px}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+header h1{margin:2px 0 0;font-size:24px;font-weight:600;line-height:1.25;text-wrap:balance}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;color:var(--ink-2);font-size:13px}
+.meta .num{font-variant-numeric:tabular-nums lining-nums}
+.banner{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;
+  border:1px solid var(--hairline);background:var(--surface);font-size:13px}
+.banner .chip-warn{color:var(--warning);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--hairline);border-radius:10px;padding:14px 16px;
+  display:flex;flex-direction:column;gap:4px}
+.tile .label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.tile .value{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums lining-nums;line-height:1.1}
+.tile.hero .value{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:48px}
+.tile .sub{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.tile .value.delta-pos{color:var(--delta-good)}
+.tile .value.delta-neg{color:var(--critical)}
+.toolbar{display:flex;gap:8px;justify-content:flex-end}
+.toolbar button{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink-2);
+  background:var(--surface);border:1px solid var(--hairline);border-radius:6px;padding:4px 10px;cursor:pointer}
+.toolbar button:hover{color:var(--ink)}
+.toolbar button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.case{background:var(--surface);border:1px solid var(--hairline);border-radius:10px;padding:18px 20px;
+  display:flex;flex-direction:column;gap:10px}
+.case-regressed{border-left:3px solid var(--critical)}
+.verdict{margin:6px 0 0;font-size:15px}
+.verdict .delta{font-size:15px}
+.flag{font-size:11px;font-weight:600;color:var(--warning);white-space:nowrap}
+.star{color:var(--warning);font-size:.45em;vertical-align:super;line-height:0;cursor:help}
+.legend summary{cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+.legend-list{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--ink-2)}
+.case-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.case-head h2{margin:0;font-size:16px;font-weight:600}
+.case-head .spacer{flex:1}
+.case-score{font-size:15px;font-weight:600}
+.mono{font:12px "SF Mono",ui-monospace,Menlo,Consolas,monospace}
+.num{font-variant-numeric:tabular-nums lining-nums}
+.muted{color:var(--ink-3);font-size:12px}
+.meter{display:inline-block;position:relative;width:120px;height:6px;border-radius:4px;background:var(--grid);
+  vertical-align:middle}
+.meter>span{display:block;height:100%;border-radius:4px;max-width:100%}
+.meter .tick{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink-3);border-radius:1px}
+.m-accent>span{background:var(--accent)}
+.m-base>span{background:var(--base-fill)}
+.delta{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.delta-pos{color:var(--delta-good)}
+.delta-neg{color:var(--critical)}
+.delta-zero{color:var(--ink-3)}
+details.section{border-top:1px solid var(--grid);padding-top:10px}
+details.section>summary{cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--ink-2);list-style-position:outside;margin-left:2px}
+details.section>summary:hover{color:var(--ink)}
+details.section[open]>summary{margin-bottom:8px}
+.md{display:flex;flex-direction:column;gap:8px;background:var(--inset);border-radius:8px;
+  padding:12px 14px;overflow-wrap:break-word}
+.md>:first-child{margin-top:0}
+.md h1,.md h2,.md h3,.md h4,.md h5,.md h6{margin:4px 0 0;font-size:1em;font-weight:600;line-height:1.3}
+.md p,.md ul,.md ol,.md blockquote,.md table,.md pre,.md hr{margin:0}
+.md ul,.md ol{display:flex;flex-direction:column;gap:4px;padding-left:20px}
+.md blockquote{border-left:2px solid var(--hairline);padding-left:10px;color:var(--ink-2)}
+.md :not(pre)>code{background:var(--inset);padding:1px 4px;border-radius:4px;
+  font:.92em "SF Mono",ui-monospace,Menlo,Consolas,monospace}
+.md pre{background:var(--inset);border:1px solid var(--hairline);padding:10px 12px;border-radius:6px;
+  overflow-x:auto;font:12px/1.5 "SF Mono",ui-monospace,Menlo,Consolas,monospace}
+.md pre code{background:none;padding:0;font:inherit}
+.md table{width:100%;border-collapse:collapse}
+.md th,.md td{padding:5px 8px;text-align:left;vertical-align:top;border-bottom:1px solid var(--grid)}
+.md th{font-weight:600;color:var(--ink-2)}
+.md a{color:var(--accent);text-decoration:none}
+.md a:hover{text-decoration:underline}
+.grader-def{display:flex;flex-direction:column;gap:6px;padding:8px 0}
+.grader-def+.grader-def{border-top:1px solid var(--grid)}
+.grader-def-head{display:flex;align-items:baseline;gap:8px}
+.grader-name{font:13px "SF Mono",ui-monospace,Menlo,Consolas,monospace;font-weight:600}
+.badge{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);
+  border:1px solid var(--hairline);border-radius:999px;padding:1px 8px}
+.config{display:flex;flex-direction:column;gap:2px;background:var(--inset);border-radius:8px;padding:10px 14px}
+.config code{font:12px "SF Mono",ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+.arm{display:flex;flex-direction:column;gap:8px;padding:6px 0}
+.arm+.arm{border-top:1px dashed var(--grid);margin-top:4px;padding-top:12px}
+.arm-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.arm-label{font-size:13px;font-weight:600}
+.run{border:1px solid var(--grid);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.run-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.run-title{font-size:12px;font-weight:600;color:var(--ink-2)}
+.run-error .explanation{color:var(--ink-2)}
+.note{font-size:12px;color:var(--ink-2)}
+.graders{display:flex;flex-direction:column;gap:4px}
+details.grader{border-radius:6px}
+details.grader>summary{cursor:pointer;display:flex;align-items:baseline;gap:8px;padding:3px 4px;
+  border-radius:6px;list-style:none}
+details.grader>summary::-webkit-details-marker{display:none}
+details.grader>summary::before{content:'▸';font-size:10px;color:var(--ink-3);flex:none;
+  transition:transform .12s ease}
+details.grader[open]>summary::before{transform:rotate(90deg)}
+details.grader>summary:hover{background:var(--inset)}
+details.grader>summary:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.grader-body{padding:6px 8px 8px 24px;display:flex;flex-direction:column;gap:6px}
+.chip{font-size:11px;font-weight:600;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.chip-pass{color:var(--good);border:1px solid currentColor}
+.chip-fail{color:var(--critical);border:1px solid currentColor}
+.chip.chip-warn{color:var(--warning);border:1px solid currentColor}
+.explanation{margin:0;font-size:13px;color:var(--ink-2);white-space:pre-wrap;overflow-wrap:break-word}
+.kv{display:flex;gap:8px;font-size:12px;color:var(--ink-3)}
+.votes{font-variant-numeric:tabular-nums;letter-spacing:.1em}
+pre.evidence{margin:0;background:var(--inset);border:1px solid var(--hairline);border-radius:6px;
+  padding:8px 10px;overflow-x:auto;max-height:320px;
+  font:12px/1.5 "SF Mono",ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;overflow-wrap:break-word}
+footer{color:var(--ink-3);font-size:12px;text-align:center;padding-top:8px}
+@media (prefers-reduced-motion:no-preference){
+  details.grader>summary,.toolbar button{transition:background .12s ease,color .12s ease}
+}
+@media (prefers-reduced-motion:reduce){
+  details.grader>summary::before{transition:none}
+}
+@media print{
+  :root,:root[data-theme="dark"],:root[data-theme="light"]{--plane:#f9f9f7;--surface:#fcfcfb;--ink:#0b0b0b;--ink-2:#52514e;--ink-3:#6b6a64;--hairline:rgba(11,11,11,.10);--grid:#e1e0d9;--inset:rgba(11,11,11,.04);--accent:#2a78d6;--base-fill:#6b6a64;--delta-good:#006300;--good:#067d06;--warning:#8a6100;--critical:#d03b3b;color-scheme:light}
+  body{background:#fff}
+  .toolbar{display:none}
+  .case,.run,.grader-def{break-inside:avoid}
+  pre.evidence{max-height:none}
+}
+</style>
+<div class="wrap">
+<header>
+<div class="eyebrow">Plugin eval report</div>
+<h1>cease v0.1.0</h1>
+
+<div class="meta">
+<span class="mono">.</span>
+<span>Claude Code v2.1.283</span>
+<span class="num">2026-09-28 10:14 UTC</span>
+<span class="num">1m 38s</span>
+<span class="num">$1.99</span>
+<span class="num">16 runs</span>
+<span class="num">4 in flight</span>
+
+
+<span>judge default</span>
+<span class="num">threshold 100%</span>
+<span>filtered: --case *-positive-*</span>
+</div>
+</header>
+
+<section class="tiles">
+<div class="tile hero"><span class="label">Suite score</span><span class="value">59.4%</span><span class="sub">mean of per-case scores</span></div>
+
+<div class="tile"><span class="label">Cases</span><span class="value num">16</span><span class="sub">3 of 16 ≥ 100% threshold</span></div>
+<div class="tile"><span class="label">Perfect runs</span><span class="value num">18.8%</span><span class="sub">runs where every grader passed</span></div>
+</section>
+<details class="section legend">
+<summary>How to read this report</summary>
+<ul class="legend-list">
+<li>A run's score is the weighted fraction of its graders that passed; a "perfect" run passed every grader.</li>
+<li>A case's score is the mean of its runs; a case passes when its score is at or above the 100% threshold (the tick on each case bar).</li>
+<li>The suite score is the mean of the per-case scores.</li>
+<li>Judge votes are independent samples of the LLM judge; the majority decides pass or fail.</li>
+<li><strong>No baseline arm was run</strong> (ablation off) — this report shows absolute scores only and cannot say whether the plugin caused them. Re-run with <code>--ablation with-without</code> to measure the plugin’s effect.</li>
+
+</ul>
+</details>
+<div class="toolbar"><button type="button" data-act="expand">Expand all</button><button type="button" data-act="collapse">Collapse all</button></div>
+<article class="case" id="case-1">
+<div class="case-head">
+<h2>baseline-positive-1</h2>
+<span class="muted mono">evals/triggering/baseline/positive-1</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">3 turns · $0.10 · 10:14:22 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-baseline</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">The first step is building your **brand fingerprint**. Every later scan and check compares against it, so it has to exist before anything else.
+
+I&apos;ll pull your product catalog myself: names, SKUs, prices, images and product copy. If Shopify isn&apos;t connected yet, I&apos;ll use sample test data and tell you clearly that it&apos;s not your real catalog.
+
+What I need from you:
+
+1. **Trademark registrations.** For each one, the number, class and country or jurisdiction. Without these I can&apos;t claim ownership in a DMCA notice or a marketplace report.
+2. **Every domain and social handle you own.** Include old, regional and campaign ones. Any I miss will get flagged as an impersonation of your own brand.
+3. **Authorized resellers and distributors.** Their store names, marketplace seller IDs and domains. This matters most: if they&apos;re missing, your real partners get flagged as counterfeiters, and that quickly makes the whole system hard to trust.
+4. **Price floor.** By default, anything under 60% of list price is treated as probably counterfeit. Does that fit how you discount? If you run deep sales or outlet pricing, give me a lower number.
+
+If any of this is already in Notion or Google Drive, point me to it and I&apos;ll read it there.
+
+Once I have it, I&apos;ll build the fingerprint and report what it contains and what&apos;s still missing. Then you can run your first scan (`/cease:sweep`).</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>we're just getting started with this — what do you need from me first?</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-baseline</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "we're just getting started with this — what do you need from me first?"
+PASS if the assistant invoked the cease:baseline skill, OR identified
+cease:baseline as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:baseline as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-2">
+<div class="case-head">
+<h2>baseline-positive-2</h2>
+<span class="muted mono">evals/triggering/baseline/positive-2</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">5 turns · $0.10 · 10:14:22 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-baseline</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I haven&apos;t changed anything yet. I don&apos;t have the three stockists&apos; details, and I couldn&apos;t find an existing brand fingerprint to add them to:
+
+- There&apos;s no `fingerprint.json` in the working directory.
+- I don&apos;t have permission to read the CEASE plugin folder or run its scripts in this session. The fingerprint is supposed to be stored in your Notion case database, so it may already be there.
+
+**Please send these for each of the three German stockists:**
+1. **Business name**, including the legal entity name if it&apos;s different (e.g. &quot;Müller Handels GmbH&quot; trading as &quot;Müller Mode&quot;).
+2. **Where they sell:** their web shop domain, and their exact seller or storefront names on Amazon.de, eBay.de, Otto, Zalando and anywhere else they list. Sweeps match on these names, so an approximate name won&apos;t reliably protect them.
+3. **Social handles**, if they run ads or post your product photos. This stops their ads and posts being flagged as stolen creative.
+4. **Discounting:** will any of them sell below 60% of your list price? If so, a sale price would still get them flagged unless we lower the price floor or add an exception for them.
+
+**Also let me know:**
+- **Where the fingerprint lives:** is it already in your Notion case database, or is this the first setup? If it&apos;s the first, I&apos;ll also need your trademark registrations, the domains and social handles you own, and your other authorized resellers.
+- **Permissions:** can you allow shell access for the CEASE scripts (`sources.mjs`, `fingerprint.mjs`)? Without it I can&apos;t rebuild the fingerprint. The alternative is for you to run `/cease:baseline` in a session where those are allowed.
+
+Once I have the details, I&apos;ll add all three to the allowlist and tell you anything that&apos;s still missing that could get them flagged.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>we've taken on three new stockists in Germany, make sure they don't get flagged as fakes</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-baseline</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "we've taken on three new stockists in Germany, make sure they don't get flagged as fakes"
+PASS if the assistant invoked the cease:baseline skill, OR identified
+cease:baseline as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:baseline as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-3">
+<div class="case-head">
+<h2>brief-positive-1</h2>
+<span class="muted mono">evals/triggering/brief/positive-1</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:100.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">100%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:100.0%"></span></span>
+<span class="num">100%</span>
+<span class="muted num">100% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:100.0%"></span></span>
+<span class="num">100%</span>
+<span class="muted num">4 turns · $0.10 · 10:14:22 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">routed-to-brief</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: PASS PASS PASS</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✓ ✓ ✓</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I couldn&apos;t put together the Monday brief. Permission to read the CEASE data directory (`/private/tmp/e-XU8WSH/config/plugins/data/cease-inline`) was denied, and all six sections come from it:
+
+- **New cases and resolved takedowns:** the case files are in that directory.
+- **Instruments waiting for your signature:** `sign.mjs status` reads from it.
+- **Audit trail check:** the log it verifies is `audit.jsonl` in that directory.
+- **Stuck filings and the recovery estimate:** also built from those case files.
+
+I haven&apos;t filled any of this in with guesses. Without the data, any number or case I gave you would be made up.
+
+To get the brief:
+
+1. **Allow access** to that directory and to running `node` on the CEASE scripts (`sign.mjs`, `audit-append.mjs`), then ask again. I&apos;ll build it from your real data.
+2. **Or run these yourself** and paste the output here, and I&apos;ll write it up:
+   ```bash
+   CEASE_DATA_DIR=&quot;/private/tmp/e-XU8WSH/config/plugins/data/cease-inline&quot; node /Users/momentum91/Documents/Cease/scripts/sign.mjs status
+   node /Users/momentum91/Documents/Cease/scripts/audit-append.mjs verify &quot;/private/tmp/e-XU8WSH/config/plugins/data/cease-inline/audit.jsonl&quot;
+   ```
+
+Once access is sorted out, I can also set this up to run every Monday at 09:00.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>give me the Monday rundown on the counterfeit stuff</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-brief</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "give me the Monday rundown on the counterfeit stuff"
+PASS if the assistant invoked the cease:brief skill, OR identified
+cease:brief as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:brief as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-4">
+<div class="case-head">
+<h2>brief-positive-2</h2>
+<span class="muted mono">evals/triggering/brief/positive-2</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">4 turns · $0.09 · 10:14:22 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-brief</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I couldn&apos;t get you a status report. Permission to read the CEASE data directory (`/private/tmp/e-pC5Col/config/plugins/data/cease-inline`) was denied, and all the case, filing and signature records are kept there. I haven&apos;t tried to get around that, so I don&apos;t know yet whether anything is waiting on you.
+
+To answer your question I need to run two read-only checks against that directory:
+
+1. **Waiting for your signature:** `node …/Cease/scripts/sign.mjs status` lists every drafted notice that hasn&apos;t been signed yet and how long it has waited.
+2. **Audit log check:** `node …/Cease/scripts/audit-append.mjs verify …/audit.jsonl` confirms the evidence log hasn&apos;t been altered.
+
+I&apos;d also need to read the case files for the new, resolved and stuck cases and the recovery estimate.
+
+If you allow reading that directory and running those two scripts, I&apos;ll send the full brief with anything unsigned at the top. If the denial was on purpose, tell me what you&apos;d like me to look at instead.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>what's the state of play, and is anything sitting waiting on me?</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-brief</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "what's the state of play, and is anything sitting waiting on me?"
+PASS if the assistant invoked the cease:brief skill, OR identified
+cease:brief as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:brief as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-5">
+<div class="case-head">
+<h2>check-positive-1</h2>
+<span class="muted mono">evals/triggering/check/positive-1</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">7 turns · $0.19 · 10:14:35 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-check</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I can&apos;t tell you yet. I wasn&apos;t able to look at the page, so I have no evidence either way.
+
+**What happened:**
+- **I couldn&apos;t open the page.** This session has no browser, web-fetch or shell access. I also sent it to the domain investigator, which has the same limits. So I have no page content, price, seller identity, registrar or hosting details, and I haven&apos;t run the triage script. Guessing would be worse than no answer.
+- **The domain is a placeholder.** `.example` is reserved (RFC 2606) and can never be a real registered site. If this came from a real email or message, please paste the exact link. It may have been changed when it was forwarded.
+- **I have no brand fingerprint.** There&apos;s no `fingerprint.json`, so I don&apos;t have your owned domains, reseller allowlist, price floors or product copy to compare against. I can still triage without it, but the comparison is weaker.
+
+**Two quick answers from you would settle most of it:**
+1. **Do you own an &quot;outlet&quot; domain, or have you authorized anyone to run one?** If `lumengoods-outlet` isn&apos;t one of your domains or a known reseller&apos;s, that&apos;s already a strong sign of impersonation. Lookalike &quot;-outlet&quot; domains are one of the most common setups.
+2. **What&apos;s the real Halo Pendant price, and what does this page charge?** A price well below yours plus copy pasted from your product page points to a fake storefront. A normal price from a seller you don&apos;t recognize could just be grey-market stock, and I&apos;d hold that rather than guess.
+
+**To get a full answer:**
+- Paste the real URL, or the page text, price and footer/contact details, in a session with web access. I&apos;ll then check registrar, host, copied phrases and price, classify it, and score it.
+- Run `cease:baseline` first if you can. It records your owned domains and authorized resellers, so real partners don&apos;t get flagged and &quot;is this us?&quot; can be answered for certain.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>is <a href="https://lumengoods-outlet.example/products/halo-pendant" rel="noopener">https://lumengoods-outlet.example/products/halo-pendant</a> us, or someone pretending to be us?</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-check</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "is <a href="https://lumengoods-outlet.example/products/halo-pendant" rel="noopener">https://lumengoods-outlet.example/products/halo-pendant</a> us, or someone pretending to be us?"
+PASS if the assistant invoked the cease:check skill, OR identified
+cease:check as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:check as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-6">
+<div class="case-head">
+<h2>check-positive-2</h2>
+<span class="muted mono">evals/triggering/check/positive-2</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">7 turns · $0.17 · 10:14:37 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-check</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I can&apos;t tell you yet. I wasn&apos;t able to open the page, so I haven&apos;t seen its images and can&apos;t confirm whether they&apos;re yours.
+
+**What happened**
+- **No web access.** I sent an investigator agent to load https://someshop.example/p/44, but neither it nor I has a way to fetch pages, drive a browser or run a reverse-image search here. Nothing was requested from the site, so this is a limit on my side and says nothing about the site itself.
+- **No brand fingerprint.** There&apos;s no `fingerprint.json` in this project, so I don&apos;t have your image hashes, product copy, SKUs or authorized-reseller list to compare against. Even with the page open, the match would be weaker until that exists.
+
+**How to get an answer**
+1. **Fastest:** paste the page&apos;s image URLs (or save the images) and point me to your original photo files. I can check the metadata (creator, copyright, camera, dates) and whether the files are identical.
+2. **Enable a web-fetch or browser tool** for this session and run the check again. I&apos;d then capture the page, pull its image metadata and look for other places the photos appear online.
+3. **Run `cease:baseline`** so this check, and later ones, have your image hashes to match against.
+
+If the photos turn out to be yours, this counts as content theft (someone using your photos or copy on their store). The next steps would be `cease:evidence` to capture the page with a timestamp before it changes, then `cease:enforce` to draft a DMCA notice for you to sign.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p><a href="https://someshop.example/p/44" rel="noopener">https://someshop.example/p/44</a> — that's our photography on there, isn't it?</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-check</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "<a href="https://someshop.example/p/44" rel="noopener">https://someshop.example/p/44</a> — that's our photography on there, isn't it?"
+PASS if the assistant invoked the cease:check skill, OR identified
+cease:check as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:check as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-7">
+<div class="case-head">
+<h2>enforce-positive-1</h2>
+<span class="muted mono">evals/triggering/enforce/positive-1</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">5 turns · $0.12 · 10:14:37 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-enforce</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I couldn&apos;t tell which listing you mean. There&apos;s no case file in `cases/` yet, so I have nothing to check readiness against or to fill a draft from. I&apos;ll only draft something once it&apos;s backed by a real case, and every drafted report goes to you to sign and approve before anything is sent. Here&apos;s the general picture for Amazon.
+
+## For a counterfeit listing, send an IP infringement report, not a DMCA notice
+
+Amazon handles counterfeit goods through its own infringement report. That&apos;s the &quot;Report a Violation&quot; tool if you&apos;re enrolled in Brand Registry, or Amazon&apos;s public &quot;Report Infringement&quot; form if you&apos;re not. If you send a copyright takedown notice (a DMCA notice) into that queue, it usually just slows things down.
+
+**What the report needs:**
+
+1. **Your trademark registration number and the country it&apos;s registered in.** Amazon matches this to the brand, and a pending application carries less weight.
+2. **The listing&apos;s product ID (ASIN)**, and the seller&apos;s storefront or seller ID if the fakes come from one seller on a shared listing.
+3. **The violation type: &quot;counterfeit.&quot;** Choose this rather than &quot;trademark misuse&quot; or &quot;copyright.&quot; Each routes to a different queue, and the evidence Amazon expects for counterfeit is higher.
+4. **Why you know it&apos;s fake.** This is where reports get won or lost. Strong proof includes:
+   - a **test-buy order ID**, meaning you bought one and can show it isn&apos;t genuine. Amazon often asks for this on counterfeit claims.
+   - physical differences: packaging, serial or SKU format, materials
+   - an image or SKU string that doesn&apos;t match your catalog
+   - a price below your floor from a seller that isn&apos;t one of your authorized resellers
+5. **Rights-holder contact details, plus the good-faith and accuracy statements**, signed by someone with authority to act for the brand.
+
+**Two cases where this report is the wrong tool:**
+
+- **If the seller is selling genuine goods without authorization,** Amazon won&apos;t treat that as counterfeit, and a false counterfeit claim can come back on you. That&apos;s a contract matter with your distributor.
+- **If the listing only copies your photos or product copy,** a copyright report is the right route for that part.
+
+## Next step
+
+Send me the listing URL, the ASIN, or the case ID if you&apos;ve already opened one. I&apos;ll run `cease:check` on it to confirm it&apos;s counterfeit rather than an unauthorized reseller and to capture evidence, then build the case file with your trademark number. After that I can draft the actual Amazon report for you to review and sign. If you haven&apos;t done a test buy, `cease:testbuy` can set one up, and that&apos;s often what decides whether Amazon acts.
+
+(This is drafting help, not legal advice.)</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>what do I actually need to send Amazon to make them pull this?</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-enforce</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "what do I actually need to send Amazon to make them pull this?"
+PASS if the assistant invoked the cease:enforce skill, OR identified
+cease:enforce as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:enforce as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-8">
+<div class="case-head">
+<h2>enforce-positive-2</h2>
+<span class="muted mono">evals/triggering/enforce/positive-2</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">6 turns · $0.12 · 10:14:40 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-enforce</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I can&apos;t draft the response or set the deadline yet. There are no case files in this directory, and I don&apos;t have permission to read CEASE&apos;s data folder, so I can&apos;t tell which takedown this is about.
+
+**What I need from you:**
+1. **The case ID or the URL** the takedown was about.
+2. **The exact date the host received the counter-notice.** The deadline counts from that date, not from when they told you.
+3. **A copy of the counter-notice**, if you have it. I need the other party&apos;s name and address, whether they agreed to the court&apos;s jurisdiction, and the reason they gave.
+
+**What the &quot;ten days&quot; probably means (this is not legal advice):** Under the DMCA counter-notice rule (§ 512(g)), the host must put the page back up no sooner than 10 and no later than 14 **business** days after getting the counter-notice. The only thing that stops that is you telling the host you&apos;ve filed a lawsuit asking a court to stop the activity. Another takedown notice or an argument sent to the host won&apos;t stop it. So the real decision is whether to sue, and that&apos;s for you and your lawyer. Given how little time that leaves, I&apos;d get the lawyer involved today.
+
+If the host got the counter-notice today (Mon 28 Sep), 10 business days runs to about **12 October**. That date depends on whether the host counts Columbus Day as a business day. I&apos;ll set the exact date once you give me the receipt date.
+
+**Once I have the case, I&apos;ll:**
+- Check the case file is complete.
+- Write a response memo for you and your lawyer. It will cover the counter-notice, what evidence you have to prove you own the content, your choice between suing and letting the page go back up, and the deadline.
+- Record it for your signature. Nothing gets sent or filed without your signature and your typed approval.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>they've pushed back, and the host says the page goes live again in ten days</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-enforce</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "they've pushed back, and the host says the page goes live again in ten days"
+PASS if the assistant invoked the cease:enforce skill, OR identified
+cease:enforce as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:enforce as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-9">
+<div class="case-head">
+<h2>evidence-positive-1</h2>
+<span class="muted mono">evals/triggering/evidence/positive-1</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">5 turns · $0.10 · 10:14:59 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-evidence</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I can put the pack together, but first I need to know which seller this is. There are no existing case files in your working directory, and I don&apos;t have permission to read the CEASE directory (`/Users/momentum91/Documents/Cease`), so I can&apos;t see any earlier case to pick up from.
+
+Please send me one of these:
+
+- **A case ID** (e.g. `c-0001`) if this seller already has a case. I&apos;ll load it and give you everything in it: what&apos;s been captured, the evidence hashes, the ownership proof, and the linked customer harm. I&apos;ll also check the evidence hasn&apos;t been altered since capture and list which DMCA notice elements are still missing, if any.
+- **The seller&apos;s URL, storefront or name** if this is new. I&apos;ll open a case and save the pages right away, before they disappear. That means:
+  - a full-page screenshot showing the URL and a timestamp
+  - the page source
+  - the product images
+  - who registered and hosts the domain
+  - the seller&apos;s identity and how long the storefront has been running
+
+For the pack to hold up when she writes to them, it also needs two things from your side. Please send them if you have them:
+
+1. **Proof you own the material**: an original product image file (with its camera/file metadata intact), the date you first published it, and your trademark registration number and class, if this is about your brand name or logo.
+2. **Evidence of a real customer being harmed**: a support ticket, chargeback or return linked to this seller. This makes the case much stronger.
+
+If you&apos;d like access to the CEASE directory to check for existing cases, you&apos;ll need to approve that first. Otherwise, just send me the case ID or the link.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>our solicitor wants a full pack on this seller before she writes to them</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-evidence</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "our solicitor wants a full pack on this seller before she writes to them"
+PASS if the assistant invoked the cease:evidence skill, OR identified
+cease:evidence as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:evidence as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-10">
+<div class="case-head">
+<h2>evidence-positive-2</h2>
+<span class="muted mono">evals/triggering/evidence/positive-2</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">4 turns · $0.10 · 10:15:00 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-evidence</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I can start capturing as soon as I know which shop you mean. You didn&apos;t include a link, and I couldn&apos;t look through the existing case files to guess because my file search request was denied.
+
+**Send me one of these:**
+- the shop URL (storefront, listing or domain), or
+- the case id if it&apos;s already open (e.g. `c-0003`)
+
+**Once I have it, I&apos;ll:**
+1. Open the case file, or load the existing one.
+2. Capture the shop first, before any analysis. Each item gets a hash when it&apos;s saved:
+   - a full-page screenshot showing the URL bar and a timestamp
+   - the saved page source (the raw HTML)
+   - the product images, as files
+   - the domain registration details: registrar, creation date, nameservers, host and CDN
+   - seller details: identity, how old the store is, and their other listings
+3. Add your ownership proof: the original image files with their photo metadata intact, the first-publication date, and the trademark number if this is a trademark claim.
+4. Link any support ticket, chargeback or return that shows a customer was harmed.
+5. Re-check that the saved files haven&apos;t changed and list exactly what&apos;s still missing for a DMCA notice.
+
+Your instinct is right: capture before contacting anyone. I&apos;d also hold off on any takedown or cease-and-desist until the capture is done. Paste the link and I&apos;ll start.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>grab proof of this shop now, I reckon they'll pull it down the moment we contact them</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-evidence</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "grab proof of this shop now, I reckon they'll pull it down the moment we contact them"
+PASS if the assistant invoked the cease:evidence skill, OR identified
+cease:evidence as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:evidence as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-11">
+<div class="case-head">
+<h2>pursue-positive-1</h2>
+<span class="muted mono">evals/triggering/pursue/positive-1</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">5 turns · $0.10 · 10:15:11 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-pursue</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I can&apos;t open the case yet. I have nothing to compare the new shop against:
+
+- **No closed cases found here.** The working directory has no case files, and I don&apos;t have permission to read the CEASE directory (`/Users/momentum91/Documents/Cease`), so I can&apos;t see last month&apos;s closed cases.
+- **No new address.** I don&apos;t have the URL where the shop is trading now.
+
+To go ahead, send me:
+
+1. **The new address** (a domain, marketplace storefront or social handle).
+2. **Which case it relates to**, such as the old domain or seller name, or the path to the closed-case file. Another option is to allow read access to the CEASE directory so I can find it.
+
+With both, I&apos;ll compare the new shop against the closed case on things that are hard for a seller to change: copied text, reused product images, the seller or registrant details and the nameservers. I&apos;ll run the relaunch check (`relaunch.mjs`) to do this. Then there are two possible results:
+
+- **It&apos;s a real relaunch:** I&apos;ll open a new case linked to the old one and capture evidence before the site changes. Because the operator came back after being taken down, I&apos;d suggest skipping another platform report. We&apos;d go straight to the registrar and host, then the payment processor, which is often the fastest way to shut a shop down. Each notice gets drafted for you to sign; nothing is sent without your signature.
+- **It&apos;s actually the old address:** then last month&apos;s takedown never worked, and we escalate that original case instead.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>that shop we killed last month is trading again on a different address</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-pursue</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "that shop we killed last month is trading again on a different address"
+PASS if the assistant invoked the cease:pursue skill, OR identified
+cease:pursue as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:pursue as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-12">
+<div class="case-head">
+<h2>pursue-positive-2</h2>
+<span class="muted mono">evals/triggering/pursue/positive-2</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">6 turns · $0.11 · 10:15:15 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-pursue</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I can&apos;t tell you yet. I couldn&apos;t find the records for those three filings.
+
+- **Your working directory is empty.** No case files, filing log or `closed-cases.json` are there.
+- **I wasn&apos;t allowed to search elsewhere.** The case data probably lives under `/Users/momentum91/Documents/Cease`, but file search there was denied because this session is in don&apos;t-ask mode. So I can&apos;t see which listings were filed, where, or when.
+
+To check whether they came down, I need one of these:
+
+1. **The three listing URLs**, plus the platform each was filed on (Amazon, eBay VeRO, Etsy, etc.) and roughly when. I&apos;ll look at each listing&apos;s page and the seller&apos;s main storefront page, because a &quot;removed&quot; listing often just reappears at a new address under the same seller.
+2. **Permission to read the CEASE case folder**, by allowing Read/Glob/Grep on `/Users/momentum91/Documents/Cease` or telling me where the case files are. Then I can pull the filing dates and case history myself and also check for relaunches under new domains.
+
+Each listing will come back as one of three results:
+- **Gone:** I&apos;ll watch for it to come back for 90 days.
+- **Still live:** the filing failed. The next step is a report to the domain&apos;s registrar or the hosting company, not the same report again.
+- **Listing gone but the seller still trading:** I&apos;ll open a new case on the storefront.
+
+At a week out, this is the right time for the 7-day check.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>we filed against those three listings a week ago, has anything actually happened?</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-pursue</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "we filed against those three listings a week ago, has anything actually happened?"
+PASS if the assistant invoked the cease:pursue skill, OR identified
+cease:pursue as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:pursue as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-13">
+<div class="case-head">
+<h2>sweep-positive-1</h2>
+<span class="muted mono">evals/triggering/sweep/positive-1</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:100.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">100%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:100.0%"></span></span>
+<span class="num">100%</span>
+<span class="muted num">100% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:100.0%"></span></span>
+<span class="num">100%</span>
+<span class="muted num">8 turns · $0.26 · 10:15:16 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 2x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">routed-to-sweep</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: PASS PASS PASS</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✓ ✓ ✓</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I haven&apos;t scanned anything yet. The sweep can&apos;t start until two things are fixed.
+
+**1. There&apos;s no brand profile to compare against.** Every check works by comparing what it finds to a saved profile of your brand: your products, prices, product photos, domains, social accounts and approved resellers. I couldn&apos;t find that profile (a file called `fingerprint.json`) in this folder. Permissions also blocked me from checking the plugin folder. Normally I&apos;d build it first, but I got stuck there too.
+
+**2. This session can&apos;t run the tools the sweep needs.**
+- **No shell access.** The catalog lookup, the payment-dispute check and the triage step are all scripts I need to run, and I can&apos;t. A helper I sent read the scripts without running them. It found that without a live Shopify connection, the catalog step returns 3 **sample** lamp products (Halo Pendant, Arc Desk, Tide Floor). That&apos;s test data, not your catalog.
+- **No connectors.** Gmail, Shopify, payments, Notion and Drive aren&apos;t connected. That rules out the most reliable checks: customer complaints about fakes, payment disputes that match none of your orders, and returns of items you don&apos;t sell.
+- **Permissions blocked me** from searching files outside this folder.
+
+I didn&apos;t search marketplaces, social media, domains or ad libraries either. Without the profile they&apos;d have nothing to compare against, and they&apos;d flag your own listings and real resellers.
+
+**To get going:**
+1. Allow shell commands and access to `/Users/momentum91/Documents/Cease`, or run Claude Code in a less restrictive permission mode.
+2. Connect Shopify so I use your real catalog, and ideally Gmail and your payment processor too.
+3. Answer these in one reply, or point me to a Notion or Drive doc that has them:
+   - **Trademark registrations:** number, class and country or region for each.
+   - **Every domain and social handle you own.** Any I miss will get flagged as a fake.
+   - **Authorized resellers and distributors.** This matters most, because without it the sweep will flag your real partners.
+   - **Price floor:** listings under 60% of your list price are treated as likely fakes. Does that fit how you discount, or should the cutoff be different?
+
+Once that&apos;s in place I&apos;ll build the profile and then run the full sweep.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>can you go look everywhere and see if anyone's selling knock-offs of our stuff?</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-sweep</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "can you go look everywhere and see if anyone's selling knock-offs of our stuff?"
+PASS if the assistant invoked the cease:sweep skill, OR identified
+cease:sweep as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:sweep as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-14">
+<div class="case-head">
+<h2>sweep-positive-2</h2>
+<span class="muted mono">evals/triggering/sweep/positive-2</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:100.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">100%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:100.0%"></span></span>
+<span class="num">100%</span>
+<span class="muted num">100% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:100.0%"></span></span>
+<span class="num">100%</span>
+<span class="muted num">8 turns · $0.13 · 10:15:17 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">routed-to-sweep</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: PASS PASS PASS</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✓ ✓ ✓</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I couldn&apos;t run the sweep, so none of the three disputes have been checked yet. Two things are blocking it:
+
+1. **There&apos;s no brand fingerprint.** The sweep compares everything against a `fingerprint.json`: your SKUs, price floors, owned domains and handles, and your list of authorised resellers. There isn&apos;t one in this project, and I&apos;m not allowed to read the CEASE folder to check whether one exists there. Without it, the sweep has nothing to compare against, so it has to stop. The fix is to run `/cease:baseline` first.
+2. **I can&apos;t run the dispute and order checks.** Matching disputes against orders uses two scripts (`sources.mjs disputes` and `sources.mjs orders`), and this session doesn&apos;t let me run commands. Getting a subagent to run them would sidestep your permission settings, so I haven&apos;t done that.
+
+**To go ahead, either:**
+- allow Bash and reading `/Users/momentum91/Documents/Cease/`, then run `/cease:baseline` followed by `/cease:sweep`; or
+- send me the three disputes (date, amount, reason code, and any merchant name or description shown on the customer&apos;s statement) and I&apos;ll work through them by hand.
+
+**Things you can check now:**
+- **Reason codes.** If all three disputes share the same reason code, such as &quot;not received&quot; or &quot;not as described&quot;, that points to one fake shop rather than three unrelated mistakes.
+- **What was on the customer&apos;s statement.** Ask your payment processor, or the customers themselves, what the charge looked like. The name, website and processor on it are the best clue to who actually took the money.
+- **The customers themselves.** Ask them where they bought, meaning the website, the social account or the ad they clicked, and ask for the order confirmation email. Its sender domain and payment processor tell you exactly where to send a takedown.
+- **Before you respond to the disputes,** confirm the charges didn&apos;t come from a legacy checkout, a marketplace account or a partner shop that doesn&apos;t sync with your main order system. Otherwise you could fight a dispute for a sale that was really yours.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>three people this month disputed charges for orders I can't find anywhere in our system</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-sweep</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "three people this month disputed charges for orders I can't find anywhere in our system"
+PASS if the assistant invoked the cease:sweep skill, OR identified
+cease:sweep as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:sweep as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-15">
+<div class="case-head">
+<h2>testbuy-positive-1</h2>
+<span class="muted mono">evals/triggering/testbuy/positive-1</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">6 turns · $0.10 · 10:15:26 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-testbuy</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">Usually yes. Having the physical item is the strongest evidence you can get in a counterfeit case. It makes marketplace appeals much more likely to succeed, and it proves money was paid to the seller, which is what a payment-processor report needs. If the item never arrives, that&apos;s evidence too. A store taking money and not shipping can be reported to the payment processor on that alone, and that&apos;s often faster than an IP claim.
+
+I can&apos;t tell which case you mean, though. This session has no case file or listing in it, and I was blocked from searching the CEASE folder for one. To set up the purchase I need:
+
+- **The listing:** the URL, seller name, price and variant (or the case ID if one is open)
+- **A delivery address that isn&apos;t linked to the brand.** If the seller recognises you, they may send a genuine item and the purchase proves nothing.
+- **How you&apos;ll pay:** use something that shows who received the money, such as a normal card or PayPal. The merchant ID on the payment is what the processor report is built on.
+
+**You&apos;d place the order yourself.** CEASE never buys anything and never asks for card details. Once you&apos;ve ordered, send me the date, order number, price paid and expected delivery so I can log it against the case. When the package arrives, photograph it before you open it: packaging, labels, shipping documents and the return address. Don&apos;t crop or edit the photos, because they&apos;re recorded with a fingerprint (a hash) that shows they haven&apos;t been altered.
+
+One exception: if the listing already uses your own product photos or your exact copy, a takedown may work without buying anything. Buying a sample matters most when the only question is whether the goods are real.
+
+Which listing is it?</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>should we buy one ourselves so we've actually got the thing in hand?</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-testbuy</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "should we buy one ourselves so we've actually got the thing in hand?"
+PASS if the assistant invoked the cease:testbuy skill, OR identified
+cease:testbuy as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:testbuy as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<article class="case" id="case-16">
+<div class="case-head">
+<h2>testbuy-positive-2</h2>
+<span class="muted mono">evals/triggering/testbuy/positive-2</span>
+<span class="spacer"></span>
+
+
+
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span><i class="tick" style="left:100.0%"></i></span>
+<span class="num case-score">50%</span>
+</div>
+
+<details class="section" open>
+<summary>Results</summary>
+<section class="arm">
+<div class="arm-head">
+<span class="arm-label">Runs</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">0% of runs perfect</span>
+</div>
+<div class="run">
+<div class="run-head">
+<span class="run-title">Run 1</span>
+<span class="meter m-accent" aria-hidden="true"><span style="width:50.0%"></span></span>
+<span class="num">50%</span>
+<span class="muted num">5 turns · $0.10 · 10:15:33 UTC</span>
+</div>
+
+<div class="graders"><details class="grader">
+<summary><span class="chip chip-pass">✓ pass</span> <span class="grader-name">skill-fired</span>  </summary>
+<div class="grader-body">
+<p class="explanation">Skill called 1x (expected 1..∞)</p>
+
+</div>
+</details>
+<details class="grader" open>
+<summary><span class="chip chip-fail">✗ fail</span> <span class="grader-name">routed-to-testbuy</span>  </summary>
+<div class="grader-body">
+<p class="explanation">judge votes: FAIL FAIL FAIL</p>
+<div class="kv"><span>Judge votes</span><span class="votes">✗ ✗ ✗</span></div><div class="kv"><span>Evidence (what the judge was shown; for an image, a description of what was sent)</span></div><pre class="evidence">I can set up the test buy, but I can&apos;t find the case. There are no files in the working directory, and I don&apos;t have permission to read the CEASE directory where the case files and `scripts/case.mjs` live. To go further I need one of these:
+
+- **The case ID or the Etsy listing URL.** I&apos;ll open the case with `cease:evidence` if one doesn&apos;t exist yet.
+- **Read access to `/Users/momentum91/Documents/Cease`**, so I can pull the existing case file.
+
+I won&apos;t place the order. You buy it yourself, and nobody should ask you for card details. Here&apos;s what the purchase will need:
+
+**1. Before you order**
+- **The exact item:** the listing URL, the seller&apos;s shop name, the price, and the variant, with a screenshot of the listing taken before you buy.
+- **Ship it somewhere that isn&apos;t linked to the brand**, like a staff member&apos;s home or a mail-forwarding address. Don&apos;t use the company name. If the seller recognises the buyer, they may send a genuine item and the whole exercise fails.
+- **Pay with a card or PayPal account in that person&apos;s name**, so the payment can be traced. The merchant ID on the statement is what makes a payment-processor report work.
+
+**2. Right after ordering**
+Send me the order date, order number, seller, price paid, payment method and expected delivery date, and I&apos;ll log them against the case. If the order isn&apos;t logged, it&apos;s just an expense and won&apos;t count as evidence.
+
+**3. When it arrives**
+- Photograph it before opening: the outer packaging, the shipping label, the return address and any customs forms.
+- Then photograph the item next to a genuine one. Cover materials, finish, logo and branding, serial or batch marks, inserts, and anything a customer would notice.
+- **Don&apos;t crop, brighten or edit the photos.** Each one is hashed as it&apos;s filed into the case.
+
+**4. For the appeal**
+Etsy&apos;s IP process mostly responds to documented differences from the genuine product, so the side-by-side photos are what will turn the rejection around. Also, send me Etsy&apos;s rejection wording if you can. It sometimes gives a different reason, such as a missing trademark registration number or an unclear description of the infringement, which can be fixed without waiting for a sample.
+
+If the item never arrives, that&apos;s evidence too. A shop that takes payment and doesn&apos;t ship can be reported to the payment processor, and that often gets it shut down faster than an IP claim.</pre>
+</div>
+</details></div>
+</div>
+</section>
+</details>
+<details class="section" open>
+<summary>Prompt</summary>
+<div class="md"><p>Etsy rejected our report — I think they want to see the actual product</p>
+</div>
+</details>
+<details class="section" open>
+<summary>Graders — what "good" means for this case</summary>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">skill-fired</span><span class="badge">tool_used</span></div>
+<div class="config"><div class="kv"><span>tool</span><code>&quot;Skill&quot;</code></div><div class="kv"><span>min</span><code>1</code></div></div>
+</div>
+<div class="grader-def">
+<div class="grader-def-head"><span class="grader-name">routed-to-testbuy</span><span class="badge">llm</span></div>
+<div class="md"><p>The user asked: "Etsy rejected our report — I think they want to see the actual product"
+PASS if the assistant invoked the cease:testbuy skill, OR identified
+cease:testbuy as the right tool and tried to reach it.
+FAIL if it routed to a DIFFERENT cease skill, or answered from general
+knowledge without identifying cease:testbuy as the owner.
+This measures ROUTING ONLY, never task completion. The eval sandbox has an
+empty working directory and restricted tools, so a skill that is invoked
+and then cannot finish its work is still CORRECT routing. Judge only which
+skill was reached for.</p>
+</div>
+</div>
+</details>
+</article>
+<footer>Generated by <code>claude plugin eval</code> · schema v1 · scores are not comparable across different suites</footer>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var bar=document.querySelector('.toolbar');
+  if(!bar)return;
+  bar.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest('button');
+    if(!b)return;
+    var open=b.dataset.act==='expand';
+    document.querySelectorAll('details.section, details.grader').forEach(function(d){d.open=open});
+  });
+});
+// Collapsed details vanish from print/PDF; these pages are share artifacts.
+window.addEventListener('beforeprint',function(){
+  document.querySelectorAll('details').forEach(function(d){
+    if(!d.open){d.dataset.printOpened='1';d.open=true}
+  });
+});
+window.addEventListener('afterprint',function(){
+  document.querySelectorAll('details[data-print-opened]').forEach(function(d){
+    d.open=false;delete d.dataset.printOpened;
+  });
+});
+</script>
+</body>
+</html>

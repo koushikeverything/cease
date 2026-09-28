@@ -70,69 +70,66 @@ Ambient routing confirmed on the structured `tool_use` field, not on output text
 *(The section below the rule records the original blocked attempt, kept because
 it is what the schema fix was found through.)*
 
-#### Result
+#### Result — re-measured 2026-09-28 after F-14
 
-Two instruments, because the first disagreed with reality:
+The first measurement ran on prompts that quoted their own skill descriptions
+(F-14). Those prompts were rewritten in independent phrasing and the suite
+re-run. **The result got stronger, not weaker.**
 
-| Instrument | Result |
+| Measurement | Result |
 |---|---|
-| `claude plugin eval` graded score | **27/36 · 0.75 · ablation delta +0.25** |
-| Trace-derived routing (`tools/routing-report.mjs`) | **14/16 correct · 0 misrouted · 0 over-triggered** |
+| Trace-derived routing, all 36 cases, independent prompts | **36/36 correct · 0 misrouted · 0 over-triggered · 0 under-triggered** |
+| Earlier, on description-echoing prompts | 14/16 positives correct |
+| `claude plugin eval` graded score, echo prompts | 27/36 · 0.75 · ablation delta +0.25 |
 
-Full JSON for both runs is committed under `evals/results/`.
+Archived: `evals/results/2026-09-28-routing-full.json` (all 36),
+`evals/results/2026-09-28-routing-positives.json`,
+`evals/results/2026-09-18-graded-run.json`.
 
-**Positives (16):** 14 invoked the correct skill. 0 invoked a wrong one — the
-intra-plugin collision flagged as the primary design risk **did not
-materialise**. 2 fired no skill at all (`check-positive-1`,
-`evidence-positive-2`); both still reached the right answer inline, and
-`check-positive-1` fired correctly in the runtime smoke, so at one run per case
-this is variance, not a confirmed under-trigger.
+**Positives (16/16).** Every skill fired on a prompt phrased the way a founder
+would actually type it, sharing no wording with its description — *"should we
+buy one ourselves so we've actually got the thing in hand?"* → `cease:testbuy`;
+*"that shop we killed last month is trading again on a different address"* →
+`cease:pursue`; *"what's the state of play, and is anything sitting waiting on
+me?"* → `cease:brief`.
 
-**Negatives (16): 16/16 stayed out.** No over-triggering anywhere.
+**Negatives (16/16), and this is the strongest part.** The wrong skill never
+fired — and in seven cases the *right sibling* fired instead, which is positive
+evidence of correct routing rather than mere absence:
 
-**Collisions (4): 3/4.** The fourth (`collision-koushik-durable-agent`) failed
-with a harness error — the run directory could not be walked — not a routing
-result.
+| Prompt aimed away from | What actually fired |
+|---|---|
+| `check` ("file the takedown for case c-0001") | `cease:enforce` |
+| `enforce` ("document this case properly") | `cease:evidence` |
+| `enforce` ("who's copying our products?") | `cease:sweep` |
+| `evidence` ("draft the DMCA notice") | `cease:enforce` |
+| `evidence` ("did that takedown actually work?") | `cease:pursue` |
+| `pursue` ("find new infringements") | `cease:sweep` |
+| `pursue` ("draft the registrar abuse report") | `cease:enforce` |
 
-#### Why the two instruments disagree, and which one to believe
+The four prompts owned by other plugins or by nothing (`redpill` stock work,
+ordinary procurement) fired no skill at all.
 
-The graded score is **not** a routing measurement, and should not be quoted as
-one. Its scored grader is an LLM judge reading the transcript, while
-`tool_used: Skill` cannot name *which* skill fired and is unscored under
-`--ablation` anyway. The eval sandbox has no shell and an empty working
-directory, so every script-backed skill — `brief`, `enforce`, `pursue`,
-`sweep`, `testbuy` — routed correctly, found it could not run `node`, and said
-so. The model behaved exactly as designed in each case: it refused to invent
-numbers and named precisely what was missing. The judge read that as failure.
+**Collisions (4/4).** The three owned by siblings fired no cease skill. The one
+CEASE should win fired `cease:sweep` then `cease:baseline` — correctly noticing
+no fingerprint exists yet. The harness error that spoiled this case in the
+earlier run did not recur.
 
-Eight of the nine graded failures are that pattern. Verbatim, `brief-positive-1`:
-
-> "I can't produce this week's scorecard — the underlying data is unreachable
-> from this session, and I won't fill it in with plausible-looking numbers."
-
-That is the product working. Scored 0.
-
-`tools/routing-report.mjs` was written to read the field that actually proves
-the claim: the `skill` input of a `Skill` tool_use event in each run's trace.
-Per check-rubric.md, a detector must name the structured field it reads rather
-than pattern-match a stream. It exits non-zero on misrouting or over-triggering
-and, deliberately, only warns on a single-run under-trigger.
-
-**A first run was discarded entirely.** It scored 23/36 and measured nothing:
-the sandbox denied the `Skill` tool outright, so skills could not fire at all.
-That number is not comparable to anything and is recorded here only so it is
-not mistaken for a baseline.
+**The intra-plugin collision flagged as the primary design risk did not
+materialise, on either prompt set.** Eight siblings sharing one domain
+vocabulary, zero misroutes across 36 cases.
 
 #### What these evals still cannot tell us
 
-- **One run per case.** No variance data. The rubric's default is 3.
+- **One run per case.** No variance data. The rubric's default is 3. 36/36 is
+  a clean sweep at n=1, not a stability claim.
 - **Sibling plugins are absent** from an isolated plugin eval, so cross-plugin
   collisions can only assert "CEASE stayed out", never "the right owner took
   it". The case files now say so in their own text.
-- **F-14 stands:** 11 of 16 positive prompts still echo the descriptions' own
-  wording. Routing is correct on them, but they test a user who repeats the
-  description back — not the ambient contract. This is now the top-priority
-  eval improvement, and the routing report is the instrument to measure it with.
+- ~~F-14~~ **CLOSED 2026-09-28.** All 16 positives rewritten in independent
+  phrasing and re-measured at 36/36. `tests/eval-prompts.test.mjs` now fails the
+  build if a positive prompt shares a content-bearing 4-word run with the
+  description it targets — verified by re-planting the original verbatim echo.
 
 ---
 
@@ -242,7 +239,7 @@ truncation) shares the old root cause and is reduced but not eliminated.
 
 | ID | Finding | Disposition |
 |---|---|---|
-| F-14 | **11 of 16 positive eval prompts quote the descriptions' own words.** They discriminate against the ablation arm but prove nothing about reaching a user who does not echo the description — which is the whole ambient contract. | **Still open; now the top eval priority.** The suite runs and routing is correct, so the instrument is ready; the prompts are the weak part. Rewrite with independent phrasings and re-measure with `tools/routing-report.mjs`. |
+| F-14 | **11 of 16 positive eval prompts quoted the descriptions' own words.** They proved nothing about reaching a user who does not echo the description — the whole ambient contract. | **FIXED 2026-09-28.** All 16 rewritten independently; re-measured at 36/36 correct. Enforced by `tests/eval-prompts.test.mjs`, which fails on any 4-word run shared with the target description. |
 | F-15 | `evidence-clerk` scoped by denylist, so it inherits every connector including Gmail send; an injected page could reach an exfiltration path the gate does not cover (no instrument phrases). | **Defer with note.** A `tools:` allowlist cannot name connectors portably (per-user ids) — the same constraint that produced the earlier UUID bug. Needs a design decision, not a patch. |
 | F-16 | `fingerprint.mjs:hashImage` fetches data-derived URLs with no scheme allowlist, host restriction or size cap (SSRF / memory DoS). | **Defer.** Only reachable with `--hash-images` against a live catalog; unreachable in fixture mode. Fix before first real-brand run. |
 | F-17 | Audit log is tamper-**evident**, not append-only: unkeyed hash means anything with `Write` can truncate and re-chain a clean history. | **Reduced, not eliminated.** F-0's fix means a forged log can no longer authorise a send, so the log's integrity is no longer load-bearing for R29. Truncation is still possible and still undetectable. Fix properly with a keyed HMAC or an out-of-process append target. |

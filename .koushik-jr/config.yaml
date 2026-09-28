@@ -8,6 +8,6 @@ state: checked
 artifact_paths:
   root: .
 docs_root: docs
-# check 2026-09-18: passed — 14/16 correct routing, 0 misroutes; F-14 open
+# check: 36/36 routing correct, 0 misroutes (re-measured 2026-09-28 post-F-14)
 tracker:
   path: docs/jr-tracker.html

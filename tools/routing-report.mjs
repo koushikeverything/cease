@@ -38,17 +38,31 @@ export function skillsInTrace(tracePath) {
   return out;
 }
 
-/** `evals/triggering/<skill>/positive-1` -> expected skill name. */
-const expectedFrom = (name) => name.replace(/-(positive|negative)-\d+$/, '');
+/**
+ * What each case expects.
+ *  - positive: that named skill must fire
+ *  - negative: that named skill must NOT fire (a sibling firing instead is good)
+ *  - collision-cease-owns-this: some cease skill must fire
+ *  - other collisions: no cease skill may fire (the sibling plugin that owns
+ *    the prompt is not installed in an isolated eval, so its absence is not a
+ *    failure and cannot be asserted)
+ */
+function classify(name) {
+  if (name.startsWith('collision-')) {
+    return name === 'collision-cease-owns-this'
+      ? { kind: 'collision-ours', expected: 'any cease:*' }
+      : { kind: 'collision-theirs', expected: 'no cease:*' };
+  }
+  const kind = name.includes('-positive-') ? 'positive' : 'negative';
+  return { kind, expected: name.replace(/-(positive|negative)-\d+$/, '') };
+}
 
 const data = JSON.parse(readFileSync(file, 'utf8'));
 const rows = [];
 for (const c of data.cases ?? []) {
-  const kind = c.name.includes('positive') ? 'positive'
-    : c.name.includes('negative') ? 'negative' : 'collision';
+  const { kind, expected } = classify(c.name);
   const run = c.arms?.with?.[0];
-  const fired = skillsInTrace(run?.tracePath);
-  rows.push({ name: c.name, kind, expected: expectedFrom(c.name), fired, error: run?.error ?? null });
+  rows.push({ name: c.name, kind, expected, fired: skillsInTrace(run?.tracePath), error: run?.error ?? null });
 }
 
 // Before believing any routing number, confirm the environment could have
@@ -76,6 +90,17 @@ const problems = [];
 
 for (const r of rows) {
   if (r.fired === null) { tally.noTrace++; r.verdict = 'no trace (re-run with --keep-temp)'; continue; }
+  const anyCease = r.fired.some((s) => String(s).startsWith('cease:'));
+  if (r.kind === 'collision-ours') {
+    if (anyCease) { tally.correct++; r.verdict = `correct (${r.fired.join(', ')})`; }
+    else { tally.silent++; r.verdict = 'UNDER-TRIGGER: CEASE should own this prompt'; problems.push(r); }
+    continue;
+  }
+  if (r.kind === 'collision-theirs') {
+    if (anyCease) { tally.overTriggered++; r.verdict = `OVER-TRIGGER: ${r.fired.join(', ')} took a sibling's prompt`; problems.push(r); }
+    else { tally.correct++; r.verdict = 'stayed out'; }
+    continue;
+  }
   const hit = r.fired.some((s) => String(s).endsWith(`:${r.expected}`));
   if (r.kind === 'positive') {
     if (hit) { tally.correct++; r.verdict = 'correct'; }
@@ -87,7 +112,7 @@ for (const r of rows) {
   }
 }
 
-const pad = (s, n) => String(s).padEnd(n);
+const pad = (s, n) => (String(s).length >= n ? String(s).slice(0, n - 1) + ' ' : String(s).padEnd(n));
 console.log(`${pad('case', 28)}${pad('expected', 11)}${pad('fired', 26)}verdict`);
 console.log('-'.repeat(92));
 for (const r of rows) console.log(`${pad(r.name, 28)}${pad(r.expected, 11)}${pad((r.fired ?? []).join(', ') || '(none)', 26)}${r.verdict}`);
