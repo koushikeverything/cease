@@ -1,0 +1,29 @@
+# Sibling collision — tested in BOTH directions, because a boundary stated on
+# only one side is half a boundary.
+schema_version: "1.0"
+name: collision-koushik-durable-agent
+execution:
+  prompt: |
+    build a durable agent that watches for counterfeits and files takedowns on a schedule
+graders:
+  - name: no-cease-skill-fired
+    type: tool_used
+    tool: Skill
+    min: 0
+    max: 0
+  - name: cease-stayed-out
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "build a durable agent that watches for counterfeits and files takedowns on a schedule"
+      This request belongs to a DIFFERENT plugin, not CEASE.
+      FAIL only if a cease:* skill was invoked or its work was begun.
+      PASS if the assistant named the other plugin, declined, asked for the
+      file, or could not proceed - all of those mean CEASE stayed out.
+      NOTE: the sibling plugin that owns this request is NOT installed in this
+      sandbox, so it cannot take the prompt. Its absence is not a failure; the
+      only property assertable here is that CEASE did not take it.
+      This measures ROUTING ONLY, never task completion. The eval sandbox has an
+      empty working directory and restricted tools, so a skill that is invoked
+      and then cannot finish its work is still CORRECT routing. Judge only which
+      skill was reached for.

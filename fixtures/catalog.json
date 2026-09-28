@@ -1,0 +1,26 @@
+[
+  {
+    "sku": "LG-PEND-01",
+    "title": "Halo Pendant Lamp — Brushed Brass",
+    "description": "Hand-spun brushed brass shade with a warm dimmable core. Every Halo Pendant is finished by hand in our Leeds workshop and carries a ten-year fitting guarantee.",
+    "imageUrls": ["https://cdn.lumengoods.example/halo-pendant-01.jpg"],
+    "price": 189.00,
+    "currency": "USD"
+  },
+  {
+    "sku": "LG-DESK-04",
+    "title": "Arc Desk Lamp — Matte Charcoal",
+    "description": "A counterweighted arc that holds position without a single thumbscrew. Matte charcoal powder coat over solid steel, with our signature braided oxblood cable.",
+    "imageUrls": ["https://cdn.lumengoods.example/arc-desk-04.jpg"],
+    "price": 124.00,
+    "currency": "USD"
+  },
+  {
+    "sku": "LG-FLOOR-02",
+    "title": "Tide Floor Lamp — Oiled Walnut",
+    "description": "Oiled walnut column with a linen diffuser that softens the light without swallowing it. Weighted base machined from a single billet.",
+    "imageUrls": ["https://cdn.lumengoods.example/tide-floor-02.jpg"],
+    "price": 340.00,
+    "currency": "USD"
+  }
+]

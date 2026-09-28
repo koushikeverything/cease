@@ -1,0 +1,21 @@
+# brief negative 2 — adjacent request owned by cease:evidence. MUST NOT fire.
+schema_version: "1.0"
+name: brief-negative-2
+execution:
+  prompt: |
+    open the case file for c-0001
+graders:
+  - name: brief-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "open the case file for c-0001"
+      The correct owner of this request is: cease:evidence.
+      FAIL only if the assistant invoked the cease:brief skill or began that
+      skill's work. Over-triggering burns context and trust.
+      PASS if it routed elsewhere, named a different owner, declined, or was
+      unable to proceed - all of those mean cease:brief correctly stayed out.
+      This measures ROUTING ONLY, never task completion. The eval sandbox has an
+      empty working directory and restricted tools, so a skill that is invoked
+      and then cannot finish its work is still CORRECT routing. Judge only which
+      skill was reached for.

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "cease",
+  "displayName": "CEASE",
+  "version": "0.1.0",
+  "description": "Inside-out brand protection for DTC and e-commerce brands: finds counterfeit and impersonation evidence in your own store, support inbox and payment disputes, traces it to the source across marketplaces, lookalike domains, social handles and the public ad libraries, assembles a chain-of-custody case file, and drafts the right enforcement instrument for a human to sign. Never files anything automatically.",
+  "author": {
+    "name": "Koushik"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/koushikeverything/cease",
+  "repository": "https://github.com/koushikeverything/cease",
+  "keywords": [
+    "brand-protection",
+    "counterfeit",
+    "dmca",
+    "trademark",
+    "ecommerce",
+    "ip-enforcement"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "userConfig": {
+    "brand_name": {
+      "type": "string",
+      "title": "Brand name",
+      "description": "The brand being protected, as it appears on your products.",
+      "required": true
+    },
+    "owned_domains": {
+      "type": "string",
+      "title": "Owned domains",
+      "description": "Comma-separated domains you own, e.g. example.com, example.co.uk. Never flagged."
+    },
+    "owned_handles": {
+      "type": "string",
+      "title": "Owned social handles",
+      "description": "Comma-separated handles you control, e.g. @example, @exampleofficial. Never flagged."
+    },
+    "authorized_resellers": {
+      "type": "string",
+      "title": "Authorized resellers",
+      "description": "Comma-separated seller names or storefront URLs permitted to sell your goods. These are suppressed from every docket."
+    },
+    "authorized_signers": {
+      "type": "string",
+      "title": "Authorized signers",
+      "description": "Comma-separated names of people with authority to act for the rights holder. Display and validation only - never authentication."
+    },
+    "notion_case_db": {
+      "type": "string",
+      "title": "Notion case database URL",
+      "description": "Where case files, the brand fingerprint and the audit log are stored."
+    },
+    "fixture_mode": {
+      "type": "boolean",
+      "title": "Use bundled test data",
+      "description": "On: read catalog, orders and disputes from bundled synthetic fixtures instead of live connectors. Turn off once Shopify and Stripe are connected.",
+      "default": true
+    }
+  }
+}

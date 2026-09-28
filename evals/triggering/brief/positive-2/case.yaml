@@ -1,0 +1,27 @@
+# brief positive 2
+# Phrased in the user's OWN words. It must share no wording with the skill
+# description: a prompt that quotes the description proves only that the router
+# can match itself. tests/eval-prompts.test.mjs enforces this.
+schema_version: "1.0"
+name: brief-positive-2
+execution:
+  prompt: |
+    what's the state of play, and is anything sitting waiting on me?
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    min: 1
+  - name: routed-to-brief
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "what's the state of play, and is anything sitting waiting on me?"
+      PASS if the assistant invoked the cease:brief skill, OR identified
+      cease:brief as the right tool and tried to reach it.
+      FAIL if it routed to a DIFFERENT cease skill, or answered from general
+      knowledge without identifying cease:brief as the owner.
+      This measures ROUTING ONLY, never task completion. The eval sandbox has an
+      empty working directory and restricted tools, so a skill that is invoked
+      and then cannot finish its work is still CORRECT routing. Judge only which
+      skill was reached for.

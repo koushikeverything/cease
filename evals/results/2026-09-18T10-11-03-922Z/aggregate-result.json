@@ -1,0 +1,1214 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.276",
+  "startedAt": "2026-09-18T10:11:03.922Z",
+  "durationSeconds": 190,
+  "costUsd": 3.8992087499999997,
+  "partial": false,
+  "suite": {
+    "root": "/Users/momentum91/Documents/Cease",
+    "ablation": "none",
+    "caseFilter": "*-positive-*",
+    "threshold": 1,
+    "concurrency": 4,
+    "plugins": [
+      {
+        "name": "cease",
+        "version": "0.1.0",
+        "path": "/Users/momentum91/Documents/Cease"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "baseline-positive-1",
+      "dir": "evals/triggering/baseline/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "set up brand protection for our store\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-baseline",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"set up brand protection for our store\"\nPASS if the assistant invoked the cease:baseline skill, OR identified\ncease:baseline as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:baseline as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"set up brand protection for our store\"\nPASS if the assistant invoked the cease:baseline skill, OR identified\ncease:baseline as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:baseline as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 14,
+            "costUsd": 0.3737255,
+            "judgeCostUsd": 0.003873999999999999,
+            "durationSeconds": 65,
+            "startedAt": "2026-09-18T10:11:03.968Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-0VyaG9/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-baseline",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "I read the CEASE baseline skill and inspected the plugin before running anything. Three things block the build, and one part I can move forward on now.\n\n## What I found\n\n**1. No shell tool in this session.** `cease:baseline` builds the fingerprint by running two Node scripts:\n\n```\nnode /Users/momentum91/Documents/Cease/scripts/sources.mjs catalog\nnode /Users/momentum91/Documents/Cease/scripts/fingerprint.mjs fingerprint.json --hash-images\n```\n\nI have no Bash tool available (I searched; it isn't there), so I can't execute either one. This is a hard blocker on producing the fingerprint file itself.\n\n**2. The catalog source is synthetic test data, not your store.** `scripts/sources.mjs:33` defaults fixture mode to *on* unless `CEASE_FIXTURE_MODE` is explicitly disabled. I read the fixture directly — it's 3 products for a lighting brand called Lumen Goods (Halo Pendant Lamp, Arc Desk Lamp, Tide Floor Lamp) on `cdn.lumengoods.example` URLs. If I could run the script today, I'd be fingerprinting a demo brand. The live path needs a Shopify connector (`search_products`), which also isn't available here.\n\n**3. No Notion connector.** Step 4 of the skill requires writing the fingerprint to your brand's Notion workspace rather than plugin data. That tool isn't loaded either.\n\nOne more thing worth knowing regardless: the fingerprint CLI reads your domains, handles and reseller allowlist from plugin-option environment variables (`fingerprint.mjs:150-158`), and **trademarks are never populated by the CLI at all** — `config.trademarks` has no wiring, so it always lands as `[]`. Since trademark registration numbers are required before any DMCA or marketplace report can claim ownership, that field will need to be filled in by hand or the plugin patched.\n\n## What I need from you\n\nThe catalog can't tell me any of the following, so here it is as one question rather than five:\n\n1. **Trademark registrations** — number, class, and jurisdiction for each mark you want to enforce on.\n2. **Owned domains and social handles** — every single one, including parked, regional, and campaign domains. Anything you miss gets flagged as an impersonator of yourself.\n3. **Authorized resellers** — your distributors and legitimate marketplace sellers. This is the highest-value input on the list: flagging a real partner is the failure mode that kills confidence in the whole system, and an empty allowlist guarantees false positives.\n4. **Price floor ratio** — default is 0.6, meaning anything listed under 60% of your list price is treated as presumptively counterfeit. Does that match how deep you and your partners actually discount? If you run 50%-off seasonal sales, 0.6 will flag your own promotions.\n5. **Your actual store** — brand name, and whether the Shopify catalog can be connected in a session that has the connector available.\n\nIf you keep any of this in Notion or Drive, point me at it and I'll read it instead of making you retype it.\n\nAlso useful to know: image matching here is **exact-byte only** (`fingerprint.mjs:89`) — perceptual hashing is deferred. It catches a counterfeiter re-uploading your original file untouched, but a resized or re-encoded copy will not match. Copy-phrase detection is the stronger signal in practice.\n\nGive me those five and the fingerprint is a single command away — in a session with shell access, or I can hand you the exact command to run yourself."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1
+      }
+    },
+    {
+      "name": "baseline-positive-2",
+      "dir": "evals/triggering/baseline/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "we just added a new distributor, update the safe list\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-baseline",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"we just added a new distributor, update the safe list\"\nPASS if the assistant invoked the cease:baseline skill, OR identified\ncease:baseline as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:baseline as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"we just added a new distributor, update the safe list\"\nPASS if the assistant invoked the cease:baseline skill, OR identified\ncease:baseline as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:baseline as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 10,
+            "costUsd": 0.2190625,
+            "judgeCostUsd": 0.0022499999999999994,
+            "durationSeconds": 40,
+            "startedAt": "2026-09-18T10:11:03.969Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-M2j9b2/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-baseline",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "I'm blocked on this one, for two separate reasons — both worth knowing before you decide how to proceed.\n\n**1. I can't reach the current allowlist.** The baseline skill stores the fingerprint in your Notion case database, not in plugin data. This session has no Notion connector available, and the working directory (`/private/tmp/e-M2j9b2/home/cwd`) is empty — there's no local fingerprint file to amend. Reading `/Users/momentum91/Documents/Cease/` was also denied by the permission mode.\n\n**2. I can't write the update even if I had the data.** My tools in this session are read-only — Read, Grep, Glob, Skill, Agent. No Write, no Edit, no Bash. So I can't run `fingerprint.mjs` to rebuild the fingerprint, and I can't save the result.\n\nI don't want to hand you a draft allowlist entry and call it done, because an entry that never lands in the fingerprint doesn't suppress anything — the new distributor would still get flagged as an unauthorized reseller on the next sweep. That's precisely the failure mode the allowlist exists to prevent.\n\n**To unblock:**\n\n- Re-run this with the Notion connector enabled and write permissions (or point me at a local fingerprint file I'm allowed to edit).\n\n**And send me the distributor's identifiers in one go** — I'll need all of these, since a partial entry still produces false positives on the channels you leave out:\n\n- Legal/trading name, and the region or territory they're authorized for\n- Marketplace seller identities: Amazon seller ID and storefront name, eBay/Etsy/Walmart/TikTok Shop handles — whichever they sell on\n- Their web domains\n- Social handles they post your product photography from\n- Which SKUs they carry, if it's a subset rather than the full catalog\n- Whether their contracted discount goes below your current price floor ratio (default 0.6 — anything under 60% of list reads as presumptively counterfeit). If they're allowed to discount deeper than that, say so, or the floor rule will flag their legitimate listings.\n\nOnce I have those and write access, updating the allowlist and rebuilding the fingerprint is a single pass."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "brief-positive-1",
+      "dir": "evals/triggering/brief/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "weekly brand protection update\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-brief",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"weekly brand protection update\"\nPASS if the assistant invoked the cease:brief skill, OR identified\ncease:brief as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:brief as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"weekly brand protection update\"\nPASS if the assistant invoked the cease:brief skill, OR identified\ncease:brief as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:brief as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 8,
+            "costUsd": 0.7576507499999999,
+            "judgeCostUsd": 0.004209000000000004,
+            "durationSeconds": 156,
+            "startedAt": "2026-09-18T10:11:03.969Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-AwTqiB/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-brief",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: FAIL PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  true,
+                  true
+                ],
+                "evidence": "I can't produce this week's scorecard — the underlying data is unreachable from this session, and a brand-protection brief built on anything other than the real records would be worse than no brief.\n\n**What's blocking it, specifically:**\n\n1. **No shell execution.** The brief is built from two scripted checks, and neither can be run:\n   - `sign.mjs status` — the drafted-but-unsigned instruments and how long each has waited\n   - `audit-append.mjs verify` — tamper-evidence check on `audit.jsonl`\n\n   There's no Bash tool in this session. `ToolSearch` found none, and a subagent with full tool access confirmed the same — it's a harness-level gap, not per-agent gating.\n\n2. **The case data directory is read-denied.** `/private/tmp/e-AwTqiB/config/plugins/data/cease-inline` is blocked at the permission layer for both `Read` and `Glob`. That path is the `CEASE_DATA_DIR`, the audit-log location, and where the case records live — so every section of the brief depends on it.\n\nThe two scripts themselves are present and readable at `/Users/momentum91/Documents/Cease/scripts/`. The problem is purely access to the data they operate on.\n\n**One thing worth being clear about:** a permission denial says nothing about the state of your data. I cannot tell whether that directory is full of open cases or empty. So please don't read this as \"a quiet week\" — I have no visibility either way, and I'm not going to report a quiet period I haven't verified.\n\n**To unblock,** I need a session with both a shell tool and read access to that data directory — both, not either. With permissions still denied, the two commands would fail on file access rather than on their own signature/audit logic, which would contaminate exactly the signal you need.\n\nTwo things I'd flag as time-sensitive while this is stuck: unsigned instruments are the most common way enforcement quietly stalls, and the audit log's tamper-evidence is only meaningful if someone actually runs the verify. Both have now gone a week unchecked.\n\nNothing was created, modified, or deleted."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1
+      }
+    },
+    {
+      "name": "brief-positive-2",
+      "dir": "evals/triggering/brief/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "where are we on takedowns?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-brief",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"where are we on takedowns?\"\nPASS if the assistant invoked the cease:brief skill, OR identified\ncease:brief as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:brief as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"where are we on takedowns?\"\nPASS if the assistant invoked the cease:brief skill, OR identified\ncease:brief as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:brief as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 9,
+            "costUsd": 0.19307199999999997,
+            "judgeCostUsd": 0.0019229999999999998,
+            "durationSeconds": 28,
+            "startedAt": "2026-09-18T10:11:03.969Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-9lYl6V/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-brief",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "I can't produce the scorecard this session — every data source it reads is blocked. Nothing I'd say about your takedown status would be real, so I'm not going to guess at it.\n\n**What's blocked:**\n\n| Brief section | Source | Status |\n|---|---|---|\n| Needs your signature | `sign.mjs status` | Bash disabled this session |\n| Audit trail integrity | `audit-append.mjs verify` | Bash disabled this session |\n| New / Resolved / Stuck / Recovery | `…/plugins/data/cease-inline/` | Read + Glob denied by permission settings |\n\nThe case store at `/private/tmp/e-9lYl6V/config/plugins/data/cease-inline` is denied outright, and the working directory `/private/tmp/e-9lYl6V/home/cwd` is empty — so there's no fallback copy of the docket to read either.\n\n**To unblock, one of:**\n1. Re-enable Bash for the session (`/permissions`) — that alone gets all six sections, since the signature queue and audit verify are scripts.\n2. Or allow reads under `/private/tmp/e-9lYl6V/config/plugins/data/cease-inline/**` — that covers the case data, but the signature queue and the tamper-evident audit check still need the scripts to run.\n\nOption 1 is the one I'd pick.\n\nOne thing worth flagging rather than deferring: the signature queue is the section most likely to be hiding a problem. Unsigned instruments are the standard way enforcement stalls quietly — a drafted DMCA that nobody signed does nothing, and it doesn't generate an alert while it sits. If it's been more than a week since anyone signed anything, assume there's a backlog until the queue says otherwise."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "check-positive-1",
+      "dir": "evals/triggering/check/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "a customer sent me this link, is it a real store?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-check",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"a customer sent me this link, is it a real store?\"\nPASS if the assistant invoked the cease:check skill, OR identified\ncease:check as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:check as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"a customer sent me this link, is it a real store?\"\nPASS if the assistant invoked the cease:check skill, OR identified\ncease:check as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:check as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0.095016,
+            "judgeCostUsd": 0.0012299999999999998,
+            "durationSeconds": 8,
+            "startedAt": "2026-09-18T10:11:32.310Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-1vg6kN/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-check",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "I can run that check — but the link didn't come through in your message. Can you paste the URL?\n\nOnce I have it, I'll run `/cease:check` on it, which compares the page against your brand fingerprint (product images, copy phrases, SKUs, price floors, owned domains, reseller allowlist) and tells you whether it's a legitimate store, an authorized reseller, or a knockoff — plus captures evidence before it disappears if it turns out to be the latter.\n\nIf you have it handy, it also helps to know:\n- What the customer said about it (did they buy something? complain about quality?)\n- Whether you've set up a brand fingerprint yet (`/cease:baseline`) — the check works cold without one, but it's sharper with one."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "check-positive-2",
+      "dir": "evals/triggering/check/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "are our product photos on this page?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-check",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"are our product photos on this page?\"\nPASS if the assistant invoked the cease:check skill, OR identified\ncease:check as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:check as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"are our product photos on this page?\"\nPASS if the assistant invoked the cease:check skill, OR identified\ncease:check as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:check as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 6,
+            "costUsd": 0.147676,
+            "judgeCostUsd": 0.0018230000000000008,
+            "durationSeconds": 17,
+            "startedAt": "2026-09-18T10:11:40.232Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-fCk5u1/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-check",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "I can run the image-reuse check, but you haven't given me the page — there's no URL in this conversation and nothing in the working directory pointing at one.\n\nSend me the link (listing, storefront, social post, or ad) and I'll pull the images, compare them against your fingerprint, and tell you whether they're yours.\n\nTwo things worth knowing up front:\n\n- **No `fingerprint.json` found** in the working directory, and I don't have read access to `/Users/momentum91/Documents/Cease` to check for one there. Without it, image and copy comparison is judgment-based rather than hash-matched — weaker, but still useful. If it does exist somewhere I can reach, point me at it; otherwise `cease:baseline` builds one.\n- If you have the **original product photos** (or their source URLs), include those too — EXIF and first-publication dates are what turn \"these look like ours\" into ownership proof."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "enforce-positive-1",
+      "dir": "evals/triggering/enforce/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "get this listing off Amazon\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-enforce",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"get this listing off Amazon\"\nPASS if the assistant invoked the cease:enforce skill, OR identified\ncease:enforce as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:enforce as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"get this listing off Amazon\"\nPASS if the assistant invoked the cease:enforce skill, OR identified\ncease:enforce as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:enforce as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 6,
+            "costUsd": 0.17204299999999997,
+            "judgeCostUsd": 0.004097,
+            "durationSeconds": 26,
+            "startedAt": "2026-09-18T10:11:44.263Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-3iMMgJ/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-enforce",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "I started `cease:enforce`, but I can't get to a draft yet — there's no listing in this session and no case file I can reach.\n\n**What I'm missing:**\n\n1. **The listing itself** — Amazon URL or ASIN. \"This listing\" has no referent here; this is a fresh session with no prior sweep or forwarded link.\n2. **An existing case ID**, if you already triaged it. I tried to look for case files under `/Users/momentum91/Documents/Cease/cases/` and the CEASE data dir, and both reads were denied by the current permission mode. If a case already exists, tell me the ID and I'll work from it; otherwise grant read on those paths.\n\n**What I can tell you now, without the case:**\n\nThe instrument depends on how the listing classifies, and for Amazon the split matters:\n\n- **Counterfeit goods** → Amazon IP report (`amazon-report.md`), **not** a DMCA notice. Filing a § 512 notice into Amazon's queue typically slows it down rather than speeding it up.\n- **Your photos or copy reused** on an otherwise unrelated product → DMCA 512(c)(3) is the right instrument.\n- **A real distributor selling outside terms** → neither. That's a contract matter, and an IP report on it can backfire.\n\nSo \"get it off Amazon\" resolves to at least three different documents. I don't want to guess which.\n\n**Fastest path:** send me the URL or ASIN. If it hasn't been triaged, I'll run `cease:check` on it cold — that compares it against your brand fingerprint, classifies it, and captures evidence — then come back here to draft the matching instrument. You'll see the complete text, sign it, and type the approval line before anything goes anywhere; I don't file it myself."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1
+      }
+    },
+    {
+      "name": "enforce-positive-2",
+      "dir": "evals/triggering/enforce/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "we got a counter-notice, what happens now?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-enforce",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"we got a counter-notice, what happens now?\"\nPASS if the assistant invoked the cease:enforce skill, OR identified\ncease:enforce as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:enforce as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"we got a counter-notice, what happens now?\"\nPASS if the assistant invoked the cease:enforce skill, OR identified\ncease:enforce as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:enforce as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 11,
+            "costUsd": 0.28693149999999995,
+            "judgeCostUsd": 0.002685,
+            "durationSeconds": 66,
+            "startedAt": "2026-09-18T10:11:57.487Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-obGLIQ/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-enforce",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "Working directory is empty — there's no case file here, so I couldn't run the readiness check or pull the case's own evidence. Here's what I can tell you about the mechanics, and what I need to draft the memo.\n\n## What happens now\n\nA § 512(g)(3) counter-notice starts a clock. The service provider must restore the material in **10 to 14 business days** from when it forwarded the counter-notice to you — *unless* you file a court action seeking to restrain the infringing activity and tell the provider you've done so. If you do nothing, it goes back up. There's no extension and no appeal to the provider.\n\nIf the provider forwarded it today (Fri 2026-09-18), the window would be **Fri 2026-10-02 at the earliest, Thu 2026-10-08 at the outside** — worked example only; the real dates key off the forward date, not today, and are counted in US business days in your jurisdiction, not the local calendar.\n\nTwo things worth knowing:\n\n- The counter-notice comes with the counter-notifier's **name, address, and consent to federal jurisdiction**. That's the practical point of it — it's how you'd sue them if you go that route.\n- The restore applies **only to the item taken down under that one notice**. Payment processor, registrar, marketplace and platform reports are untouched. On a counterfeit case that's usually the stronger lever anyway — a store that can't take money is dead whether the listing restores or not.\n\n## Your three options\n\n| Option | What happens | Cost |\n|---|---|---|\n| Let it restore | Material returns at the deadline; pursue other levers | none |\n| File court action | Material stays down; needs counsel and a filing **before** the deadline | counsel + filing |\n| Negotiate | Direct contact, possible undertaking without a filing | counsel time |\n\n**This one needs your attorney.** CEASE drafts the decision memo and calendars the deadline; the choice to litigate isn't one it makes, and nothing here is legal advice.\n\n## What I need to build the memo\n\n1. **Case ID** — and where the case file lives. Nothing under `/private/tmp/e-obGLIQ/home/cwd`, so point me at the directory.\n2. **Date the provider forwarded the counter-notice** — this sets the deadline, and I won't guess it.\n3. **Which service provider** it came from.\n4. **The counter-notice text** — what they actually claim (own the work, licensed, fair use, misidentification).\n\nWith those I'll run the readiness check, fill `counter-notice-response.md` from the case's real evidence, calendar a review at day 7 of the window, and route it to you for signature. If the case is missing ownership proof or custody, I'll report exactly what's missing rather than paper over it."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "evidence-positive-1",
+      "dir": "evals/triggering/evidence/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "my lawyer wants everything we have on this seller\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-evidence",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"my lawyer wants everything we have on this seller\"\nPASS if the assistant invoked the cease:evidence skill, OR identified\ncease:evidence as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:evidence as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"my lawyer wants everything we have on this seller\"\nPASS if the assistant invoked the cease:evidence skill, OR identified\ncease:evidence as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:evidence as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 10,
+            "costUsd": 0.2672585,
+            "judgeCostUsd": 0.002919999999999999,
+            "durationSeconds": 51,
+            "startedAt": "2026-09-18T10:12:09.326Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-hVAJPg/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-evidence",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "I need one thing before I can build this, and there's an environment problem worth flagging up front.\n\n**Which seller?** Nothing in this session names one — no case id, no URL, no prior sweep. Any of these gets me moving:\n- an existing case id (`c-0001`), or\n- the listing URL / storefront / domain / seller name, if the case isn't open yet\n\n**The environment is missing pieces the skill needs.** I checked:\n- There's no shell available to me this session, so I can't run `case.mjs verify` or `case.mjs readiness` — the two commands that re-hash artifacts and name exactly which DMCA element is absent. Those are the parts an attorney actually leans on.\n- Search is scoped to the working directory (`/private/tmp/e-hVAJPg/home/cwd`), which is empty — no `cases/` directory, and I can't enumerate cases under `~/Documents/Cease` to find yours. I can read a case file if you give me its path.\n\nSo if the case already exists, point me at the file and I can read it back and report its state, evidence inventory, and next action — but I won't be able to *verify* custody (re-hash the artifacts) or run the readiness gate without shell access. For a lawyer handoff, that verification is the difference between a custody record and a custody claim, so I'd want it before you send anything.\n\nIf the case doesn't exist yet, give me the URL and I'll have `evidence-clerk` capture it first — counterfeit storefronts disappear, and capture comes before analysis.\n\nOne more thing your lawyer will ask for that I can't source myself: **your side of the proof** — the original product image with EXIF intact, the first-publication date from the catalog record, and the trademark registration number and class if the claim is a mark. And the **first-party harm** link: the support ticket, chargeback, or return id showing a real customer got burned. A case with a named victim reads very differently."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "evidence-positive-2",
+      "dir": "evals/triggering/evidence/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "screenshot this storefront before it disappears\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-evidence",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"screenshot this storefront before it disappears\"\nPASS if the assistant invoked the cease:evidence skill, OR identified\ncease:evidence as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:evidence as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"screenshot this storefront before it disappears\"\nPASS if the assistant invoked the cease:evidence skill, OR identified\ncease:evidence as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:evidence as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 3,
+            "costUsd": 0.1174825,
+            "judgeCostUsd": 0.0014129999999999976,
+            "durationSeconds": 15,
+            "startedAt": "2026-09-18T10:12:10.079Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-ppoP2T/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-evidence",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "I don't have the storefront yet — this is the first message in our conversation, and there's no case file or link in the working directory to pick it up from.\n\nSend me the URL and I'll run `cease:evidence` on it, which captures with chain of custody:\n\n- full-page screenshot with the URL and timestamp visible\n- archived page source, hashed at the moment of capture\n- registrar / host / WHOIS facts and storefront age\n- product images pulled down before the seller can delete them\n\nIf you also want to know *what* it is (counterfeit vs. unauthorized reseller vs. stolen photos) rather than just preserving it, say so and I'll run `cease:check` instead — it does the same capture plus triage against your brand fingerprint.\n\nOne thing worth flagging: if the storefront is actively being taken down or the seller is spooked, the page source and images matter more than the screenshot for a later marketplace appeal, and those are what `cease:evidence` grabs first. So don't wait on deciding between the two — just send the link."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "pursue-positive-1",
+      "dir": "evals/triggering/pursue/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "they're back under a new domain\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-pursue",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"they're back under a new domain\"\nPASS if the assistant invoked the cease:pursue skill, OR identified\ncease:pursue as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:pursue as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"they're back under a new domain\"\nPASS if the assistant invoked the cease:pursue skill, OR identified\ncease:pursue as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:pursue as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 11,
+            "costUsd": 0.2471915,
+            "judgeCostUsd": 0.0018419999999999999,
+            "durationSeconds": 42,
+            "startedAt": "2026-09-18T10:12:25.134Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-AjlPga/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-pursue",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "I pulled up the relaunch workflow, but there's no CEASE state here to run it against — the working directory (`/private/tmp/e-AjlPga/home/cwd`) is empty, so there's no `closed-cases.json` and no hits file. The matcher itself is in place at `/Users/momentum91/Documents/Cease/scripts/relaunch.mjs`.\n\nSo I can't tell you yet whether this is a relaunch or a failed takedown — and those need different responses:\n\n- **New domain, same operation** → new case opened and linked to the parent, watch continues, and the repeat-offender dossier grows.\n- **Same domain as the closed case** → not a relaunch at all; it means the original takedown never landed, and re-filing the same instrument to the same place is the thing to avoid. That goes up the escalation ladder instead.\n\nTo run it I need two things:\n\n1. **Where your case store lives** — the path to `closed-cases.json` (and the hits file, if you have one). If CEASE has never been run here, say so and I'll start from `cease:check` on the new domain cold.\n2. **The new domain**, and who \"they\" are — the seller name or the parent case ID if you have it.\n\nIf you have the new site's details, the signals the matcher scores on are the ones they can't cheaply change: copied product copy, stolen image hashes, seller identity, registrant email, and nameservers. Anything you can give me on those makes the parent-case match stick; registrant email and nameservers in particular are what registrar escalation later hangs on."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "pursue-positive-2",
+      "dir": "evals/triggering/pursue/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "did that takedown actually come down?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-pursue",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"did that takedown actually come down?\"\nPASS if the assistant invoked the cease:pursue skill, OR identified\ncease:pursue as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:pursue as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"did that takedown actually come down?\"\nPASS if the assistant invoked the cease:pursue skill, OR identified\ncease:pursue as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:pursue as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 10,
+            "costUsd": 0.2495295,
+            "judgeCostUsd": 0.0034840000000000045,
+            "durationSeconds": 40,
+            "startedAt": "2026-09-18T10:13:00.495Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-oJbBQg/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-pursue",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "Short answer: I can't tell you yet — and I'd rather say that than report a status I haven't checked.\n\nTwo things are blocking me:\n\n**1. I don't know which takedown you mean.** This session has no prior context — no case ID, URL, or seller name. \"That takedown\" is unambiguous to you, but I'm starting cold.\n\n**2. I can't find your case store.** The working directory (`/private/tmp/e-oJbBQg/home/cwd`) is empty — no `closed-cases.json`, no case files. The pursue tooling itself is intact (`relaunch.mjs` reads fine), but searching `~/Documents/Cease` for case data was denied by the current permission mode, so I can't confirm whether filings are recorded there or somewhere else entirely.\n\n**What I need from you — any one of these is enough to start:**\n- the case ID, or\n- the infringing URL and which instrument you filed (Amazon IP report, DMCA to the host, registrar abuse, Meta form…), and roughly when\n\n**Then I'll run the real check**, which is not just \"does the URL 404\":\n- the specific URL **and** the storefront root — relisting at a new path is the most common fake \"removal\"\n- whether the seller is still trading even if that listing died (that's a new case on the storefront, not a win)\n- relaunch matching against closed cases on the things they can't cheaply change — copy phrases, image hashes, seller identity, registrant email, nameservers\n- if it's still live: escalate up a rung rather than re-filing the same instrument to the same place. Worth flagging now — payment processor is rung 4 and consistently the fastest kill, and it's the one people skip.\n\nIf you'd also like to unblock the directory search so I can pull the case history myself, say the word and I'll tell you exactly which permission to grant."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "sweep-positive-1",
+      "dir": "evals/triggering/sweep/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "who's ripping off our products?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-sweep",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"who's ripping off our products?\"\nPASS if the assistant invoked the cease:sweep skill, OR identified\ncease:sweep as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:sweep as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"who's ripping off our products?\"\nPASS if the assistant invoked the cease:sweep skill, OR identified\ncease:sweep as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:sweep as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 10,
+            "costUsd": 0.244588,
+            "judgeCostUsd": 0.002138999999999995,
+            "durationSeconds": 43,
+            "startedAt": "2026-09-18T10:13:03.779Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-r6INnc/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-sweep",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "I can't run the sweep yet — and I don't want to hand you a list of \"suspects\" that isn't grounded in anything.\n\n**Why it stopped:** every detector in a sweep is a comparison against your brand fingerprint (product image hashes, distinctive copy phrases, SKU list, per-SKU price floor, owned domains and handles, and the authorized-reseller allowlist). There's no `fingerprint.json` in the working directory (`/private/tmp/e-r6INnc/home/cwd` is empty). Without it, the marketplace and social checks have nothing to match against, and — more importantly — nothing suppresses your real distributors, so legitimate partners would show up as infringers.\n\n**One thing I couldn't rule out:** the CEASE install lives at `/Users/momentum91/Documents/Cease`, and my attempts to look inside it (glob, read, grep) were all denied by the current permission mode. If you've already built a fingerprint and it's sitting in there, it may well exist and I simply can't see it. Point me at the path and approve read access, and I'll re-run immediately.\n\n**Channels that did not run:** all seven. First-party (support-inbox distress, payment disputes, non-SKU returns) and outside-in (marketplace, social, domain, ads) — none were attempted, because none of them are meaningful pre-fingerprint. That's a \"never ran,\" not a \"came back clean.\"\n\nTwo ways forward:\n\n1. **Build the fingerprint first** — `cease:baseline`. It needs things only you can supply: your SKU list and price floors, your owned domains and social handles, trademark registration numbers, and critically the reseller allowlist. That's the one-time setup, and then sweeps run cleanly from here on.\n2. **You already have a specific suspect** — if someone forwarded you a link, listing or storefront, `cease:check` triages a single URL cold, with no prior sweep needed. Faster if this question came from something concrete landing in your inbox.\n\nWhich is it — is this a general \"let's find out\" sweep, or did something specific prompt it?"
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1
+      }
+    },
+    {
+      "name": "sweep-positive-2",
+      "dir": "evals/triggering/sweep/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "is someone running our ads on their own page?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-sweep",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"is someone running our ads on their own page?\"\nPASS if the assistant invoked the cease:sweep skill, OR identified\ncease:sweep as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:sweep as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"is someone running our ads on their own page?\"\nPASS if the assistant invoked the cease:sweep skill, OR identified\ncease:sweep as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:sweep as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 7,
+            "costUsd": 0.1798225,
+            "judgeCostUsd": 0.002591999999999997,
+            "durationSeconds": 31,
+            "startedAt": "2026-09-18T10:13:06.833Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-3RDg7U/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-sweep",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: PASS FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  false,
+                  false
+                ],
+                "evidence": "I can't answer that yet — the sweep is blocked before it starts.\n\n**What I found:**\n\n- No `fingerprint.json` in the working directory (`/private/tmp/e-3RDg7U/home/cwd`) — I globbed for it and got nothing.\n- I couldn't check the CEASE install directory (`/Users/momentum91/Documents/Cease`). Both the Glob and the Read were denied by the current permission mode, so I can't confirm or rule out a fingerprint living there.\n\n**Why this stops the run:** the ads check isn't a standalone search. `ads-investigator` works by taking your brand fingerprint — product image hashes, distinctive copy phrases, owned domains and handles — into the public ad libraries and looking for *your* creative under someone else's advertiser name. Without the fingerprint there's nothing to match against, so any search I ran would just be me guessing at your brand's ad copy and calling the guesses findings. That's exactly the failure mode the skill warns against.\n\n**Two ways forward — your call:**\n\n1. **If a fingerprint already exists** at `/Users/momentum91/Documents/Cease/` or elsewhere, grant read access to that path (or tell me where it is) and I'll run the sweep. Worth trying first — it's a cheap check.\n2. **If it doesn't exist**, run `/cease:baseline` to build one. That needs input from you: product images, SKU list, per-SKU price floors, trademark registrations, owned domains and social handles, and your authorized-reseller allowlist. The allowlist matters most here — it's what stops your real distributors getting flagged as impersonators.\n\nOne scoping note for when we do run it: you asked specifically about ads, but stolen ad creative rarely travels alone. The same operator usually has a lookalike domain and a storefront behind it, and the highest-precision signal is first-party — a chargeback with no matching order, or a support email from a customer who got burned. Those run before the ad libraries and raise the severity of whatever the ad search turns up. I'd suggest the full sweep rather than the ads channel alone, but I'll scope it however you want."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "testbuy-positive-1",
+      "dir": "evals/triggering/testbuy/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "order one so we can prove it's fake\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-testbuy",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"order one so we can prove it's fake\"\nPASS if the assistant invoked the cease:testbuy skill, OR identified\ncease:testbuy as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:testbuy as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"order one so we can prove it's fake\"\nPASS if the assistant invoked the cease:testbuy skill, OR identified\ncease:testbuy as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:testbuy as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0.5,
+            "passed": false,
+            "turns": 5,
+            "costUsd": 0.15436899999999998,
+            "judgeCostUsd": 0.0027949999999999954,
+            "durationSeconds": 31,
+            "startedAt": "2026-09-18T10:13:37.573Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-sM87pZ/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-testbuy",
+                "passed": false,
+                "weight": 1,
+                "explanation": "judge votes: FAIL FAIL FAIL",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "evidence": "I can't run this blind — there's no case to attach it to. Your working directory (`/private/tmp/e-sM87pZ/home/cwd`) is an empty repo with no commits, no sweep docket, and no case file, and my access to the CEASE case store was denied this session. So I don't know which listing \"it\" is.\n\n**What I need from you:**\n\n1. **The listing URL** (or the case ID, if a sweep or `/cease:check` already opened one). Everything else hangs off this — seller, price, variant.\n2. **A delivery address that isn't the brand's.** A home address, a friend, a mailbox service — anything not tied to the company. If a counterfeiter recognizes the buyer, they ship a genuine unit and the whole exercise proves nothing.\n3. **Which payment method you'll use.** Pick one whose settlement path is traceable; the merchant identifier that surfaces on the statement is what makes the payment-processor report work later. Don't send me the card details — I don't take them, and nothing in CEASE should ever ask.\n\n**To be explicit about the boundary:** I prepare and record the buy. You place the order yourself. I have no checkout capability and won't spend your money.\n\n**What's already fixed regardless of which listing it is** — when the parcel arrives, photograph *before* unwrapping:\n\n- outer packaging, unopened, all sides\n- shipping label and any customs declaration\n- the return address (often the most useful single artifact — it's frequently a real warehouse)\n- any inserts, then the item itself: materials, finish, branding, serial or batch marks\n\nPhotos go into the case unedited. No cropping, no brightening, no straightening — the hash taken at capture is the evidentiary anchor, and any edit breaks it.\n\nGive me the listing and the ship-to, and I'll write the buy sheet and log the order against a case.\n\nOne thing worth knowing up front: if you pay and it never ships, that isn't a wasted spend. A storefront taking money for goods it doesn't deliver is a payment-processor report on its own, and that route often kills a site faster than an IP claim does."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0.5,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "testbuy-positive-2",
+      "dir": "evals/triggering/testbuy/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "we need a physical sample for the marketplace appeal\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-testbuy",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"we need a physical sample for the marketplace appeal\"\nPASS if the assistant invoked the cease:testbuy skill, OR identified\ncease:testbuy as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:testbuy as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"we need a physical sample for the marketplace appeal\"\nPASS if the assistant invoked the cease:testbuy skill, OR identified\ncease:testbuy as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:testbuy as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 1,
+            "passed": true,
+            "turns": 8,
+            "costUsd": 0.19379000000000002,
+            "judgeCostUsd": 0.002586000000000005,
+            "durationSeconds": 34,
+            "startedAt": "2026-09-18T10:13:40.077Z",
+            "error": null,
+            "tracePath": "/private/tmp/e-1n9WdK/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": true,
+                "weight": 1,
+                "explanation": "Skill called 1x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-testbuy",
+                "passed": true,
+                "weight": 1,
+                "explanation": "judge votes: PASS PASS PASS",
+                "withOnly": false,
+                "scored": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ],
+                "evidence": "I started the test-buy workflow but hit a blocker before I could record anything, so here's where things stand.\n\n**What I couldn't reach.** The skill points at a case file and at `scripts/case.mjs` for logging the order and filing photos. Neither is accessible from here:\n\n- `/Users/momentum91/Documents/Cease/skills/testbuy/` contains only `SKILL.md` — there is no `scripts/` directory, so the logging script isn't available.\n- Reads elsewhere under `/Users/momentum91/Documents/Cease` (cases, other skills' scripts) were denied by the current permission mode.\n\nSo I can't pull the listing details or write the order to a case yet. To unblock, I need either the case ID / listing URL, or permission to read the Cease directory.\n\n**What I can give you now — the purchase prep sheet.** Fill the bracketed fields from the case and this is ready to act on:\n\n| Field | Value |\n|---|---|\n| Listing URL / seller / variant | *[from case]* |\n| Price & quantity | Buy **one**, at the listed price — don't negotiate, don't message the seller |\n| Ship-to address | **Not a brand address.** Use a personal address, a colleague's, or a mail drop with no connection to the company or to counsel |\n| Buyer name | Not a brand-associated name or company email |\n| Payment method | A card that produces a traceable settlement record — the merchant descriptor that appears on the statement is what makes the payment-processor report work. Not a gift card, not a balance top-up |\n| Expected delivery | Record the seller's stated window; it starts the clock |\n\n**On arrival — photograph before opening.** Packaging as received, all labels, the shipping document, and the return address. Then unwrap and shoot materials, finish, branding, serial or batch marks, and inserts, alongside the genuine article for comparison.\n\nDo not crop, rotate, or brighten any photo. The hash taken at capture is the evidentiary value; editing destroys it.\n\n**Two things worth stating plainly:**\n\n1. I will not place this order, and nothing in this workflow should ever ask you for card details. You check out yourself. If any step appears to request payment information, that's a defect — report it.\n2. If the item never arrives, that isn't a failed test buy. A storefront taking money for goods it doesn't ship supports a payment-processor report on its own, and that route often kills the seller faster than the IP claim does.\n\nSend me the case ID or the listing URL and I'll lay out the specifics and log the order against the case — assuming I can also get read access to the case store, or you can paste the relevant case file in."
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 1,
+        "passRate": 1
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 16,
+    "casesPassed": 5,
+    "overallScore": 0.65625,
+    "overallPassRate": 0.3125
+  }
+}

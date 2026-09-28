@@ -1,0 +1,37 @@
+[
+  {
+    "id": "m_complaint_1",
+    "from": "rmarsh@example.com",
+    "subject": "The lamp I received is not genuine",
+    "snippet": "I ordered a Halo Pendant from what I thought was your website but the brass is painted plastic and the box had no guarantee card. I paid 78 dollars on lumengoods-outlet.example. Is that you?",
+    "_expect": "COMPLAINT — genuine counterfeit signal, names a lookalike domain and a below-floor price"
+  },
+  {
+    "id": "m_complaint_2",
+    "from": "t.iqbal@example.com",
+    "subject": "Wrong item / fake?",
+    "snippet": "This arrived with a different cable and the finish is wrong. I bought it from a seller on a marketplace called Lumen Goods Outlet Store. Can you confirm whether they are authorised?",
+    "_expect": "COMPLAINT — genuine, names an unauthorised seller"
+  },
+  {
+    "id": "m_newsletter_1",
+    "from": "thebusinessengineer@substack.com",
+    "subject": "The Next Twelve Months of Enterprise AI",
+    "snippet": "One of the most striking aspects of this cycle is how much of the demand is fake, and how hard it has become to tell counterfeit traction from the real thing.",
+    "_expect": "NOT a complaint — F1/A3. This is the exact false-positive shape observed in the real Gmail probe: a newsletter matching on 'fake' and 'counterfeit'."
+  },
+  {
+    "id": "m_newsletter_2",
+    "from": "realestatenow@substack.com",
+    "subject": "Report #483: spotting counterfeit listings in your local market",
+    "snippet": "Fake listings are up 40% year over year. Here is how to tell an authentic listing from a counterfeit one before you waste a showing.",
+    "_expect": "NOT a complaint — F1/A3. Matches three counterfeit keywords, concerns an unrelated industry."
+  },
+  {
+    "id": "m_vendor_1",
+    "from": "accounts@northwindretail.example",
+    "subject": "Restock PO 8841",
+    "snippet": "Please confirm availability of LG-DESK-04 for our Q4 order. Also, a customer asked whether the outlet site selling these at 78 is one of ours - it is not.",
+    "_expect": "NOT a complaint itself, but corroborates the lookalike domain. An authorized reseller (see listings.json) — must never be flagged as an infringer."
+  }
+]

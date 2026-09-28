@@ -1,0 +1,12 @@
+{
+  "name": "cease",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CEASE brand-protection plugin for Claude Code.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "validate": "node tools/validate-structure.mjs ."
+  }
+}

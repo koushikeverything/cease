@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CEASE — build tracker</title>
+<style>
+  :root{
+    --bg:#fbfaf8; --panel:#ffffff; --ink:#1c1b19; --muted:#6a655e;
+    --line:#e5e1db; --accent:#8a5a2b; --accent-soft:#f3ece4;
+    --ok:#2f6b4f; --ok-soft:#e8f2ec; --warn:#8a6d1f; --warn-soft:#f7f1de;
+    --stop:#8c3a32; --stop-soft:#f7eae8; --radius:10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#141311; --panel:#1d1c1a; --ink:#ece8e2; --muted:#a09a91;
+      --line:#312e2a; --accent:#d69b63; --accent-soft:#2a221a;
+      --ok:#7fc4a0; --ok-soft:#1b2a23; --warn:#d9bb6c; --warn-soft:#2a2418;
+      --stop:#e08e84; --stop-soft:#2c1d1b;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 18px 64px}
+  header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:26px}
+  h1{font-size:1.65rem;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:.93rem;margin:0}
+  h2{font-size:1.12rem;margin:34px 0 12px;letter-spacing:-.01em}
+  h2 .n{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:8px;font-weight:600}
+  .card{background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:15px 17px;margin:11px 0}
+  .card h3{margin:0 0 7px;font-size:1rem}
+  .rail{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 6px}
+  .step{flex:1 1 98px;min-width:98px;border:1px solid var(--line);
+    border-radius:8px;padding:9px 10px;background:var(--panel);font-size:.82rem}
+  .step .i{display:block;font-size:.68rem;color:var(--muted);
+    letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
+  .step.done{background:var(--ok-soft);border-color:var(--ok)}
+  .step.done .i{color:var(--ok)}
+  .step.now{background:var(--accent-soft);border-color:var(--accent);
+    box-shadow:0 0 0 2px var(--accent-soft)}
+  .step.now .i{color:var(--accent);font-weight:700}
+  .step b{font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:.88rem;margin:8px 0}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);
+    vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:.78rem;
+    text-transform:uppercase;letter-spacing:.05em}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tag{display:inline-block;font-size:.72rem;padding:2px 8px;border-radius:99px;
+    font-weight:600;letter-spacing:.02em;white-space:nowrap}
+  .t-ok{background:var(--ok-soft);color:var(--ok)}
+  .t-warn{background:var(--warn-soft);color:var(--warn)}
+  .t-stop{background:var(--stop-soft);color:var(--stop)}
+  .t-acc{background:var(--accent-soft);color:var(--accent)}
+  dl{margin:9px 0 0}
+  dt{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--muted);margin-top:9px;font-weight:600}
+  dd{margin:2px 0 0}
+  code{background:var(--accent-soft);color:var(--accent);padding:1px 6px;
+    border-radius:5px;font-size:.86em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .muted{color:var(--muted)}
+  .lede{font-size:.95rem}
+  ul{margin:7px 0;padding-left:20px} li{margin:4px 0}
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:.82rem}
+  .empty{color:var(--muted);font-style:italic}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>CEASE — build tracker</h1>
+  <p class="sub">Inside-out brand protection, built as an installable Claude plugin.<br>
+  Last updated <b>28 Sep 2026</b> · current stage <b>Shipped</b> (6 of 8) — ready to publish ·
+  <span class="tag t-acc">verdict: hybrid</span></p>
+</header>
+
+<h2><span class="n">1</span>Where this is</h2>
+<div class="rail">
+  <div class="step done"><span class="i">1 · done</span><b>Idea</b></div>
+  <div class="step done"><span class="i">2 · done</span><b>Defined</b></div>
+  <div class="step done"><span class="i">3 · done</span><b>Designed</b></div>
+  <div class="step done"><span class="i">4 · done</span><b>Built</b></div>
+  <div class="step done"><span class="i">5 · done</span><b>Checked</b></div>
+  <div class="step done"><span class="i">6 · done</span><b>Shipped</b></div>
+  <div class="step now"><span class="i">7 · your call</span><b>Published</b></div>
+  <div class="step"><span class="i">8</span><b>Compounded</b></div>
+</div>
+<p class="muted lede">Stage 7 is always yours — publishing is a human act, never
+an automatic one. Stage 6 stops at “ready to publish” and hands you the button.</p>
+
+<h2><span class="n">2</span>What happened so far</h2>
+
+<div class="card">
+  <h3>🗂 Idea → a written product spec</h3>
+  <p class="lede">You already had <code>CEASE-plugin-spec.md</code>: a full product
+  specification for finding counterfeits inside a brand’s own systems — the support
+  inbox, the payment disputes, the catalog, the ad account — instead of crawling the
+  open web the way every incumbent does.</p>
+  <p class="lede"><b>Why it mattered:</b> it gave this stage something concrete to
+  test rather than a vague wish, so the work went straight to “does this need
+  building at all?” rather than “what is it?”</p>
+</div>
+
+<div class="card">
+  <h3>🗂 Defined → requirements, evidence, and a verdict</h3>
+  <p class="lede">The system searched everything that already exists — your connected
+  apps, the connector directory, your installed skills, your plugin catalog, and the
+  features Claude ships natively — then made <b>one real call against each capability</b>
+  rather than trusting a catalogue description. Fifteen capabilities were tested.</p>
+  <p class="lede"><b>Why it mattered:</b> two things the product spec assumed turned
+  out not to be true, and both were caught before a line of code was written rather
+  than halfway through building:</p>
+  <ul>
+    <li><b>Support-inbox search is not smart.</b> The spec assumed Claude could search
+    the support inbox by meaning. It can’t — Gmail search only matches keywords. A test
+    search for counterfeit language returned <b>201 results whose top hits were all
+    newsletters</b> that happened to use the word “fake”. The highest-precision channel
+    in the whole product would have been its noisiest. The fix is now a requirement:
+    retrieve broadly, then have the model read and classify before anything reaches you.</li>
+    <li><b>The web tool can search but not save.</b> Firecrawl, your connected web-search
+    tool, has no page-capture ability in this setup — so evidence archiving was rerouted
+    to the browser before the design depended on the wrong tool.</li>
+  </ul>
+  <p class="lede"><b>Produced:</b> <code>SPEC.md</code> — 39 requirements, 20 acceptance
+  expectations, 10 failure behaviours, explicit exclusions, and the exact permissions the
+  plugin may ask for. Plus
+  <code>docs/leverage/2026-09-17-manifest.md</code> — the evidence record behind the verdict.</p>
+</div>
+
+<div class="card">
+  <h3>🗂 Designed → the plugin’s actual shape, drawn before any code</h3>
+  <p class="lede">Every one of the 39 requirements now maps to a specific piece of the
+  plugin, and each mapping cites the platform fact that makes it legal — so when a
+  platform fact later changes, the affected designs can be found mechanically instead
+  of rediscovered.</p>
+  <p class="lede"><b>The shape:</b> 8 skills (<code>baseline · sweep · check · evidence ·
+  enforce · testbuy · pursue · brief</code>), 5 investigator agents, one blocking hook,
+  9 legal templates, and no scheduler — because Claude already has one.</p>
+  <p class="lede"><b>Three things the original product spec got wrong</b>, caught by
+  reading the current platform rules rather than trusting the document:</p>
+  <ul>
+    <li>It planned a <code>commands/</code> folder. That’s legacy now — so the six
+    commands and seven skills <b>collapsed into one set of eight skills</b>. Less surface,
+    same capability.</li>
+    <li>Commands are typed <code>/cease:check</code>, not <code>/cease check</code>.</li>
+    <li>It put legal templates in a top-level folder; they now sit with the skill that
+    uses them, so they cost nothing until that skill actually runs.</li>
+  </ul>
+  <p class="lede"><b>The signature gate got designed properly</b> — it’s the reason this
+  is a plugin at all. The platform’s hook rules were listed as <i>unverified</i> in the
+  system’s own knowledge, so they were fetched from the live documentation rather than
+  recalled. Three findings changed the design:</p>
+  <ul>
+    <li><b>It must not block your ordinary email.</b> The gate only intervenes on
+    messages carrying a case marker, or on text that reads like a legal instrument in
+    two or more places. Everything else passes untouched.</li>
+    <li><b>It checks that what’s sent is what you signed</b> — by fingerprinting the
+    text, so approving draft A can’t send draft B.</li>
+    <li><b>It fails closed.</b> Missing or unreadable signature record means blocked,
+    never “assume it’s fine”. And there is no timeout that quietly files for you.</li>
+  </ul>
+  <p class="lede"><b>Produced:</b> <code>docs/design/2026-09-17-cease-plugin-surface.md</code>
+  — every description written out word for word, the triggering tests that will prove they
+  fire correctly, the security table naming which file enforces which promise, and an
+  18-step build order.</p>
+</div>
+
+<div class="card">
+  <h3>🔨 Built → the plugin exists, in 15 commits</h3>
+  <p class="lede">All 19 planned pieces are written, tested and committed on a
+  working branch: <b>8 skills, 5 investigator agents, the signature gate, 9 legal
+  templates, 36 triggering tests and 120 automated tests</b> — all passing.</p>
+  <p class="lede">The build ran one piece at a time, each committed separately, so
+  it can be reviewed or reverted in parts rather than as one lump.</p>
+  <p class="lede"><b>Four real bugs were caught by running the code rather than
+  reading it</b> — which is the point of building in small validated steps:</p>
+  <ul>
+    <li><b>The evidence system would have declared every case tampered with.</b>
+    A path-handling mistake meant that when a case was checked, every screenshot
+    and saved page came back "missing since capture". Chain of custody — the
+    thing the case file exists for — would have been broken for every real case,
+    while the test suite looked green.</li>
+    <li><b>The investigator agents would have worked here and nowhere else.</b>
+    They named a connector using an identifier unique to this account. On anyone
+    else's machine they would have silently had no search ability at all. This is
+    now blocked by an automatic check, because it was the second time the same
+    mistake appeared.</li>
+    <li><b>The safety check for overclaiming was itself broken</b> — it flagged
+    the very sentence forbidding the overclaim. Fixed, then deliberately fed a
+    real overclaim to confirm it now catches one.</li>
+    <li><b>A crash waiting in the signature gate's fallback path</b> — the branch
+    that runs precisely when things are already going wrong.</li>
+  </ul>
+  <p class="lede"><b>One design flaw was found and fixed mid-build.</b> The plan
+  said that if the gate cannot read an outgoing message it should block
+  everything. That turned out to be incoherent — and would have blocked your
+  ordinary email. It now keys off whether CEASE itself has an unsigned document
+  waiting: if it does, it blocks; if not, your mail goes through untouched.</p>
+</div>
+
+<div class="card">
+  <h3>✅ Checked → three independent reviewers, and the main promise didn’t hold</h3>
+  <p class="lede">Three reviewers examined the plugin separately, none of them told how
+  or why it was built. The official validation tools ran for the first time and
+  <b>passed on all four targets</b>. Then the reviewers found what the tools can’t.</p>
+  <p class="lede"><b>The serious one: CEASE could approve its own legal notices.</b>
+  The promise is that nothing goes out unless a real person approves it. The approval
+  was a file on disk — and the part of CEASE that writes the notice could write that
+  file too. No villain required: you say “just file it”, it takes the shortcut, and a
+  document sworn under penalty of perjury goes out with your name on it, unread.</p>
+  <p class="lede"><b>Now fixed, the way you chose.</b> Before sending, CEASE looks back
+  at the conversation for a message <b>you typed</b> approving that specific document.
+  It can write any file and run any command; it cannot type a message as you. The
+  document also has a short code, so approving one version can’t send a different one.
+  Every way of faking it is tested and fails — including CEASE saying the magic words
+  itself, and vague replies like “yes” or “go ahead”.</p>
+  <p class="lede"><b>Four more real defects, all fixed:</b></p>
+  <ul>
+    <li><b>The plugin would have bricked itself on a real install.</b> A setting the
+    signing step needed isn’t available where that step runs — so nothing could ever be
+    signed, while the guard kept blocking everything. Permanently stuck, and the
+    reference manual said so plainly; the build read it and shipped past it anyway.</li>
+    <li><b>The guard watched the wrong door.</b> Most takedown reports are web forms —
+    Amazon, Meta, TikTok — not emails. Only email was guarded. Now forms and commands
+    are too.</li>
+    <li><b>It would have blocked your own emails to your lawyer.</b> It reacted to words
+    like “DMCA”, which you use constantly. Now it only reacts to the sworn legal
+    language that appears inside an actual notice, and ignores quoted replies.</li>
+    <li><b>Your real distributors would have shown up as suspects.</b> The rule that
+    protects them was tested in isolation, passed, and wasn’t actually applied where it
+    mattered — the single loudest complaint about tools like this.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>✅ Review complete → it reaches for the right tool</h3>
+  <p class="lede">The first run of the 36 tests had a flaw worth explaining: the test
+  questions were quoting the skills’ own descriptions back at them. Asking <i>“they’re
+  back under a new domain”</i> when the skill description literally contains that
+  sentence proves nothing — it only shows the system can match itself.</p>
+  <p class="lede">So every question was rewritten the way a shop owner would actually
+  say it, and the tests were re-run. <b>The result got better, not worse:</b></p>
+  <ul>
+    <li><b>36 out of 36 correct.</b> Zero cases where it reached for the wrong tool.</li>
+    <li><b>Asked for the right thing, it picks the right tool: 16 out of 16.</b>
+    <i>“Should we buy one ourselves so we’ve actually got the thing in hand?”</i> →
+    the test-purchase skill. Nothing in that sentence appears in its description.</li>
+    <li><b>Asked for something else, it hands over correctly: 16 out of 16.</b> And in
+    seven of those it didn’t just stay quiet — the <i>right</i> other skill stepped in.
+    <i>“Did that takedown actually work?”</i> went to the chase-it-up skill, not the
+    documenting one. That’s much stronger evidence than silence.</li>
+    <li><b>The eight skills never confused each other once.</b> That was the single
+    biggest design risk going in.</li>
+  </ul>
+  <p class="lede muted">Honest caveat: each question was asked once. A clean sweep at
+  one attempt each is a good sign, not a guarantee of consistency.</p>
+  <p class="lede"><b>The scoreboard said 27/36 and the scoreboard was wrong.</b> The
+  test environment has no file access, so skills that routed perfectly then couldn’t
+  do their work — and the automatic grader marked that as failure. One example, scored
+  zero: <i>“I can’t produce this week’s scorecard — the underlying data is unreachable,
+  and I won’t fill it in with plausible-looking numbers.”</i> That is exactly the
+  behaviour we built. So a proper measuring tool was written that checks which skill was
+  actually reached for, rather than judging the output.</p>
+  <p class="lede muted">An earlier run scoring 23/36 was thrown away entirely — that one
+  measured a sandbox that had blocked skills from running at all. Both runs are saved so
+  the claim can be checked rather than taken on trust.</p>
+</div>
+
+<div class="card">
+  <h3>🚀 Shipped → it has a home, and a pull request carrying its evidence</h3>
+  <p class="lede">The plugin now lives at
+  <b>github.com/koushikeverything/cease</b>, with everything on a branch and a
+  pull request describing exactly what was built, what was found and fixed, and
+  what it still can’t do.</p>
+  <p class="lede"><b>The repository is private, and nothing is published.</b> That’s
+  deliberate — a public repository name is claimable by anyone the moment it exists,
+  and publishing is meant to be your decision, not a side effect of shipping.</p>
+  <p class="lede"><b>Two gaps closed on the way out:</b> the plugin claimed an MIT
+  licence with no licence file in it, and the install instructions still had a
+  placeholder nobody could actually run.</p>
+  <p class="lede">Everything was re-checked from scratch on the exact code being
+  shipped rather than trusting earlier results: all four official checks pass,
+  179 tests pass, and every file the design promised is present.</p>
+</div>
+
+<h2><span class="n">3</span>The leverage picture</h2>',
+<p class="lede">The most valuable answer this stage can give is “you don’t need to build
+that.” Here, a lot of it came back that way.</p>
+
+<div class="card">
+  <h3><span class="tag t-acc">hybrid</span> &nbsp;Build the judgement, borrow everything else</h3>
+  <p class="lede"><b>Borrowed — no code will be written for any of this:</b> every single
+  data source (your store, mail, payments, notes, calendar, chat, web search, browser) is
+  already reachable through connectors, and <b>all six scheduled sweeps</b> in the product
+  spec are covered by a scheduling feature Claude already has. Building a second bridge to
+  a service that already has one is a defect, not a feature.</p>
+  <p class="lede"><b>Built — because nothing on earth currently does it:</b> the judgement
+  layer. Deciding which of six legal categories a hit belongs to, scoring how much it’s
+  costing you, never flagging your own distributors, assembling evidence that would survive
+  a lawyer reading it, drafting the right legal instrument per platform, and
+  <b>refusing to send any of it without your signature</b>.</p>
+  <p class="lede muted">Searches for an existing brand-protection plugin or skill returned
+  nothing. The connectors give you <i>access</i>; none of them give you <i>judgement</i>.</p>
+</div>
+
+<h3 style="font-size:.95rem;margin:22px 0 6px">Capabilities that aren’t available yet — and what unlocks them</h3>
+<div class="scroll">
+<table>
+  <thead><tr><th>Capability</th><th>Status</th><th>What it costs you</th><th>Fix</th></tr></thead>
+  <tbody>
+    <tr><td><b>Shopify</b> — catalog, SKUs, price floors, orders</td>
+      <td><span class="tag t-stop">can’t connect</span></td>
+      <td>The fingerprint and the “priced below floor” detector run on <b>made-up test data</b> this build, so neither is proven against your real catalog.</td>
+      <td>Built behind a swap point: connect Shopify later and the real data drops in with no rewrite.</td></tr>
+    <tr><td><b>Stripe</b> — payment disputes</td>
+      <td><span class="tag t-stop">can’t connect</span></td>
+      <td>Same — made-up disputes. And the open question of whether Stripe can even return dispute records is now <b>postponed, not answered</b>.</td>
+      <td>Same swap point. The test data is an explicit guess at Stripe’s format and is labelled as one.</td></tr>
+    <tr><td><b>Slack</b> — alerts, signature requests</td>
+      <td><span class="tag t-ok">replaced by email</span></td>
+      <td>Nothing. A signature request sent to a fake Slack would prove nothing, so this one uses <b>real email</b> instead of test data.</td>
+      <td>Slack becomes an optional extra later.</td></tr>
+    <tr><td><b>Ad account metrics</b> — CPM, click-through, branded search cost</td>
+      <td><span class="tag t-stop">cut from scope</span></td>
+      <td>CEASE no longer claims to spot ad-spend anomalies. It still catches <b>your creative running under someone else’s page</b> using public ad libraries.</td>
+      <td>Reinstating it means connecting an ads data provider — a connector decision, not a code one.</td></tr>
+    <tr><td><b>Saving a suspect page’s source</b> via web-search tool</td>
+      <td><span class="tag t-stop">not possible</span></td>
+      <td>Nothing — already rerouted.</td>
+      <td>The browser does this instead. Already written into the requirements.</td></tr>
+    <tr><td><b>Evidence capture during unattended overnight sweeps</b></td>
+      <td><span class="tag t-stop">structurally limited</span></td>
+      <td>Screenshots can’t be taken while nobody’s there.</td>
+      <td>Standing behaviour: those captures queue for your next live session. Stated once, not re-reported nightly.</td></tr>
+    <tr><td><b>The Claude command-line tool</b> — needed to validate and test the plugin</td>
+      <td><span class="tag t-stop">not installed</span></td>
+      <td><b>Correction to yesterday’s reading.</b> The first environment check reported this
+      as present and working; that result could not be reproduced and has been withdrawn from
+      the record. Without it, the review stage can’t run its automated checks.</td>
+      <td>One install command: <code>npm install -g @anthropic-ai/claude-code</code>. Needed
+      before the check stage, not before building.</td></tr>
+    <tr><td><b>A place to publish the plugin</b></td>
+      <td><span class="tag t-warn">no remote yet</span></td>
+      <td>Blocks the ship stage only — nothing before it.</td>
+      <td>One command at ship time; your GitHub is already signed in.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2><span class="n">4</span>Decisions waiting on you</h2>
+
+<div class="card">
+  <h3>Connect Shopify, Stripe and Slack <span class="tag t-ok">decided 18 Sep</span></h3>
+  <dl>
+    <dt>What this means</dt>
+    <dd>Granting CEASE read access to your store catalog and orders, your payment
+    disputes, and posting rights to a Slack channel — through Claude’s own
+    connector settings, not through anything this plugin stores.</dd>
+    <dt>Why now</dt>
+    <dd>You chose to build the full specification, and three of its detection
+    channels have no data without these. Doing it before design means the design
+    can be tested against the real tools instead of assumed ones.</dd>
+    <dt>Impact</dt>
+    <dd><b>Shopify</b> is load-bearing — two requirements are unbuildable without it.
+    <b>Stripe</b> costs one detection channel. <b>Slack</b> costs nothing; email
+    substitutes.</dd>
+    <dt>Decided</dt>
+    <dd><b>None can be connected right now.</b> Shopify and Stripe run on synthetic
+    test data behind a swap point; Slack is replaced by email, which is real. This
+    reverses the earlier intake answer, and the record was corrected rather than
+    quietly changed.</dd>
+    <dt>Reversibility</dt>
+    <dd>Fully reversible — disconnect any time in settings. Nothing is copied
+    out of these services; the plugin stores no credentials at all.</dd>
+    <dt>What happens next</dt>
+    <dd>Build adds one extra step up front — a swap point between “test data” and
+    “real connector” — so connecting these later is a settings change, not a rewrite.
+    A written acceptance rule enforces it: swapping in a real connector must not
+    require editing a single skill.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <div class="card">
+  <h3>Install the Claude command-line tool</h3>
+  <dl>
+    <dt>What this means</dt>
+    <dd>Installing the <code>claude</code> command so it can be run from a terminal —
+    separate from the Claude app you’re using right now.</dd>
+    <dt>Why now</dt>
+    <dd>It’s how the plugin gets validated, how its triggering is tested, and how it’s
+    smoke-run before anyone installs it. An earlier check said it was already there; that
+    reading didn’t hold up, and the record has been corrected rather than left standing.</dd>
+    <dt>Impact</dt>
+    <dd>Building is unaffected. <b>The check stage is blocked without it</b> — meaning no
+    automated proof that the plugin is well-formed or that its skills fire correctly.</dd>
+    <dt>Recommendation</dt>
+    <dd>Install it, but there’s no rush — any time before the check stage is fine.</dd>
+    <dt>Reversibility</dt>
+    <dd>Trivially reversible: it’s one global package, removable with one command.</dd>
+    <dt>What happens next</dt>
+    <dd>The check stage runs its full validation suite instead of reporting it as skipped.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3 class="muted">Not a decision — a flag on the record</h3>
+  <p class="lede">You chose to build the <b>full specification</b> against
+  <b>synthetic test data</b>, rather than the recommended smaller first slice against
+  a real brand. That’s recorded and being delivered as asked. The honest consequence,
+  written into <code>SPEC.md</code> so it can’t get lost: <b>this build cannot measure
+  its own accuracy.</b> Precision — the entire strategic claim of the product — stays
+  unproven until a real brand’s data runs through it. One acceptance rule now exists
+  purely to stop any README or report from claiming a false-positive rate it hasn’t
+  earned.</p>
+</div>
+</div>
+
+<h2><span class="n">5</span>What the system learned</h2>
+<div class="card">
+  <h3>🧠 The rules for the most important control were verified, not remembered</h3>
+  <p class="lede">The system’s knowledge pack openly marked the hook rules as
+  <b>unverified</b> — and hooks are exactly what makes CEASE refuse to file anything
+  unsigned. Rather than design from memory, it fetched the current official
+  documentation and found details that memory would have got wrong: the precise way a
+  hook blocks an action, and that connector tools are named with an identifier
+  <b>unique to each user’s account</b> — so a gate written the obvious way would have
+  worked on your machine and silently failed on everyone else’s.</p>
+</div>
+<div class="card">
+  <h3>🧠 A wrong entry was caught and pulled from the record</h3>
+  <p class="lede">Yesterday’s environment check reported the Claude command-line tool as
+  installed and its evaluation feature as unlocked. Neither could be reproduced today.
+  Both readings have been <b>struck from the evidence record</b> rather than left to be
+  trusted later — and specifically flagged as <i>not</i> to be folded into the system’s
+  permanent knowledge. A living cache is only worth having if wrong entries come back out
+  of it.</p>
+</div>
+
+<div class="card">
+  <h3>🧠 A promise the product couldn’t keep got cut before it shipped</h3>
+  <p class="lede">The sweep was going to advertise ad-spend anomaly detection — spotting
+  when your cost-per-click spikes because a copycat is bidding on your name. Checking the
+  wiring showed <b>no connected source for that data at all</b>, and the two providers the
+  original spec named were dropped earlier. The feature would have been a description that
+  promised something the plugin couldn’t do.</p>
+  <p class="lede">It was narrowed to what actually works — finding your own creative running
+  under another advertiser in the public ad libraries — and the overclaim was removed from
+  the description, the requirement, the test prompts and the trigger list in the same pass.
+  Cheap now; an eval failure and a rewrite later.</p>
+</div>
+
+<div class="card">
+  <h3>🧠 Two mistakes became permanent guards, not lessons</h3>
+  <p class="lede">A note in a document is forgotten; a check that fails the build
+  is not. Two of the bugs above are now automatic checks that will catch the same
+  mistake in any future work: one blocks account-specific identifiers from being
+  written into the plugin, the other blocks any claim about accuracy that hasn't
+  been measured. A third guard ensures nobody quietly rebuilds the scheduling
+  that Claude already provides — the easiest way to lose the work this project
+  saved by not building it.</p>
+</div>
+
+<div class="card">
+  <h3>🧠 The same mistake, three times — now a standing rule</h3>
+  <p class="lede">Three separate defects shared one shape: <b>a rule was tested on its
+  own, passed, and wasn’t actually connected where it counted.</b> The evidence check,
+  the distributor protection, and the tamper alarm all looked fine in testing while
+  doing nothing in practice. A passing test on disconnected code is worse than no test,
+  because it buys confidence.</p>
+  <p class="lede">There is now an automatic check that every safety rule is genuinely
+  reachable from the place it’s meant to protect, and that every verification command is
+  actually run by something. That one is worth carrying to every future project.</p>
+</div>
+
+<div class="card">
+  <h3>🧠 Three times now, a score measured the test rig instead of the product</h3>
+  <p class="lede">Three separate runs produced numbers that said nothing about CEASE:
+  one where the environment blocked skills from running at all, one where it marked a
+  correct decision as failure, and one where <b>every single test errored on an expired
+  login while the measuring tool still reported “all clear”</b>.</p>
+  <p class="lede">That last one is the dangerous shape — a tool that can’t tell
+  <i>“nothing went wrong”</i> from <i>“nothing happened”</i>. It now refuses to report
+  a result at all when the runs didn’t complete, and says why. The rule is in the tool
+  now rather than in a document nobody rereads.</p>
+</div>
+
+<h2><span class="n">6</span>Recommended next action</h2>
+<div class="card">
+  <h3>→ publishing is yours to decide</h3>
+  <p class="lede">The work is done and waiting. Three things happen only when you say so:</p>
+  <ul>
+    <li><b>Merge the pull request</b> — makes this the main version of the project.</li>
+    <li><b>Make the repository public</b> — this is the real publishing step. Worth
+    knowing first: a plugin repository publishes <i>everything in it</i>, including the
+    security review, the design notes and the strategy document with competitor
+    analysis. None of it is secret, but it should be a choice you make rather than
+    something you find out about afterwards.</li>
+    <li><b>Announce it</b> — once public, anyone can install it in two commands.</li>
+  </ul>
+  <p class="lede muted">One thing worth doing before real users arrive: the triggering
+  tests were each run once. A clean sweep on one attempt is a good sign, not proof of
+  consistency — running them three times each is the usual bar.</p>
+  <p class="lede"><b>This one does need something from you first.</b> Claude's
+  command-line tool still isn't installed, and check is where it actually bites:
+  without it, the official validator, the triggering tests and the
+  install-and-run smoke test cannot execute. Everything built so far was verified
+  against a stand-in checker written for this project — good, but not the real
+  thing.</p>
+  <p class="lede">One command, any time before check:</p>
+  <p class="lede"><code>npm install -g @anthropic-ai/claude-code</code></p>
+</div>
+<div class="card">
+  <h3>What check still has to prove</h3>
+  <p class="lede">Honest about what "built and tested" does and doesn't mean here:</p>
+  <ul>
+    <li><b>The official validator has now run and passed</b> on all four targets.
+    160 automated tests pass.</li>
+    <li><b>The 36 triggering tests still have never executed</b> — blocked on the
+    expired login. Their format was wrong, which the review caught and fixed: as
+    written at build time, not one of them could even load.</li>
+    <li><b>Catalog and payment detection have never seen real data.</b> Accuracy is
+    unmeasured, and nothing in the plugin is permitted to claim otherwise.</li>
+    <li><b>The gate doesn't cover every possible route out.</b> It covers the
+    normal ones; a hand-written command-line request isn't gated. Documented
+    rather than glossed over.</li>
+  </ul>
+</div>
+
+<h2><span class="n">7</span>Distance to a published plugin</h2>
+<div class="card">
+  <p class="lede"><b>6 of 8 stages complete.</b> The build is finished. What remains is <b>your decision to publish</b>, and then one optional stage — the full specification is a large
+  surface: 7 skills, 5 investigator agents, 6 commands, 1 hook, 9 legal templates.</p>
+  <p class="lede">Realistically: check is one sitting once the command-line tool is installed, and ship is one more. Then the publish button is yours.</p>
+  <p class="lede muted">If that feels long — the smaller first slice is still available
+  at any point. Phase 1 alone (fingerprint, inbox sweep, <code>check &lt;url&gt;</code>,
+  evidence capture) runs on connectors you already have and would reach something real
+  and usable considerably sooner.</p>
+</div>
+
+<h2><span class="n">8</span>Command guide</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>Command</th><th>What it does</th><th>When</th></tr></thead>
+  <tbody>
+    <tr><td><code>/koushik-jr:define</code></td><td>Requirements + “does this need building at all?”</td><td><span class="tag t-ok">done</span></td></tr>
+    <tr><td><code>/koushik-jr:design</code></td><td>Decides the plugin’s shape, names, descriptions and triggering</td><td><span class="tag t-ok">done</span></td></tr>
+    <tr><td><code>/koushik-jr:build</code></td><td>Writes it, one validated piece at a time</td><td><span class="tag t-ok">done</span></td></tr>
+    <tr><td><code>/koushik-jr:check</code></td><td>Independent review — spec, triggering, security — plus the validation suite</td><td><span class="tag t-ok">done</span></td></tr>
+    <tr><td><code>/koushik-jr:ship</code></td><td>Docs, versions, commits, PR — stops at ready-to-publish</td><td><span class="tag t-ok">done</span></td></tr>
+    <tr><td><code>/koushik-jr:publish</code></td><td>The publish act — <b>only ever run by you</b></td><td><b>next, when you decide</b></td></tr>
+    <tr><td><code>/koushik-jr:evolve</code></td><td>When something published misbehaves or the ecosystem shifts</td><td>after publishing</td></tr>
+    <tr><td><code>/koushik-jr:compound</code></td><td>Turns a hard-won lesson into a permanent guard</td><td>after any real problem</td></tr>
+    <tr><td><code>/koushik-jr:tracker</code></td><td>Refreshes this page</td><td>any time</td></tr>
+    <tr><td><code>/koushik-jr:jr</code></td><td>Runs stages 1→6 end to end, stopping before publish</td><td>hands-off mode</td></tr>
+  </tbody>
+</table>
+</div>
+
+<footer>
+  Derived from <code>SPEC.md</code>, <code>docs/leverage/2026-09-17-manifest.md</code>, <code>docs/design/2026-09-17-cease-plugin-surface.md</code>
+  and <code>.koushik-jr/config.yaml</code> — never from conversation memory.
+  This page is updated in place at every stage boundary.<br>
+  Separate from <code>docs/tracker.html</code>, which belongs to the sibling
+  <code>koushik</code> durable-agent project in this same repository.
+</footer>
+
+</div>
+</body>
+</html>

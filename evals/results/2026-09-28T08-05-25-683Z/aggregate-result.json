@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "2.1.276",
+  "startedAt": "2026-09-28T08:05:25.683Z",
+  "durationSeconds": 1,
+  "costUsd": 0,
+  "partial": true,
+  "partialReason": "auth_failed",
+  "suite": {
+    "root": "/Users/momentum91/Documents/Cease",
+    "ablation": "none",
+    "caseFilter": "*-positive-*",
+    "threshold": 1,
+    "concurrency": 4,
+    "plugins": [
+      {
+        "name": "cease",
+        "version": "0.1.0",
+        "path": "/Users/momentum91/Documents/Cease"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "baseline-positive-1",
+      "dir": "evals/triggering/baseline/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "we're just getting started with this — what do you need from me first?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-baseline",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"we're just getting started with this — what do you need from me first?\"\nPASS if the assistant invoked the cease:baseline skill, OR identified\ncease:baseline as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:baseline as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"we're just getting started with this — what do you need from me first?\"\nPASS if the assistant invoked the cease:baseline skill, OR identified\ncease:baseline as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:baseline as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0,
+            "judgeCostUsd": 0,
+            "durationSeconds": 1,
+            "startedAt": "2026-09-28T08:05:25.732Z",
+            "error": "exit 1: Not logged in · Please run /login",
+            "tracePath": "/private/tmp/e-iUuaLp/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-baseline",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: judge call failed: Failed to authenticate: OAuth session expired and could not be refreshed",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "baseline-positive-2",
+      "dir": "evals/triggering/baseline/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "we've taken on three new stockists in Germany, make sure they don't get flagged as fakes\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-baseline",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"we've taken on three new stockists in Germany, make sure they don't get flagged as fakes\"\nPASS if the assistant invoked the cease:baseline skill, OR identified\ncease:baseline as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:baseline as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"we've taken on three new stockists in Germany, make sure they don't get flagged as fakes\"\nPASS if the assistant invoked the cease:baseline skill, OR identified\ncease:baseline as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:baseline as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0,
+            "judgeCostUsd": 0,
+            "durationSeconds": 1,
+            "startedAt": "2026-09-28T08:05:25.732Z",
+            "error": "exit 1: Not logged in · Please run /login",
+            "tracePath": "/private/tmp/e-6KjDGr/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-baseline",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: judge call failed: Failed to authenticate: OAuth session expired and could not be refreshed",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "brief-positive-1",
+      "dir": "evals/triggering/brief/positive-1",
+      "source": "case_yaml",
+      "promptMarkdown": "give me the Monday rundown on the counterfeit stuff\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-brief",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"give me the Monday rundown on the counterfeit stuff\"\nPASS if the assistant invoked the cease:brief skill, OR identified\ncease:brief as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:brief as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"give me the Monday rundown on the counterfeit stuff\"\nPASS if the assistant invoked the cease:brief skill, OR identified\ncease:brief as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:brief as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0,
+            "judgeCostUsd": 0,
+            "durationSeconds": 1,
+            "startedAt": "2026-09-28T08:05:25.732Z",
+            "error": "exit 1: Not logged in · Please run /login",
+            "tracePath": "/private/tmp/e-aF9MdR/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-brief",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: judge call failed: Failed to authenticate: OAuth session expired and could not be refreshed",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0,
+        "passRate": 0
+      }
+    },
+    {
+      "name": "brief-positive-2",
+      "dir": "evals/triggering/brief/positive-2",
+      "source": "case_yaml",
+      "promptMarkdown": "what's the state of play, and is anything sitting waiting on me?\n",
+      "runsPerCase": 3,
+      "timeoutSeconds": 300,
+      "maxTurns": 10,
+      "graders": [
+        {
+          "name": "skill-fired",
+          "type": "tool_used",
+          "weight": 1,
+          "config": {
+            "tool": "Skill",
+            "min": 1
+          }
+        },
+        {
+          "name": "routed-to-brief",
+          "type": "llm",
+          "weight": 1,
+          "graderMarkdown": "The user asked: \"what's the state of play, and is anything sitting waiting on me?\"\nPASS if the assistant invoked the cease:brief skill, OR identified\ncease:brief as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:brief as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+          "config": {
+            "criteria": "The user asked: \"what's the state of play, and is anything sitting waiting on me?\"\nPASS if the assistant invoked the cease:brief skill, OR identified\ncease:brief as the right tool and tried to reach it.\nFAIL if it routed to a DIFFERENT cease skill, or answered from general\nknowledge without identifying cease:brief as the owner.\nThis measures ROUTING ONLY, never task completion. The eval sandbox has an\nempty working directory and restricted tools, so a skill that is invoked\nand then cannot finish its work is still CORRECT routing. Judge only which\nskill was reached for.\n",
+            "focus": "last_message"
+          }
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "score": 0,
+            "passed": false,
+            "turns": 1,
+            "costUsd": 0,
+            "judgeCostUsd": 0,
+            "durationSeconds": 1,
+            "startedAt": "2026-09-28T08:05:25.732Z",
+            "error": "exit 1: Not logged in · Please run /login",
+            "tracePath": "/private/tmp/e-f4APkT/out/trace.jsonl",
+            "skippedPaidGraders": false,
+            "graders": [
+              {
+                "name": "skill-fired",
+                "passed": false,
+                "weight": 1,
+                "explanation": "Skill called 0x (expected 1..∞)",
+                "withOnly": false,
+                "scored": true
+              },
+              {
+                "name": "routed-to-brief",
+                "passed": false,
+                "weight": 1,
+                "explanation": "grader threw: judge call failed: Failed to authenticate: OAuth session expired and could not be refreshed",
+                "withOnly": false,
+                "scored": true
+              }
+            ]
+          }
+        ]
+      },
+      "aggregates": {
+        "score": 0,
+        "passRate": 0
+      }
+    }
+  ],
+  "aggregates": {
+    "casesTotal": 4,
+    "casesPassed": 0,
+    "overallScore": 0,
+    "overallPassRate": 0
+  }
+}

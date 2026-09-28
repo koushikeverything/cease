@@ -1,0 +1,21 @@
+# check negative 1 — adjacent request owned by cease:sweep. MUST NOT fire.
+schema_version: "1.0"
+name: check-negative-1
+execution:
+  prompt: |
+    find everything copying us across every channel
+graders:
+  - name: check-did-not-fire
+    type: llm
+    weight: 1
+    criteria: |
+      The user asked: "find everything copying us across every channel"
+      The correct owner of this request is: cease:sweep.
+      FAIL only if the assistant invoked the cease:check skill or began that
+      skill's work. Over-triggering burns context and trust.
+      PASS if it routed elsewhere, named a different owner, declined, or was
+      unable to proceed - all of those mean cease:check correctly stayed out.
+      This measures ROUTING ONLY, never task completion. The eval sandbox has an
+      empty working directory and restricted tools, so a skill that is invoked
+      and then cannot finish its work is still CORRECT routing. Judge only which
+      skill was reached for.

@@ -1,0 +1,43 @@
+[
+  {
+    "id": "lst_001",
+    "url": "https://marketplace.example/item/8821",
+    "domain": "marketplace.example",
+    "seller": "Northwind Retail",
+    "title": "Arc Desk Lamp — Matte Charcoal",
+    "price": 96.00,
+    "sku": "LG-DESK-04",
+    "_expect": "A2: authorized reseller, below floor. MUST be suppressed before the docket."
+  },
+  {
+    "id": "lst_002",
+    "url": "https://lumengoods-outlet.example/products/halo-pendant",
+    "domain": "lumengoods-outlet.example",
+    "seller": "Lumen Goods Outlet Store",
+    "title": "Halo Pendant Lamp Brushed Brass — Authentic",
+    "price": 78.00,
+    "sku": "LG-PEND-01",
+    "_expect": "Counterfeit storefront. Below floor, not allowlisted, lookalike domain, corroborated by m_complaint_1 and dp_fixture_002."
+  },
+  {
+    "id": "lst_003",
+    "url": "https://halo-lighting-sale.example/p/1",
+    "domain": "halo-lighting-sale.example",
+    "seller": "Lumen Goods Outlet Store",
+    "title": "Halo Pendant Lamp Brushed Brass — Authentic",
+    "price": 74.00,
+    "sku": "LG-PEND-01",
+    "parentCase": "c-0001",
+    "_expect": "A14: relaunch. Same seller fingerprint and same copy as lst_002, new domain, after lst_002 was taken down."
+  },
+  {
+    "id": "lst_004",
+    "url": "https://example.com.evil.example/shop",
+    "domain": "example.com.evil.example",
+    "seller": "Unknown",
+    "title": "Lumen Goods Official Outlet",
+    "price": 60.00,
+    "sku": "LG-PEND-01",
+    "_expect": "Lookalike whose domain CONTAINS an owned domain. Must NOT be suppressed by the allowlist."
+  }
+]

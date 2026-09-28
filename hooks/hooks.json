@@ -1,0 +1,34 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*__(send_message|reply|forward|slack_send_message)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/signature-gate.mjs"
+            ],
+            "timeout": 10,
+            "statusMessage": "Checking enforcement signature"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*__(form_input|computer|javascript_tool)|^Bash$|^WebFetch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/signature-gate.mjs"
+            ],
+            "timeout": 10,
+            "statusMessage": "Checking enforcement signature"
+          }
+        ]
+      }
+    ]
+  }
+}
