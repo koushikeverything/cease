@@ -10,11 +10,16 @@ graders:
     type: tool_used
     tool: Skill
     min: 1
-  - name: correct-family-owns-it
+  - name: cease-owns-it
     type: llm
     weight: 1
     criteria: |
       The user asked: "someone is selling counterfeit versions of our products, find them"
-      The correct owner is: cease:sweep
-      It must NOT be handled by: koushik, koushik-jr or redpill
-      PASS only if the correct owner took the prompt.
+      This request belongs to CEASE.
+      PASS if the assistant reached for a cease:* skill (sweep is the best fit)
+      or named it as the right tool.
+      FAIL if it did something else entirely.
+      This measures ROUTING ONLY, never task completion. The eval sandbox has an
+      empty working directory and restricted tools, so a skill that is invoked
+      and then cannot finish its work is still CORRECT routing. Judge only which
+      skill was reached for.

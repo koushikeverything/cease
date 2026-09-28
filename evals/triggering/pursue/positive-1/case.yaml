@@ -15,7 +15,11 @@ graders:
     weight: 1
     criteria: |
       The user asked: "they're back under a new domain"
-      PASS if the assistant invoked the cease:pursue skill, or clearly began
-      the work that skill owns.
-      FAIL if it answered from general knowledge, or routed to a different
-      cease skill.
+      PASS if the assistant invoked the cease:pursue skill, OR identified
+      cease:pursue as the right tool and tried to reach it.
+      FAIL if it routed to a DIFFERENT cease skill, or answered from general
+      knowledge without identifying cease:pursue as the owner.
+      This measures ROUTING ONLY, never task completion. The eval sandbox has an
+      empty working directory and restricted tools, so a skill that is invoked
+      and then cannot finish its work is still CORRECT routing. Judge only which
+      skill was reached for.

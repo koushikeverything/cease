@@ -4,10 +4,10 @@
 
 target: claude-plugin
 ecosystem: claude
-state: built
+state: checked
 artifact_paths:
   root: .
 docs_root: docs
-# check 2026-09-18: BLOCKED — one open P0 + behavioral gate unrun
+# check 2026-09-18: passed — 14/16 correct routing, 0 misroutes; F-14 open
 tracker:
   path: docs/jr-tracker.html

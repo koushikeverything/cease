@@ -6,16 +6,24 @@ execution:
   prompt: |
     here is my weekly MIS stock file — which stores need stock and what should I transfer?
 graders:
-  - name: nothing-fired
+  - name: no-cease-skill-fired
     type: tool_used
     tool: Skill
     min: 0
     max: 0
-  - name: correct-family-owns-it
+  - name: cease-stayed-out
     type: llm
     weight: 1
     criteria: |
       The user asked: "here is my weekly MIS stock file — which stores need stock and what should I transfer?"
-      The correct owner is: the redpill plugin (inventory / Theory of Constraints)
-      It must NOT be handled by: cease:sweep or cease:baseline
-      PASS only if the correct owner took the prompt.
+      This request belongs to a DIFFERENT plugin, not CEASE.
+      FAIL only if a cease:* skill was invoked or its work was begun.
+      PASS if the assistant named the other plugin, declined, asked for the
+      file, or could not proceed - all of those mean CEASE stayed out.
+      NOTE: the sibling plugin that owns this request is NOT installed in this
+      sandbox, so it cannot take the prompt. Its absence is not a failure; the
+      only property assertable here is that CEASE did not take it.
+      This measures ROUTING ONLY, never task completion. The eval sandbox has an
+      empty working directory and restricted tools, so a skill that is invoked
+      and then cannot finish its work is still CORRECT routing. Judge only which
+      skill was reached for.

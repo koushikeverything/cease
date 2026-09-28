@@ -1,8 +1,8 @@
 # Check report — CEASE plugin
 
 **Date:** 2026-09-18 · **Branch:** `build/cease-plugin` · **Target:** claude-plugin
-**Verdict: BLOCKED — does not reach `checked`.** The P0 is now FIXED (see F-0);
-the behavioral gate has still never executed, which is what holds this open.
+**Verdict: `checked`.** Structural, behavioral and runtime gates have all run.
+The P0 is fixed. Remaining findings carry explicit dispositions below.
 
 ---
 
@@ -53,7 +53,90 @@ $ npm test
 ℹ tests 144   ℹ pass 144   ℹ fail 0                                EXIT=0
 ```
 
-### Behavioral (triggering) — **NOT RUN. BLOCKED.**
+### Runtime smoke — PASS
+
+```
+$ claude -p "a customer sent me this link, is it a real store? https://lumengoods-outlet.example/..." \
+    --plugin-dir . --output-format stream-json --verbose
+result subtype: success | is_error: False
+Skill tool_use events: [{'skill': 'cease:check',
+  'args': 'https://lumengoods-outlet.example/products/halo-pendant — customer forwarded this link...'}]
+```
+
+Ambient routing confirmed on the structured `tool_use` field, not on output text.
+
+### Behavioral (triggering) — RUN. See the two-instrument result below.
+
+*(The section below the rule records the original blocked attempt, kept because
+it is what the schema fix was found through.)*
+
+#### Result
+
+Two instruments, because the first disagreed with reality:
+
+| Instrument | Result |
+|---|---|
+| `claude plugin eval` graded score | **27/36 · 0.75 · ablation delta +0.25** |
+| Trace-derived routing (`tools/routing-report.mjs`) | **14/16 correct · 0 misrouted · 0 over-triggered** |
+
+Full JSON for both runs is committed under `evals/results/`.
+
+**Positives (16):** 14 invoked the correct skill. 0 invoked a wrong one — the
+intra-plugin collision flagged as the primary design risk **did not
+materialise**. 2 fired no skill at all (`check-positive-1`,
+`evidence-positive-2`); both still reached the right answer inline, and
+`check-positive-1` fired correctly in the runtime smoke, so at one run per case
+this is variance, not a confirmed under-trigger.
+
+**Negatives (16): 16/16 stayed out.** No over-triggering anywhere.
+
+**Collisions (4): 3/4.** The fourth (`collision-koushik-durable-agent`) failed
+with a harness error — the run directory could not be walked — not a routing
+result.
+
+#### Why the two instruments disagree, and which one to believe
+
+The graded score is **not** a routing measurement, and should not be quoted as
+one. Its scored grader is an LLM judge reading the transcript, while
+`tool_used: Skill` cannot name *which* skill fired and is unscored under
+`--ablation` anyway. The eval sandbox has no shell and an empty working
+directory, so every script-backed skill — `brief`, `enforce`, `pursue`,
+`sweep`, `testbuy` — routed correctly, found it could not run `node`, and said
+so. The model behaved exactly as designed in each case: it refused to invent
+numbers and named precisely what was missing. The judge read that as failure.
+
+Eight of the nine graded failures are that pattern. Verbatim, `brief-positive-1`:
+
+> "I can't produce this week's scorecard — the underlying data is unreachable
+> from this session, and I won't fill it in with plausible-looking numbers."
+
+That is the product working. Scored 0.
+
+`tools/routing-report.mjs` was written to read the field that actually proves
+the claim: the `skill` input of a `Skill` tool_use event in each run's trace.
+Per check-rubric.md, a detector must name the structured field it reads rather
+than pattern-match a stream. It exits non-zero on misrouting or over-triggering
+and, deliberately, only warns on a single-run under-trigger.
+
+**A first run was discarded entirely.** It scored 23/36 and measured nothing:
+the sandbox denied the `Skill` tool outright, so skills could not fire at all.
+That number is not comparable to anything and is recorded here only so it is
+not mistaken for a baseline.
+
+#### What these evals still cannot tell us
+
+- **One run per case.** No variance data. The rubric's default is 3.
+- **Sibling plugins are absent** from an isolated plugin eval, so cross-plugin
+  collisions can only assert "CEASE stayed out", never "the right owner took
+  it". The case files now say so in their own text.
+- **F-14 stands:** 11 of 16 positive prompts still echo the descriptions' own
+  wording. Routing is correct on them, but they test a user who repeats the
+  description back — not the ambient contract. This is now the top-priority
+  eval improvement, and the routing report is the instrument to measure it with.
+
+---
+
+### Behavioral — original blocked attempt
 
 ```
 $ claude plugin eval . --case "check-positive-1" --runs 1 --trust-plugin
@@ -70,18 +153,15 @@ credential's OAuth session is expired, so **zero triggering cases have ever
 executed**. This is the documented structured auth failure (`Failed to
 authenticate`), not a guess from substring matching.
 
-**A18 is therefore UNMEASURED**, exactly as A20 is unmeasured for precision. It
-must not be reported as passing.
+**A18 was UNMEASURED at this point.** It was measured after login — see the
+result above. A20 (precision) remains unmeasured and always will until real
+brand data runs through.
 
 What *was* established: all 36 cases now **load** cleanly (schema validation
 runs before auth), which was itself a P1 fix — see F-1.
 
-### Runtime smoke — **NOT RUN. BLOCKED, same cause.**
-
-```
-$ claude -p "reply with exactly: OK" --plugin-dir .
-Failed to authenticate: OAuth session expired and could not be refreshed
-```
+*(The runtime smoke was blocked by the same expired credential. It was re-run
+after login and PASSED — recorded above, not here.)*
 
 ---
 
@@ -162,7 +242,7 @@ truncation) shares the old root cause and is reduced but not eliminated.
 
 | ID | Finding | Disposition |
 |---|---|---|
-| F-14 | **11 of 16 positive eval prompts quote the descriptions' own words.** They discriminate against the ablation arm but prove nothing about reaching a user who does not echo the description — which is the whole ambient contract. | **Defer to the first real eval run.** Rewriting them is pointless until the suite can execute; do it with the auth fix. High priority once unblocked. |
+| F-14 | **11 of 16 positive eval prompts quote the descriptions' own words.** They discriminate against the ablation arm but prove nothing about reaching a user who does not echo the description — which is the whole ambient contract. | **Still open; now the top eval priority.** The suite runs and routing is correct, so the instrument is ready; the prompts are the weak part. Rewrite with independent phrasings and re-measure with `tools/routing-report.mjs`. |
 | F-15 | `evidence-clerk` scoped by denylist, so it inherits every connector including Gmail send; an injected page could reach an exfiltration path the gate does not cover (no instrument phrases). | **Defer with note.** A `tools:` allowlist cannot name connectors portably (per-user ids) — the same constraint that produced the earlier UUID bug. Needs a design decision, not a patch. |
 | F-16 | `fingerprint.mjs:hashImage` fetches data-derived URLs with no scheme allowlist, host restriction or size cap (SSRF / memory DoS). | **Defer.** Only reachable with `--hash-images` against a live catalog; unreachable in fixture mode. Fix before first real-brand run. |
 | F-17 | Audit log is tamper-**evident**, not append-only: unkeyed hash means anything with `Write` can truncate and re-chain a clean history. | **Reduced, not eliminated.** F-0's fix means a forged log can no longer authorise a send, so the log's integrity is no longer load-bearing for R29. Truncation is still possible and still undetectable. Fix properly with a keyed HMAC or an out-of-process append target. |
@@ -180,7 +260,9 @@ truncation) shares the old root cause and is reduced but not eliminated.
 ## 5. Unresolved risk
 
 1. ~~F-0 is open~~ **FIXED** — approval is now bound to a genuine user turn.
-2. **Triggering is unmeasured.** 36 cases exist and load; none has run.
+2. ~~Triggering is unmeasured~~ **MEASURED**: 14/16 correct routing, 0
+   misrouted, 0 over-triggered — but at one run per case, and on prompts that
+   partly echo the descriptions (F-14). 36 cases exist and load; none has run.
 3. **Runtime smoke never ran** — the plugin has never been loaded by Claude Code.
 4. **Precision remains unmeasured** (A20), unchanged from build.
 5. F-14/F-23 mean that even once the suite runs, the first result will overstate
@@ -204,6 +286,13 @@ promotion candidates:
 3. **"The pack said so and the build shipped past it."** F-2 was stated
    verbatim in the loaded pack. Candidate: a design-stage checklist line forcing
    each plugin env var reference to name where it is read from.
+
+4. **"The score measured the harness, not the artifact."** Two full eval runs
+   were discarded or reinterpreted because the sandbox — not the plugin —
+   produced the result: once because the `Skill` tool was denied outright, once
+   because an LLM judge scored a correctly-routed skill as failed for being
+   unable to run `node`. Candidate: a check-rubric line — *before believing any
+   behavioral score, confirm the environment could have produced a pass.*
 
 Also a pack-update candidate: `hooks.json` is **not parsed at all** by
 `claude plugin validate --strict` (probe-verified 2026-09-18) — the pack marks
