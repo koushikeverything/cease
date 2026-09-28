@@ -18,22 +18,18 @@ instrument for a human to sign.
 
 ## Install
 
-> **Not yet published.** This repository has no remote, so there is no
-> marketplace to add. To try it now, point Claude Code at a local checkout:
+```bash
+/plugin marketplace add koushikeverything/cease
+/plugin install cease@cease-marketplace
+```
+
+> **The repository is private while this is pre-release.** Until it is made
+> public, the command above works only for accounts with access. To try it from
+> a local checkout instead:
 >
 > ```bash
 > claude --plugin-dir /path/to/cease
 > ```
->
-> Once it is published, installation becomes:
->
-> ```bash
-> /plugin marketplace add OWNER/REPO
-> /plugin install cease@cease-marketplace
-> ```
->
-> `OWNER/REPO` is filled in at publish time. If you are reading this with the
-> placeholder still present, the plugin has not shipped.
 
 Then set the brand settings when prompted: brand name, owned domains and
 handles, authorized resellers, authorized signers, and your Notion case
@@ -163,4 +159,6 @@ References 17 U.S.C. § 512: takedown elements at § 512(c)(3)(A),
 counter-notification at § 512(g)(3), misrepresentation liability at § 512(f).
 This is software, not legal advice.
 
-MIT licensed.
+MIT licensed — see [LICENSE](LICENSE).
+
+Source: https://github.com/koushikeverything/cease
