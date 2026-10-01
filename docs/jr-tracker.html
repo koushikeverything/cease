@@ -74,7 +74,7 @@
 <header>
   <h1>CEASE — build tracker</h1>
   <p class="sub">Inside-out brand protection, built as an installable Claude plugin.<br>
-  Last updated <b>1 Oct 2026</b> · current stage <b>Published</b> (7 of 8) ·
+  Last updated <b>1 Oct 2026</b> · current stage <b>Compounded</b> (8 of 8) — loop complete ·
   <span class="tag t-acc">verdict: hybrid</span></p>
 </header>
 
@@ -87,7 +87,7 @@
   <div class="step done"><span class="i">5 · done</span><b>Checked</b></div>
   <div class="step done"><span class="i">6 · done</span><b>Shipped</b></div>
   <div class="step done"><span class="i">7 · done</span><b>Published</b></div>
-  <div class="step"><span class="i">8</span><b>Compounded</b></div>
+  <div class="step done"><span class="i">8 · done</span><b>Compounded</b></div>
 </div>
 <p class="muted lede">Stage 7 is always yours — publishing is a human act, never
 an automatic one. Stage 6 stops at “ready to publish” and hands you the button.</p>
@@ -439,6 +439,30 @@ that.” Here, a lot of it came back that way.</p>
 </div>
 
 <h2><span class="n">5</span>What the system learned</h2>
+
+<div class="card">
+  <h3>🧠 The loop closed on one lesson — and it cost the most of anything here</h3>
+  <p class="lede"><b>Six separate faults in this build were the same fault wearing
+  different clothes: a check came back green without ever touching the thing it was
+  supposed to be checking.</b></p>
+  <p class="lede">Three were tests passing on code nothing actually ran. The evidence
+  system reported every piece of proof as missing, for every case, while its tests were
+  green. Your real distributors would have appeared on the suspect list, because the
+  rule protecting them was tested on its own and skipped in practice. The tamper alarm
+  on the audit log was written, tested, and wired to nothing.</p>
+  <p class="lede">The other three were scores that measured the test environment rather
+  than the product. The sharpest: a measuring tool built specifically to be more
+  trustworthy than the automatic grader reported <i>“all clear”</i> while every single
+  test had failed to start. It couldn’t tell <b>“nothing went wrong”</b> from
+  <b>“nothing happened”</b>.</p>
+  <p class="lede"><b>Four permanent guards now exist</b>, each tested by deliberately
+  re-introducing the fault and confirming it gets caught: safety rules must be genuinely
+  connected to what they protect; checking tools must be run by something, not just
+  written; test questions can’t quote their own answers; and no tool may report success
+  on a run that didn’t happen.</p>
+  <p class="lede">It’s in the project’s own rules now, so it applies to whatever gets
+  built here next — not just to this plugin.</p>
+</div>
 <div class="card">
   <h3>🧠 The rules for the most important control were verified, not remembered</h3>
   <p class="lede">The system’s knowledge pack openly marked the hook rules as
@@ -509,7 +533,7 @@ that.” Here, a lot of it came back that way.</p>
 
 <h2><span class="n">6</span>Recommended next action</h2>
 <div class="card">
-  <h3>→ two things worth doing next</h3>
+  <h3>→ the loop is complete</h3>
   <ul>
     <li><b>Install it yourself from the marketplace, in a fresh session.</b> The
     published code was downloaded and checked, but the actual install flow hasn’t been
@@ -550,7 +574,7 @@ that.” Here, a lot of it came back that way.</p>
 
 <h2><span class="n">7</span>Distance to a published plugin</h2>
 <div class="card">
-  <p class="lede"><b>7 of 8 stages complete.</b> It’s live. The last stage is optional — it preserves what this build learned so the next one starts smarter — the full specification is a large
+  <p class="lede"><b>8 of 8 stages complete.</b> CEASE is live, and what this build learned is preserved as working guards rather than notes — the full specification is a large
   surface: 7 skills, 5 investigator agents, 6 commands, 1 hook, 9 legal templates.</p>
   <p class="lede">Realistically: check is one sitting once the command-line tool is installed, and ship is one more. Then the publish button is yours.</p>
   <p class="lede muted">If that feels long — the smaller first slice is still available
@@ -570,8 +594,8 @@ that.” Here, a lot of it came back that way.</p>
     <tr><td><code>/koushik-jr:check</code></td><td>Independent review — spec, triggering, security — plus the validation suite</td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:ship</code></td><td>Docs, versions, commits, PR — stops at ready-to-publish</td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:publish</code></td><td>The publish act — <b>only ever run by you</b></td><td><span class="tag t-ok">done</span></td></tr>
-    <tr><td><code>/koushik-jr:evolve</code></td><td>When something published misbehaves or the ecosystem shifts</td><td>after publishing</td></tr>
-    <tr><td><code>/koushik-jr:compound</code></td><td>Turns a hard-won lesson into a permanent guard</td><td><b>recommended next</b></td></tr>
+    <tr><td><code>/koushik-jr:evolve</code></td><td>When something published misbehaves or the ecosystem shifts</td><td><b>when signals arrive</b></td></tr>
+    <tr><td><code>/koushik-jr:compound</code></td><td>Turns a hard-won lesson into a permanent guard</td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:tracker</code></td><td>Refreshes this page</td><td>any time</td></tr>
     <tr><td><code>/koushik-jr:jr</code></td><td>Runs stages 1→6 end to end, stopping before publish</td><td>hands-off mode</td></tr>
   </tbody>
