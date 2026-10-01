@@ -3,3 +3,9 @@ node_modules/
 *.log
 # local signature ledger + case scratch, never committed
 .cease-local/
+
+# `claude plugin eval` writes per-run output here: full transcripts, HTML
+# reports, and absolute local paths. It is build output, not source, and a
+# plugin repo is cloned by every user who installs it. The numbers that back
+# any claim live in docs/checks/, not in these files.
+evals/results/

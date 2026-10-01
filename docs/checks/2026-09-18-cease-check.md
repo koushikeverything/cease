@@ -82,9 +82,18 @@ re-run. **The result got stronger, not weaker.**
 | Earlier, on description-echoing prompts | 14/16 positives correct |
 | `claude plugin eval` graded score, echo prompts | 27/36 · 0.75 · ablation delta +0.25 |
 
-Archived: `evals/results/2026-09-28-routing-full.json` (all 36),
-`evals/results/2026-09-28-routing-positives.json`,
-`evals/results/2026-09-18-graded-run.json`.
+Raw run output is **not committed**: `claude plugin eval` writes full
+transcripts, HTML reports and absolute local paths into `evals/results/`, which
+is build output and is now gitignored (2.3 MB across 22 files had been swept in
+by a `git add -A`, and would have shipped to every user who installs the
+plugin). The numbers and the per-case routing table above ARE the record;
+reproduce them with:
+
+```bash
+claude plugin eval . --runs 3 -j 4 --trust-plugin \
+  --allow-tools Skill Read Glob Grep --keep-temp --ablation none --json run.json
+node tools/routing-report.mjs run.json
+```
 
 **Positives (16/16).** Every skill fired on a prompt phrased the way a founder
 would actually type it, sharing no wording with its description — *"should we
@@ -313,6 +322,19 @@ file plan present.
 **Fixed at ship:** LICENSE was missing while `plugin.json` claimed MIT; the
 README install command was an unexecutable placeholder; `homepage` and
 `repository` were unset (the spec reviewer's P3).
+
+**Fixed at publish, found by the pre-publish checklist:** 2.3 MB of
+`claude plugin eval` output was tracked across 22 files — per-run transcripts,
+HTML reports, and 190+ occurrences of `/Users/momentum91/...`. Swept in by
+`git add -A` and would have been cloned by every user. `evals/results/` is now
+gitignored. This is exactly the hazard the publish-surface check exists for,
+and it was caught by running the checklist rather than assuming the tree was
+what it had been at ship.
+
+**Accepted, not fixed:** four absolute local paths remain in §2 of this report.
+They are verbatim `claude plugin validate` output, and the rubric requires suite
+output recorded verbatim — editing evidence to tidy a path is the wrong trade.
+They disclose a local username and nothing else.
 
 ### Publish-surface decision left to the human
 
