@@ -74,7 +74,7 @@
 <header>
   <h1>CEASE — build tracker</h1>
   <p class="sub">Inside-out brand protection, built as an installable Claude plugin.<br>
-  Last updated <b>28 Sep 2026</b> · current stage <b>Shipped</b> (6 of 8) — ready to publish ·
+  Last updated <b>1 Oct 2026</b> · current stage <b>Published</b> (7 of 8) ·
   <span class="tag t-acc">verdict: hybrid</span></p>
 </header>
 
@@ -86,7 +86,7 @@
   <div class="step done"><span class="i">4 · done</span><b>Built</b></div>
   <div class="step done"><span class="i">5 · done</span><b>Checked</b></div>
   <div class="step done"><span class="i">6 · done</span><b>Shipped</b></div>
-  <div class="step now"><span class="i">7 · your call</span><b>Published</b></div>
+  <div class="step done"><span class="i">7 · done</span><b>Published</b></div>
   <div class="step"><span class="i">8</span><b>Compounded</b></div>
 </div>
 <p class="muted lede">Stage 7 is always yours — publishing is a human act, never
@@ -285,6 +285,24 @@ an automatic one. Stage 6 stops at “ready to publish” and hands you the butt
   <p class="lede">Everything was re-checked from scratch on the exact code being
   shipped rather than trusting earlier results: all four official checks pass,
   179 tests pass, and every file the design promised is present.</p>
+</div>
+
+<div class="card">
+  <h3>🚀 Published → anyone can install it in two commands</h3>
+  <p class="lede"><b>github.com/koushikeverything/cease is public.</b></p>
+  <p class="lede">To install: <code>/plugin marketplace add koushikeverything/cease</code>
+  then <code>/plugin install cease@cease-marketplace</code>.</p>
+  <p class="lede"><b>The final checklist caught something real, with minutes to spare.</b>
+  Roughly 2.3 MB of test output had been accidentally committed — 22 files of
+  transcripts and reports containing the local folder path from this machine over
+  190 times. A plugin repository is downloaded in full by everyone who installs it, so
+  all of it would have gone public and grown with every future test run. It was removed
+  before the repository was opened up, and nothing leaked.</p>
+  <p class="lede">Then the published repository was <b>downloaded fresh and checked as a
+  stranger would get it</b> — not the working copy. 123 files, 1 MB, all official checks
+  pass, and all 179 tests run <b>with no installation step at all</b>, because the plugin
+  has zero dependencies. That last part matters: a dependency that fails to install
+  leaves a plugin loaded but quietly broken. There are none to fail.</p>
 </div>
 
 <h2><span class="n">3</span>The leverage picture</h2>',
@@ -491,20 +509,19 @@ that.” Here, a lot of it came back that way.</p>
 
 <h2><span class="n">6</span>Recommended next action</h2>
 <div class="card">
-  <h3>→ publishing is yours to decide</h3>
-  <p class="lede">The work is done and waiting. Three things happen only when you say so:</p>
+  <h3>→ two things worth doing next</h3>
   <ul>
-    <li><b>Merge the pull request</b> — makes this the main version of the project.</li>
-    <li><b>Make the repository public</b> — this is the real publishing step. Worth
-    knowing first: a plugin repository publishes <i>everything in it</i>, including the
-    security review, the design notes and the strategy document with competitor
-    analysis. None of it is secret, but it should be a choice you make rather than
-    something you find out about afterwards.</li>
-    <li><b>Announce it</b> — once public, anyone can install it in two commands.</li>
+    <li><b>Install it yourself from the marketplace, in a fresh session.</b> The
+    published code was downloaded and checked, but the actual install flow hasn’t been
+    walked end to end by anyone yet. That’s the last untested path.</li>
+    <li><b>Run the stability tests you parked.</b> Each triggering test ran once.
+    36 out of 36 on one attempt is a good sign, not proof it’s consistent — three
+    attempts each is the usual bar, and it’s about 20 minutes.</li>
   </ul>
-  <p class="lede muted">One thing worth doing before real users arrive: the triggering
-  tests were each run once. A clean sweep on one attempt is a good sign, not proof of
-  consistency — running them three times each is the usual bar.</p>
+  <p class="lede"><b>Two things stay honestly unproven</b>, and are written into the
+  product rather than hidden: it has never run against a real brand’s data, so it makes
+  no accuracy claim at all; and catalogue and payment detection still read made-up test
+  data until Shopify and Stripe are connected.</p>
   <p class="lede"><b>This one does need something from you first.</b> Claude's
   command-line tool still isn't installed, and check is where it actually bites:
   without it, the official validator, the triggering tests and the
@@ -533,7 +550,7 @@ that.” Here, a lot of it came back that way.</p>
 
 <h2><span class="n">7</span>Distance to a published plugin</h2>
 <div class="card">
-  <p class="lede"><b>6 of 8 stages complete.</b> The build is finished. What remains is <b>your decision to publish</b>, and then one optional stage — the full specification is a large
+  <p class="lede"><b>7 of 8 stages complete.</b> It’s live. The last stage is optional — it preserves what this build learned so the next one starts smarter — the full specification is a large
   surface: 7 skills, 5 investigator agents, 6 commands, 1 hook, 9 legal templates.</p>
   <p class="lede">Realistically: check is one sitting once the command-line tool is installed, and ship is one more. Then the publish button is yours.</p>
   <p class="lede muted">If that feels long — the smaller first slice is still available
@@ -552,9 +569,9 @@ that.” Here, a lot of it came back that way.</p>
     <tr><td><code>/koushik-jr:build</code></td><td>Writes it, one validated piece at a time</td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:check</code></td><td>Independent review — spec, triggering, security — plus the validation suite</td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:ship</code></td><td>Docs, versions, commits, PR — stops at ready-to-publish</td><td><span class="tag t-ok">done</span></td></tr>
-    <tr><td><code>/koushik-jr:publish</code></td><td>The publish act — <b>only ever run by you</b></td><td><b>next, when you decide</b></td></tr>
+    <tr><td><code>/koushik-jr:publish</code></td><td>The publish act — <b>only ever run by you</b></td><td><span class="tag t-ok">done</span></td></tr>
     <tr><td><code>/koushik-jr:evolve</code></td><td>When something published misbehaves or the ecosystem shifts</td><td>after publishing</td></tr>
-    <tr><td><code>/koushik-jr:compound</code></td><td>Turns a hard-won lesson into a permanent guard</td><td>after any real problem</td></tr>
+    <tr><td><code>/koushik-jr:compound</code></td><td>Turns a hard-won lesson into a permanent guard</td><td><b>recommended next</b></td></tr>
     <tr><td><code>/koushik-jr:tracker</code></td><td>Refreshes this page</td><td>any time</td></tr>
     <tr><td><code>/koushik-jr:jr</code></td><td>Runs stages 1→6 end to end, stopping before publish</td><td>hands-off mode</td></tr>
   </tbody>
