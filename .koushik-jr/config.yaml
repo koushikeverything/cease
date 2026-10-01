@@ -4,7 +4,7 @@
 
 target: claude-plugin
 ecosystem: claude
-state: published
+state: compounded
 artifact_paths:
   root: .
 docs_root: docs
