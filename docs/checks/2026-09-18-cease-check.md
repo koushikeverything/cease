@@ -354,3 +354,53 @@ None of it is secret and none of it blocks publishing. It is listed because
 "internal process documents have nearly shipped this way" is a named
 publish-surface hazard, and because the choice should be made deliberately
 rather than discovered after the repo is public.
+
+
+---
+
+## 8. Publish record — 2026-10-01
+
+State `published`. **https://github.com/koushikeverything/cease is public.**
+
+Install: `/plugin marketplace add koushikeverything/cease` then
+`/plugin install cease@cease-marketplace`.
+
+- PR #1 merged (31 commits), PR #2 merged (the pre-flight fix)
+- `main` at the merge of #2; release tag `cease--v0.1.0` pushed
+- Channel: plugin marketplace via git repo, per SPEC's publish intention
+- Publish-surface decision: the user chose to publish the full engineering
+  record — security review, design rationale, probe evidence, strategy doc
+
+### Outside verification
+
+A fresh shallow clone of the **published** repository — what a stranger
+actually receives, not the working directory:
+
+```
+files: 123 · size: 1.0M · eval output tracked: 0
+claude plugin validate .claude-plugin/plugin.json --strict   PASS
+claude plugin validate ./skills --strict                      PASS
+claude plugin validate ./agents --strict                      PASS
+claude plugin validate . --strict                             PASS
+node tools/validate-structure.mjs .    ok - 8 skill(s), 5 agent(s), 0 warnings
+npm test                               tests 179 · pass 179 · fail 0
+```
+
+The suite runs on a bare clone with **no install step**, because the plugin
+declares zero dependencies. That matters: plugin deps install with
+`--ignore-scripts` under a 60s cap, so a dependency that fails to build leaves
+the plugin loaded but broken. There are none to fail.
+
+**Still outstanding:** the in-session install probe
+(`/plugin marketplace add` → install → one real invocation → remove) has to run
+in a fresh Claude Code session and has not been done. A clean clone that
+validates is strong evidence, not proof the install flow works.
+
+### Carried forward, unresolved
+
+1. **Triggering is measured at n=1.** 36/36 correct, 0 misrouted — one run per
+   case. The 3-run stability check was deliberately parked by the user, to be
+   taken up later. Until then "it routed correctly once" is the honest claim.
+2. **Precision remains unmeasured** and will be until real brand data runs
+   through. A20 forbids claiming otherwise, enforced by test.
+3. Eleven P2/P3 findings deferred with dispositions in §4.
